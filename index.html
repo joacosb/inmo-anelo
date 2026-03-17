@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inmobiliaria Añelo | Inversiones en Vaca Muerta</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #0a0a0a;
+      --dark:    #111111;
+      --gray:    #767676;
+      --light:   #f5f5f5;
+      --white:   #ffffff;
+      --gold:    #c9a84c;
+      --gold-lt: #e8c97a;
+      --border:  #e0e0e0;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Epilogue', sans-serif;
+      font-weight: 300;
+      background: var(--white);
+      color: var(--black);
+      line-height: 1.6;
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5%;
+      height: 70px;
+      background: var(--black);
+      border-bottom: 1px solid rgba(201,168,76,.25);
+    }
+
+    .nav-logo {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+      cursor: pointer;
+    }
+    .nav-logo {
+      flex-direction: row;
+      align-items: center;
+      gap: .65rem;
+    }
+    .nav-logo-ia {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #c0392b;
+      letter-spacing: -.02em;
+      line-height: 1;
+    }
+    .nav-logo-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+    .nav-logo span:first-child {
+      font-size: .6rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.5);
+      font-weight: 400;
+    }
+    .nav-logo span:last-child {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: .06em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: rgba(255,255,255,.75);
+      font-size: .85rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 400;
+      transition: color .2s;
+      cursor: pointer;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+
+    .nav-cta {
+      background: var(--gold);
+      color: var(--black) !important;
+      padding: .5rem 1.25rem;
+      border-radius: 2px;
+      font-weight: 600 !important;
+      transition: background .2s !important;
+    }
+    .nav-cta:hover { background: var(--gold-lt) !important; color: var(--black) !important; }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--white);
+      transition: all .3s;
+    }
+
+    /* ── PAGES ── */
+    .page { display: none; padding-top: 70px; }
+    .page.active { display: block; }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      height: calc(100vh - 70px);
+      min-height: 560px;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 60%, #0f0f0f 100%);
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        url('https://inmobiliariaanelo.com.ar/wp-content/uploads/2025/03/dji_fly_20241112_155710_53_1731457357151_photo_optimized.jpg')
+        center/cover no-repeat;
+      opacity: .35;
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, rgba(10,10,10,.9) 40%, rgba(10,10,10,.2) 100%);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 680px;
+      padding: 0 8% 110px;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--black);
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      padding: .35rem .9rem;
+      border-radius: 2px;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.1;
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--gold);
+    }
+    .hero p {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.75);
+      margin-bottom: 2.5rem;
+      max-width: 520px;
+    }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      padding: .85rem 2rem;
+      font-family: inherit;
+      font-size: .9rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+    }
+    .btn-primary:hover { background: var(--gold-lt); transform: translateY(-1px); }
+    .btn-outline {
+      background: transparent;
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,.4);
+      padding: .85rem 2rem;
+      font-family: inherit;
+      font-size: .9rem;
+      font-weight: 400;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+    .hero-stats {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      z-index: 2;
+      display: flex;
+      background: rgba(201,168,76,.08);
+      border-top: 1px solid rgba(201,168,76,.2);
+      backdrop-filter: blur(8px);
+    }
+    .hero-stat {
+      flex: 1;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      border-right: 1px solid rgba(201,168,76,.15);
+    }
+    .hero-stat:last-child { border-right: none; }
+    .hero-stat strong {
+      display: block;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--gold);
+    }
+    .hero-stat span {
+      font-size: .75rem;
+      color: rgba(255,255,255,.6);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    /* ── SECCIONES GENERALES ── */
+    section { padding: 6rem 8%; }
+    .section-label {
+      font-size: .7rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: .75rem;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .section-sub {
+      color: var(--gray);
+      font-size: 1rem;
+      max-width: 600px;
+      margin-bottom: 3.5rem;
+    }
+
+    /* ── POR QUE ANELO ── */
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    .why-card {
+      background: var(--light);
+      padding: 2rem;
+      border-radius: 4px;
+      border-left: 3px solid var(--gold);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .why-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+    .why-card .icon {
+      width: 44px;
+      height: 44px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+      font-size: 1.2rem;
+    }
+    .why-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: .5rem; }
+    .why-card p { color: var(--gray); font-size: .9rem; }
+
+    /* ── PROPIEDADES ── */
+    .props-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    .prop-card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+      background: var(--white);
+    }
+    .prop-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.1); }
+    .prop-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+      background: var(--light);
+    }
+    .prop-body { padding: 1.5rem; }
+    .prop-tag {
+      display: inline-block;
+      background: var(--black);
+      color: var(--gold);
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: .25rem .7rem;
+      border-radius: 2px;
+      margin-bottom: .75rem;
+    }
+    .prop-body h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: .4rem; }
+    .prop-body p { color: var(--gray); font-size: .9rem; margin-bottom: 1.25rem; }
+    .prop-meta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    .prop-meta-item { font-size: .8rem; color: var(--gray); }
+    .prop-meta-item strong { display: block; color: var(--black); font-size: .95rem; font-weight: 600; }
+
+    /* ── RENDIMIENTOS / CALCULADORA ── */
+    .returns-section { background: var(--black); color: var(--white); }
+    .returns-section .section-title { color: var(--white); }
+    .returns-section .section-sub { color: rgba(255,255,255,.6); }
+
+    .returns-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+    .return-tiers { display: flex; flex-direction: column; gap: 1.25rem; }
+    .tier {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(201,168,76,.2);
+      border-radius: 4px;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      transition: border-color .2s, background .2s;
+      cursor: default;
+    }
+    .tier:hover { border-color: var(--gold); background: rgba(201,168,76,.06); }
+    .tier-info h4 { font-size: 1rem; font-weight: 600; margin-bottom: .25rem; }
+    .tier-info p { font-size: .82rem; color: rgba(255,255,255,.55); }
+    .tier-yield {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .tier-yield strong {
+      display: block;
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .tier-yield span { font-size: .7rem; color: rgba(255,255,255,.5); letter-spacing: .08em; text-transform: uppercase; }
+
+    /* Calculadora */
+    .calc-box {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(201,168,76,.2);
+      border-radius: 6px;
+      padding: 2rem;
+    }
+    .calc-box h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--white); }
+    .calc-field { margin-bottom: 1.25rem; }
+    .calc-field label {
+      display: block;
+      font-size: .75rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.55);
+      margin-bottom: .5rem;
+    }
+    .calc-field input, .calc-field select {
+      width: 100%;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 3px;
+      padding: .75rem 1rem;
+      color: var(--white);
+      font-family: inherit;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .calc-field input:focus, .calc-field select:focus { border-color: var(--gold); }
+    .calc-field select option { background: #1a1a1a; }
+    .calc-result {
+      background: var(--gold);
+      color: var(--black);
+      border-radius: 4px;
+      padding: 1.25rem;
+      margin-top: 1.5rem;
+    }
+    .calc-result .r-label { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin-bottom: .3rem; }
+    .calc-result .r-amount { font-size: 2rem; font-weight: 800; }
+    .calc-result .r-sub { font-size: .8rem; margin-top: .2rem; opacity: .7; }
+    .calc-result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-top: .75rem; }
+    .calc-result-item { background: rgba(0,0,0,.1); border-radius: 3px; padding: .75rem; }
+    .calc-result-item .rl { font-size: .68rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .2rem; }
+    .calc-result-item .rv { font-size: 1.1rem; font-weight: 700; }
+
+    /* ── ALQUILER CORPORATIVO ── */
+    .corporate-hero {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1c1c1c 100%);
+      padding: 6rem 8% 4rem;
+      color: var(--white);
+      text-align: center;
+    }
+    .corporate-hero .section-title { color: var(--white); }
+    .corporate-hero .section-sub { color: rgba(255,255,255,.65); margin-left: auto; margin-right: auto; }
+
+    .amenities-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      background: var(--black);
+    }
+    .amenity-item {
+      flex: 1;
+      min-width: 120px;
+      text-align: center;
+      padding: 1.25rem;
+      border-right: 1px solid rgba(201,168,76,.15);
+      color: rgba(255,255,255,.7);
+      font-size: .8rem;
+      letter-spacing: .06em;
+    }
+    .amenity-item:last-child { border-right: none; }
+    .amenity-item .ai { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+    /* ── NOSOTROS ── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+    .about-img-stack { position: relative; }
+    .about-img-main {
+      width: 100%;
+      height: 420px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    .about-img-badge {
+      position: absolute;
+      bottom: -1.5rem;
+      left: -1.5rem;
+      background: var(--gold);
+      color: var(--black);
+      padding: 1.5rem;
+      border-radius: 4px;
+      text-align: center;
+      min-width: 130px;
+    }
+    .about-img-badge strong { display: block; font-size: 2.5rem; font-weight: 800; line-height: 1; }
+    .about-img-badge span { font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+    .about-text .section-title { margin-bottom: 1.25rem; }
+    .about-text p { color: var(--gray); margin-bottom: 1rem; }
+    .about-values {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .about-value { display: flex; align-items: flex-start; gap: .75rem; }
+    .about-value .av-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--gold);
+      border-radius: 50%;
+      margin-top: .55rem;
+      flex-shrink: 0;
+    }
+    .about-value p { font-size: .88rem; color: var(--gray); margin: 0; }
+
+    /* ── CONTACTO ── */
+    .contact-section { background: var(--light); }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap: 4rem;
+      align-items: start;
+    }
+    .contact-info h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; }
+    .contact-info p { color: var(--gray); margin-bottom: 2rem; }
+    .contact-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+    }
+    .contact-item .ci-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--black);
+      color: var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .contact-item .ci-text strong { display: block; font-size: .85rem; font-weight: 600; margin-bottom: .1rem; }
+    .contact-item .ci-text a,
+    .contact-item .ci-text span { color: var(--gray); font-size: .88rem; text-decoration: none; }
+    .contact-item .ci-text a:hover { color: var(--gold); }
+
+    .contact-form {
+      background: var(--white);
+      padding: 2.5rem;
+      border-radius: 6px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.07);
+    }
+    .contact-form h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.75rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-field { margin-bottom: 1.25rem; }
+    .form-field label {
+      display: block;
+      font-size: .75rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: .4rem;
+      font-weight: 500;
+    }
+    .form-field input, .form-field select, .form-field textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: .75rem 1rem;
+      font-family: inherit;
+      font-size: .92rem;
+      color: var(--black);
+      outline: none;
+      transition: border-color .2s;
+      background: var(--white);
+    }
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: var(--black); }
+    .form-field textarea { resize: vertical; min-height: 110px; }
+    .form-success {
+      display: none;
+      background: #edf7f0;
+      border: 1px solid #a3d9b5;
+      color: #1d6a3a;
+      border-radius: 4px;
+      padding: 1rem 1.25rem;
+      font-size: .9rem;
+      margin-top: 1rem;
+      font-weight: 500;
+    }
+
+    /* ── MAPA ── */
+    .map-section { padding: 6rem 8%; }
+    .map-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.8fr;
+      gap: 3rem;
+      margin-top: 3rem;
+    }
+    .map-info-card {
+      background: var(--black);
+      color: var(--white);
+      border-radius: 6px;
+      padding: 2rem;
+    }
+    .map-info-card h3 { color: var(--gold); font-size: 1.1rem; margin-bottom: 1.25rem; font-weight: 700; }
+    .map-detail {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      margin-bottom: 1.25rem;
+      font-size: .9rem;
+    }
+    .map-detail .md-label { color: rgba(255,255,255,.5); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .15rem; }
+    .map-detail .md-val { color: var(--white); }
+    .map-detail .md-icon { color: var(--gold); font-size: 1rem; margin-top: .15rem; }
+    .map-embed {
+      border-radius: 6px;
+      overflow: hidden;
+      height: 380px;
+      border: 1px solid var(--border);
+    }
+    .map-embed iframe { width: 100%; height: 100%; border: none; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      color: rgba(255,255,255,.5);
+      padding: 3rem 8% 2rem;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 3rem;
+      padding-bottom: 2.5rem;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .footer-brand .nav-logo { margin-bottom: 1rem; cursor: default; pointer-events: none; }
+    .footer-brand p { font-size: .85rem; max-width: 280px; }
+    .footer-col h4 {
+      color: var(--gold);
+      font-size: .72rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: .6rem; }
+    .footer-col ul li a {
+      color: rgba(255,255,255,.5);
+      text-decoration: none;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: color .2s;
+    }
+    .footer-col ul li a:hover { color: var(--gold); }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1.5rem;
+      font-size: .78rem;
+    }
+    .social-links { display: flex; gap: .75rem; }
+    .social-link {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,.5);
+      text-decoration: none;
+      font-size: .85rem;
+      transition: border-color .2s, color .2s;
+    }
+    .social-link:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── DIVIDER ── */
+    .gold-divider {
+      width: 48px;
+      height: 3px;
+      background: var(--gold);
+      margin: 1rem 0 1.5rem;
+    }
+
+    /* ── STEPS ── */
+    .steps { display: flex; gap: 0; flex-wrap: wrap; margin-top: 3rem; }
+    .step {
+      flex: 1;
+      min-width: 180px;
+      padding: 2rem;
+      border-top: 2px solid var(--border);
+    }
+    .step:first-child { border-top-color: var(--gold); }
+    .step-num {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--gold);
+      opacity: .25;
+      line-height: 1;
+      margin-bottom: .5rem;
+    }
+    .step h4 { font-size: .95rem; font-weight: 700; margin-bottom: .4rem; }
+    .step p { font-size: .85rem; color: var(--gray); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .returns-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .about-img-badge { bottom: -1rem; left: -1rem; }
+      .contact-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .map-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 700px) {
+      section { padding: 4rem 5%; }
+      .nav-links { display: none; flex-direction: column; position: fixed; top: 70px; left: 0; right: 0; background: var(--black); padding: 2rem 5%; gap: 1.25rem; border-bottom: 1px solid rgba(201,168,76,.2); }
+      .nav-links.open { display: flex; }
+      .hamburger { display: flex; }
+      .hero-stats { flex-wrap: wrap; }
+      .hero-stat { min-width: 50%; border-bottom: 1px solid rgba(201,168,76,.1); }
+      .form-row { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
+      .about-img-main { height: 280px; }
+    }
+
+    /* ── ANIMATION ── */
+    .page { animation: fadeIn .35s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <div class="nav-logo" onclick="showPage('inicio')">
+    <span class="nav-logo-ia">IA</span>
+    <div class="nav-logo-text">
+      <span>Inmobiliaria</span>
+      <span>A&Ntilde;ELO</span>
+    </div>
+  </div>
+  <ul class="nav-links" id="navLinks">
+    <li><a onclick="showPage('inicio')" data-page="inicio">Inicio</a></li>
+    <li><a onclick="showPage('corporativo')" data-page="corporativo">Alquiler Corporativo</a></li>
+    <li><a onclick="showPage('invertir')" data-page="invertir">Invertir</a></li>
+    <li><a onclick="showPage('nosotros')" data-page="nosotros">Nosotros</a></li>
+    <li><a onclick="showPage('contacto')" data-page="contacto" class="nav-cta">Contacto</a></li>
+  </ul>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+
+<!-- ======================================================== -->
+<!-- PAGE: INICIO                                              -->
+<!-- ======================================================== -->
+<div id="page-inicio" class="page active">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-badge">Vaca Muerta &middot; Anelo &middot; Neuquen</div>
+      <h1>Invert&iacute; donde el<br/><em>petr&oacute;leo</em> mueve<br/>la econom&iacute;a</h1>
+      <p>Unidades residenciales y corporativas en el coraz&oacute;n del yacimiento m&aacute;s importante de Sudam&eacute;rica. Rentabilidad en d&oacute;lares, demanda garantizada.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="showPage('invertir')">Ver Oportunidades</button>
+        <button class="btn-outline" onclick="showPage('contacto')">Hablar con un Asesor</button>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <strong>8&ndash;12%</strong>
+        <span>Rentabilidad anual en USD</span>
+      </div>
+      <div class="hero-stat">
+        <strong>+25 a&ntilde;os</strong>
+        <span>Experiencia en la Patagonia</span>
+      </div>
+      <div class="hero-stat">
+        <strong>95%+</strong>
+        <span>Tasa de ocupaci&oacute;n promedio</span>
+      </div>
+      <div class="hero-stat">
+        <strong>2&deg; reserva</strong>
+        <span>Shale del mundo &middot; Vaca Muerta</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- POR QUE ANELO -->
+  <section>
+    <div class="section-label">La oportunidad</div>
+    <div class="section-title">&iquest;Por qu&eacute; invertir<br/>en A&ntilde;elo?</div>
+    <div class="gold-divider"></div>
+    <p class="section-sub">A&ntilde;elo es el epicentro operativo de Vaca Muerta. La demanda de alojamiento corporativo supera la oferta, generando una de las rentabilidades inmobiliarias m&aacute;s altas del pa&iacute;s.</p>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="icon">&#9651;</div>
+        <h3>Demanda sostenida</h3>
+        <p>Miles de trabajadores, ingenieros y ejecutivos necesitan alojamiento permanente. Las empresas pagan el alquiler directamente, con contratos formales a nombre de la operadora.</p>
+      </div>
+      <div class="why-card">
+        <div class="icon">&#36;</div>
+        <h3>Rentabilidad en USD</h3>
+        <p>Los contratos corporativos se pactan en d&oacute;lares, protegiendo tu inversi&oacute;n de la devaluaci&oacute;n y generando retornos de 8 a 12% anual.</p>
+      </div>
+      <div class="why-card">
+        <div class="icon">&#9632;</div>
+        <h3>Valorizaci&oacute;n del capital</h3>
+        <p>A&ntilde;elo crece exponencialmente con cada nueva licitaci&oacute;n de YPF, Shell y TotalEnergies. Los inmuebles se valorizan al ritmo del boom energ&eacute;tico.</p>
+      </div>
+      <div class="why-card">
+        <div class="icon">&#9679;</div>
+        <h3>Administraci&oacute;n integral</h3>
+        <p>Nos encargamos de todo: b&uacute;squeda de inquilinos corporativos, contratos, mantenimiento y gesti&oacute;n. Vos solo cob&iacute;as tu renta.</p>
+      </div>
+      <div class="why-card">
+        <div class="icon">&#9650;</div>
+        <h3>Ingreso desde el d&iacute;a 1 *</h3>
+        <p>Sin esperas, sin obra: la renta empieza desde el primer mes despu&eacute;s de la compra. <em style="font-size:.82rem; color:#999;">* Aplica a unidades con contrato corporativo vigente al momento de la adquisici&oacute;n.</em></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROPIEDADES PREVIEW -->
+  <section style="background:var(--light); padding-top:5rem; padding-bottom:5rem;">
+    <div class="section-label">Portafolio</div>
+    <div class="section-title">Nuestros complejos</div>
+    <div class="gold-divider"></div>
+    <p class="section-sub">Tres categor&iacute;as de inversi&oacute;n para distintos perfiles de capital. Todos con servicios incluidos y gesti&oacute;n profesional.</p>
+    <div class="props-grid">
+
+      <div class="prop-card">
+        <img class="prop-img"
+          src="https://inmobiliariaanelo.com.ar/wp-content/uploads/2025/03/img_3047.jpg"
+          alt="Unidades Individuales La Forestada" />
+        <div class="prop-body">
+          <span class="prop-tag">Unidades Individuales</span>
+          <h3>La Forestada</h3>
+          <p>Unidades para 2 o 4 personas totalmente equipadas con todos los servicios. Ideales como punto de entrada.</p>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><strong>2&ndash;4</strong>personas</div>
+            <div class="prop-meta-item"><strong>Disponibilidad</strong>inmediata</div>
+            <div class="prop-meta-item"><strong>8&ndash;10%</strong>retorno est.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="prop-card">
+        <img class="prop-img"
+          src="https://inmobiliariaanelo.com.ar/wp-content/uploads/2025/03/frente-yellowstone.jpg"
+          alt="Complejo Yellowstone" />
+        <div class="prop-body">
+          <span class="prop-tag">Complejo Entero &middot; Yellowstone</span>
+          <h3>Complejo Yellowstone</h3>
+          <p>Complejo completo en La Forestada para hasta 24 personas. Mayor volumen, precio competitivo y contrato corporativo Oil &amp; Gas.</p>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><strong>Hasta 24</strong>personas</div>
+            <div class="prop-meta-item"><strong>La Forestada</strong></div>
+            <div class="prop-meta-item"><strong>10&ndash;12%</strong>retorno est.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="prop-card">
+        <img class="prop-img"
+          src="https://inmobiliariaanelo.com.ar/wp-content/uploads/2025/03/dji_fly_20241112_154434_22_1731437135994_photo_optimized.jpg"
+          alt="Edificio Downtown Anelo" />
+        <div class="prop-body">
+          <span class="prop-tag">Edificios &middot; Downtown</span>
+          <h3>Edificios Centro</h3>
+          <p>Departamentos de 1 y 2 dormitorios en el microcentro de A&ntilde;elo. La opci&oacute;n de mayor escala y diversificaci&oacute;n.</p>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><strong>Hasta 45</strong>personas</div>
+            <div class="prop-meta-item"><strong>Downtown</strong>A&ntilde;elo</div>
+            <div class="prop-meta-item"><strong>9&ndash;11%</strong>retorno est.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div style="text-align:center; margin-top:3rem;">
+      <button class="btn-primary" onclick="showPage('invertir')">Ver todas las oportunidades</button>
+    </div>
+  </section>
+
+  <!-- PASOS -->
+  <section>
+    <div class="section-label">Proceso</div>
+    <div class="section-title">Invertir es simple</div>
+    <div class="gold-divider"></div>
+    <p class="section-sub">Te acompa&ntilde;amos en cada etapa. Sin burocracia innecesaria, con total transparencia.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h4>Consulta inicial</h4>
+        <p>Analizamos tu perfil de inversi&oacute;n y te presentamos las opciones que mejor se adaptan a tu capital disponible.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h4>Visita o tour virtual</h4>
+        <p>Con&oacute;c&eacute;s la propiedad presencialmente o mediante recorrida virtual HD. Sin presi&oacute;n, a tu ritmo.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h4>Escritura y financiaci&oacute;n</h4>
+        <p>Gestionamos el proceso legal completo y te asesoramos sobre opciones de pago y financiaci&oacute;n disponibles.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <h4>Tu renta llega</h4>
+        <p>Conseguimos el inquilino corporativo, firmamos el contrato y emp&eacute;zas a cobrar desde el primer mes.</p>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /page-inicio -->
+
+
+<!-- ======================================================== -->
+<!-- PAGE: ALQUILER CORPORATIVO                                -->
+<!-- ======================================================== -->
+<div id="page-corporativo" class="page">
+
+  <div class="corporate-hero">
+    <div class="section-label">Alquiler Corporativo</div>
+    <h2 class="section-title">Soluciones de alojamiento<br/>para empresas Oil &amp; Gas</h2>
+    <div class="gold-divider" style="margin:1rem auto 1.5rem;"></div>
+    <p class="section-sub">Ofrecemos unidades totalmente equipadas y operativas para el personal de las principales operadoras de Vaca Muerta. Contratos flexibles, servicios incluidos.</p>
+  </div>
+
+  <div class="amenities-strip">
+    <div class="amenity-item"><span class="ai">&#9889;</span>Electricidad</div>
+    <div class="amenity-item"><span class="ai">&#128167;</span>Agua</div>
+    <div class="amenity-item"><span class="ai">&#128293;</span>Gas</div>
+    <div class="amenity-item"><span class="ai">&#128225;</span>DirecTV</div>
+    <div class="amenity-item"><span class="ai">&#127760;</span>Internet Satelital</div>
+    <div class="amenity-item"><span class="ai">&#128664;</span>Estacionamiento</div>
+    <div class="amenity-item"><span class="ai">&#127859;</span>Parrilla y patio</div>
+  </div>
+
+  <section>
+    <div class="section-label">Categor&iacute;as disponibles</div>
+    <div class="section-title">Opciones para cada empresa</div>
+    <div class="gold-divider"></div>
+    <p class="section-sub">Desde unidades para equipos peque&ntilde;os hasta complejos completos para grandes operadoras. Toda la infraestructura lista para usar desde el d&iacute;a uno.</p>
+
+    <div class="props-grid">
+
+      <div class="prop-card">
+        <img class="prop-img"
+          src="https://inmobiliariaanelo.com.ar/wp-content/uploads/2025/03/img_3047.jpg"
+          alt="Unidades Individuales" />
+        <div class="prop-body">
+          <span class="prop-tag">Unidades Individuales</span>
+          <h3>Para equipos de 2&ndash;4 personas</h3>
+          <p>Casas o departamentos independientes, totalmente amoblados. Ideales para supervisores, t&eacute;cnicos o profesionales de proyecto.</p>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><strong>2&ndash;4</strong>personas</div>
+            <div class="prop-meta-item"><strong>La Forestada</strong>y Downtown</div>
+            <div class="prop-meta-item"><strong>Servicios</strong>incluidos</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="prop-card">
+        <img class="prop-img"
+          src="https://inmobiliariaanelo.com.ar/wp-content/uploads/2025/03/frente-yellowstone.jpg"
+          alt="Complejo Yellowstone" />
+        <div class="prop-body">
+          <span class="prop-tag">Complejos Completos</span>
+          <h3>Yellowstone y otros complejos</h3>
+          <p>Complejos cerrados en La Forestada con capacidad para hasta 24 personas. Un solo contrato para todo el personal de una misma empresa.</p>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><strong>Hasta 24</strong>personas</div>
+            <div class="prop-meta-item"><strong>La Forestada</strong></div>
+            <div class="prop-meta-item"><strong>Contrato</strong>corporativo</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="prop-card">
+        <img class="prop-img"
+          src="https://inmobiliariaanelo.com.ar/wp-content/uploads/2025/03/dji_fly_20241112_154434_22_1731437135994_photo_optimized.jpg"
+          alt="Edificios" />
+        <div class="prop-body">
+          <span class="prop-tag">Edificios</span>
+          <h3>Departamentos 1 y 2 ambientes</h3>
+          <p>Edificios con departamentos individuales en el centro de A&ntilde;elo. Capacidad total de hasta 45 personas.</p>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><strong>Hasta 45</strong>personas</div>
+            <div class="prop-meta-item"><strong>Downtown</strong>A&ntilde;elo</div>
+            <div class="prop-meta-item"><strong>1&ndash;2 dorm.</strong>por depto</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:4rem; background:var(--light); border-radius:6px; padding:2.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;">
+      <div>
+        <h3 style="font-size:1.3rem; font-weight:700; margin-bottom:.5rem;">&iquest;Tu empresa necesita alojamiento?</h3>
+        <p style="color:var(--gray); max-width:480px;">Cotizamos en 24hs. Contratos flexibles, duraci&oacute;n m&iacute;nima de 3 meses. Administraci&oacute;n integral sin cargo adicional.</p>
+      </div>
+      <button class="btn-primary" onclick="showPage('contacto')">Solicitar Cotizaci&oacute;n</button>
+    </div>
+  </section>
+
+</div><!-- /page-corporativo -->
+
+
+<!-- ======================================================== -->
+<!-- PAGE: INVERTIR                                            -->
+<!-- ======================================================== -->
+<div id="page-invertir" class="page">
+
+  <section class="returns-section">
+    <div class="section-label">Por qu&eacute; invertir</div>
+    <div class="section-title">Rentabilidad real<br/>en d&oacute;lares</div>
+    <div class="gold-divider"></div>
+    <p class="section-sub">El mercado corporativo de Vaca Muerta ofrece retornos sin comparaci&oacute;n en el mercado inmobiliario argentino. Baja vacancia, inquilinos empresas, contratos en USD.</p>
+
+    <div class="returns-grid">
+      <div class="return-tiers">
+        <div class="tier">
+          <div class="tier-info">
+            <h4>Unidades Individuales</h4>
+            <p>La Forestada &middot; 2&ndash;4 personas &middot; Disponibilidad inmediata</p>
+          </div>
+          <div class="tier-yield">
+            <strong>8&ndash;10%</strong>
+            <span>USD / a&ntilde;o</span>
+          </div>
+        </div>
+        <div class="tier">
+          <div class="tier-info">
+            <h4>Complejo Entero &mdash; 6 UF</h4>
+            <p>La Forestada &middot; Hasta 24 personas &middot; Yellowstone y otros</p>
+          </div>
+          <div class="tier-yield">
+            <strong>10&ndash;12%</strong>
+            <span>USD / a&ntilde;o</span>
+          </div>
+        </div>
+        <div class="tier">
+          <div class="tier-info">
+            <h4>Edificios Downtown</h4>
+            <p>Centro de A&ntilde;elo &middot; Hasta 45 personas &middot; Consultar valor</p>
+          </div>
+          <div class="tier-yield">
+            <strong>10&ndash;12%</strong>
+            <span>USD / a&ntilde;o</span>
+          </div>
+        </div>
+        <div style="margin-top:1.5rem; padding:1.25rem; border:1px dashed rgba(201,168,76,.3); border-radius:4px;">
+          <p style="font-size:.82rem; color:rgba(255,255,255,.45); line-height:1.6;">* Los rendimientos son estimaciones basadas en contratos corporativos vigentes y tasas de ocupaci&oacute;n hist&oacute;ricas. Consult&aacute; a un asesor para proyecciones personalizadas.</p>
+        </div>
+      </div>
+
+      <!-- CALCULADORA -->
+      <div class="calc-box">
+        <h3>Calcul&aacute; tu retorno</h3>
+        <div class="calc-field">
+          <label>Tipo de inversi&oacute;n</label>
+          <select id="calcTipo" onchange="onTipoChange()">
+            <option value="individual">Unidades Individuales (8&ndash;10%)</option>
+            <option value="complejo">Complejo Entero &mdash; 6 UF (10&ndash;12%)</option>
+            <option value="edificio">Edificios Downtown (10&ndash;12%)</option>
+          </select>
+        </div>
+        <div class="calc-field" id="campoMonto">
+          <label>Monto de inversi&oacute;n (USD)</label>
+          <input type="number" id="calcMonto" value="130000" min="10000" step="1000" oninput="calcular()" />
+          <div id="montoHint" style="font-size:.75rem; color:rgba(255,255,255,.4); margin-top:.3rem;"></div>
+        </div>
+        <div class="calc-field" id="campoEdificio" style="display:none;">
+          <p style="color:rgba(255,255,255,.65); font-size:.9rem; line-height:1.6; margin-bottom:.75rem;">Los Edificios Downtown son de gran escala (hasta 45 personas). El valor de inversi&oacute;n depende de la cantidad de unidades y disponibilidad. Consult&aacute; con un asesor para una estimaci&oacute;n personalizada.</p>
+          <button class="btn-primary" style="width:100%;" onclick="showPage('contacto')">Solicitar estimaci&oacute;n de valor</button>
+        </div>
+        <div class="calc-field">
+          <label>Horizonte de inversi&oacute;n (a&ntilde;os)</label>
+          <select id="calcAnios" onchange="calcular()">
+            <option value="1">1 a&ntilde;o</option>
+            <option value="3" selected>3 a&ntilde;os</option>
+            <option value="5">5 a&ntilde;os</option>
+            <option value="10">10 a&ntilde;os</option>
+          </select>
+        </div>
+        <div class="calc-result" id="calcResult">
+          <div class="r-label">Ingreso estimado total</div>
+          <div class="r-amount" id="resTotal">USD 27.000</div>
+          <div class="r-sub" id="resSub">En 3 a&ntilde;os de inversi&oacute;n</div>
+          <div class="calc-result-grid">
+            <div class="calc-result-item">
+              <div class="rl">Renta anual</div>
+              <div class="rv" id="resAnual">USD 9.000</div>
+            </div>
+            <div class="calc-result-item">
+              <div class="rl">Renta mensual</div>
+              <div class="rv" id="resMensual">USD 750</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-primary" style="width:100%; margin-top:1.5rem;" onclick="showPage('contacto')">Quiero asesorarme</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROPIEDADES EN VENTA -->
+  <section>
+    <div class="section-label">Oportunidades de inversi&oacute;n</div>
+    <div class="section-title">Propiedades disponibles</div>
+    <div class="gold-divider"></div>
+    <p class="section-sub">Unidades listas para alquilar el d&iacute;a que las adqu&iacute;s. Toda la gesti&oacute;n a cargo de Inmobiliaria A&ntilde;elo.</p>
+    <div class="props-grid">
+
+      <div class="prop-card">
+        <img class="prop-img"
+          src="https://inmobiliariaanelo.com.ar/wp-content/uploads/2025/03/img_3047.jpg"
+          alt="Unidades La Forestada" />
+        <div class="prop-body">
+          <span class="prop-tag">Disponibilidad inmediata</span>
+          <h3>Unidades Individuales<br/>La Forestada</h3>
+          <p>Casa o departamento para 2 o 4 personas. Llave en mano, totalmente amoblada. El inquilino corporativo entra el mes siguiente a la compra.</p>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><strong>2&ndash;4</strong>hu&eacute;spedes</div>
+            <div class="prop-meta-item"><strong>La Forestada</strong></div>
+            <div class="prop-meta-item"><strong>8&ndash;10%</strong>est. anual USD</div>
+          </div>
+          <button class="btn-primary" style="width:100%; margin-top:1.25rem;" onclick="showPage('contacto')">Consultar precio</button>
+        </div>
+      </div>
+
+      <div class="prop-card">
+        <img class="prop-img"
+          src="https://inmobiliariaanelo.com.ar/wp-content/uploads/2025/03/frente-yellowstone.jpg"
+          alt="Yellowstone" />
+        <div class="prop-body">
+          <span class="prop-tag">Mayor rentabilidad</span>
+          <h3>Complejo Yellowstone<br/>La Forestada</h3>
+          <p>Adquir&iacute; un complejo completo para hasta 24 personas. Precio por m&sup2; m&aacute;s competitivo y contrato corporativo con una sola empresa. La inversi&oacute;n estrella.</p>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><strong>Hasta 24</strong>hu&eacute;spedes</div>
+            <div class="prop-meta-item"><strong>La Forestada</strong></div>
+            <div class="prop-meta-item"><strong>10&ndash;12%</strong>est. anual USD</div>
+          </div>
+          <button class="btn-primary" style="width:100%; margin-top:1.25rem;" onclick="showPage('contacto')">Consultar precio</button>
+        </div>
+      </div>
+
+      <div class="prop-card">
+        <img class="prop-img"
+          src="https://inmobiliariaanelo.com.ar/wp-content/uploads/2025/03/dji_fly_20241112_154434_22_1731437135994_photo_optimized.jpg"
+          alt="Edificios Downtown" />
+        <div class="prop-body">
+          <span class="prop-tag">Gran escala</span>
+          <h3>Edificios 1&ndash;2 dormitorios<br/>Downtown A&ntilde;elo</h3>
+          <p>Departamentos en edificio c&eacute;ntrico, capacidad total hasta 45 personas. Ideal para inversores que buscan diversificar en m&uacute;ltiples unidades.</p>
+          <div class="prop-meta">
+            <div class="prop-meta-item"><strong>Hasta 45</strong>hu&eacute;spedes</div>
+            <div class="prop-meta-item"><strong>Centro A&ntilde;elo</strong></div>
+            <div class="prop-meta-item"><strong>9&ndash;11%</strong>est. anual USD</div>
+          </div>
+          <button class="btn-primary" style="width:100%; margin-top:1.25rem;" onclick="showPage('contacto')">Consultar precio</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PASOS COMPRA -->
+  <section style="background:var(--light); padding-top:5rem; padding-bottom:5rem;">
+    <div class="section-label">Proceso de compra</div>
+    <div class="section-title">Invertir en 4 pasos</div>
+    <div class="gold-divider"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h4>Eleg&iacute;s tu propiedad</h4>
+        <p>Te presentamos las opciones vigentes con proyecci&oacute;n de retornos y condiciones de cada operaci&oacute;n.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h4>Reserva y escritura</h4>
+        <p>Gestionamos toda la documentaci&oacute;n legal. Escritura simple y transparente con estudio jur&iacute;dico de confianza.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h4>Conseguimos el inquilino</h4>
+        <p>Contactamos a nuestros clientes corporativos y firmamos el contrato de alquiler en USD a nombre de la empresa.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <h4>Cob&iacute;as tu renta</h4>
+        <p>Mensualmente recib&iacute;s el pago. Nosotros administramos, vos solo monitor&eacute;as tus ingresos.</p>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /page-invertir -->
+
+
+<!-- ======================================================== -->
+<!-- PAGE: NOSOTROS                                            -->
+<!-- ======================================================== -->
+<div id="page-nosotros" class="page">
+  <section style="padding-top:5rem;">
+    <div class="about-grid">
+      <div class="about-img-stack">
+        <img class="about-img-main"
+          src="https://inmobiliariaanelo.com.ar/wp-content/uploads/2025/03/dji_fly_20241112_155710_53_1731457357151_photo_optimized.jpg"
+          alt="Anelo desde el aire" />
+        <div class="about-img-badge">
+          <strong>+25</strong>
+          <span>a&ntilde;os en<br/>la Patagonia</span>
+        </div>
+      </div>
+      <div class="about-text">
+        <div class="section-label">Qui&eacute;nes somos</div>
+        <h2 class="section-title">La inmobiliaria<br/>de Vaca Muerta</h2>
+        <div class="gold-divider"></div>
+        <p>Inmobiliaria A&ntilde;elo naci&oacute; de la mano del crecimiento de la ciudad. Con m&aacute;s de 25 a&ntilde;os de trayectoria en el mercado inmobiliario de la Patagonia, somos la referencia en alquiler corporativo y ventas de inversi&oacute;n en A&ntilde;elo, Neuqu&eacute;n.</p>
+        <p>Conocemos el mercado como nadie: sabemos qu&eacute; empresas necesitan alojamiento, cu&aacute;nto pagan, qu&eacute; exigen y c&oacute;mo negociar. Eso le da a nuestros inversores una ventaja real y medible frente a otras alternativas.</p>
+        <p>Nuestro equipo gestiona &iacute;ntegramente cada propiedad: desde la b&uacute;squeda del inquilino corporativo hasta el mantenimiento y la renovaci&oacute;n de contratos. El inversor solo tiene que cobrar.</p>
+        <div class="about-values">
+          <div class="about-value"><div class="av-dot"></div><p>Transparencia total en cada operaci&oacute;n</p></div>
+          <div class="about-value"><div class="av-dot"></div><p>Contratos en d&oacute;lares estadounidenses</p></div>
+          <div class="about-value"><div class="av-dot"></div><p>Gesti&oacute;n integral sin costos ocultos</p></div>
+          <div class="about-value"><div class="av-dot"></div><p>Clientes corporativos verificados</p></div>
+          <div class="about-value"><div class="av-dot"></div><p>Soporte post-venta permanente</p></div>
+          <div class="about-value"><div class="av-dot"></div><p>+25 a&ntilde;os de trayectoria regional</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTEXTO MERCADO -->
+  <section style="background:var(--black); color:var(--white);">
+    <div class="section-label">El contexto</div>
+    <h2 class="section-title" style="color:var(--white);">Vaca Muerta:<br/>la oportunidad del siglo</h2>
+    <div class="gold-divider"></div>
+    <p style="color:rgba(255,255,255,.6); max-width:640px; margin-bottom:3rem;">Vaca Muerta es la segunda reserva de shale gas y la cuarta de shale oil del planeta. Las inversiones proyectadas superan los USD 100.000 millones en la pr&oacute;xima d&eacute;cada. A&ntilde;elo es la puerta de entrada a todo ese movimiento.</p>
+    <div class="why-grid">
+      <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);">
+        <div class="icon">&#127760;</div>
+        <h3 style="color:var(--white);">2&deg; reserva mundial</h3>
+        <p style="color:rgba(255,255,255,.55);">Vaca Muerta es la segunda reserva de shale del mundo, solo comparable con Permian Basin en Texas.</p>
+      </div>
+      <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);">
+        <div class="icon">&#128200;</div>
+        <h3 style="color:var(--white);">Crecimiento sostenido</h3>
+        <p style="color:rgba(255,255,255,.55);">YPF, Shell, TotalEnergies, Chevron y Pan American Energy operan en la cuenca. La actividad crece a&ntilde;o a a&ntilde;o.</p>
+      </div>
+      <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);">
+        <div class="icon">&#127968;</div>
+        <h3 style="color:var(--white);">D&eacute;ficit habitacional</h3>
+        <p style="color:rgba(255,255,255,.55);">La ciudad no da abasto con la demanda de alojamiento. Cada nueva licitaci&oacute;n trae cientos de trabajadores que necesitan d&oacute;nde vivir.</p>
+      </div>
+      <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);">
+        <div class="icon">&#128176;</div>
+        <h3 style="color:var(--white);">Pagos empresariales</h3>
+        <p style="color:rgba(255,255,255,.55);">Los alquileres los pagan las propias operadoras, no individuos. Esto elimina pr&aacute;cticamente el riesgo de impago.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="text-align:center;">
+    <div class="section-label">&iquest;Quer&eacute;s saber m&aacute;s?</div>
+    <h2 class="section-title">Hablemos de tu inversi&oacute;n</h2>
+    <div class="gold-divider" style="margin:1rem auto 1.5rem;"></div>
+    <p style="color:var(--gray); max-width:500px; margin:0 auto 2.5rem;">Sin compromiso, sin presi&oacute;n. Te explicamos todo el proceso y te mostramos las opciones disponibles seg&uacute;n tu presupuesto.</p>
+    <button class="btn-primary" onclick="showPage('contacto')">Contactar un asesor</button>
+  </section>
+</div><!-- /page-nosotros -->
+
+
+<!-- ======================================================== -->
+<!-- PAGE: CONTACTO                                            -->
+<!-- ======================================================== -->
+<div id="page-contacto" class="page">
+  <section class="contact-section">
+    <div class="section-label">Contacto</div>
+    <div class="section-title">Hablemos</div>
+    <div class="gold-divider"></div>
+    <p class="section-sub">Ya sea que quieras invertir, alquilar para tu empresa o simplemente consultar, estamos disponibles para responderte en menos de 24 horas.</p>
+
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h3>Informaci&oacute;n de contacto</h3>
+        <p>Nuestro equipo est&aacute; disponible de lunes a s&aacute;bado para atenderte de manera personalizada.</p>
+
+        <div class="contact-item">
+          <div class="ci-icon">&#128222;</div>
+          <div class="ci-text">
+            <strong>Tel&eacute;fono / WhatsApp</strong>
+            <a href="tel:+5492972431619">+54 9 2972 431619</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="ci-icon">&#9993;</div>
+          <div class="ci-text">
+            <strong>Email</strong>
+            <a href="mailto:grupopampanqn@gmail.com">grupopampanqn@gmail.com</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="ci-icon">&#128205;</div>
+          <div class="ci-text">
+            <strong>Direcci&oacute;n</strong>
+            <span>A&ntilde;elo, Neuqu&eacute;n &middot; Vaca Muerta 8305, Argentina</span>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="ci-icon">&#128247;</div>
+          <div class="ci-text">
+            <strong>Instagram</strong>
+            <a href="https://www.instagram.com/inmobiliaria.anelo" target="_blank">@inmobiliaria.anelo</a>
+          </div>
+        </div>
+
+        <div style="margin-top:2rem; background:var(--black); border-radius:6px; padding:1.75rem;">
+          <p style="color:var(--gold); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; font-weight:700; margin-bottom:.75rem;">Horarios de atenci&oacute;n</p>
+          <p style="color:rgba(255,255,255,.7); font-size:.9rem; line-height:1.8;">Lunes a Viernes: 9:00 &ndash; 18:00 hs<br/>S&aacute;bados: 9:00 &ndash; 13:00 hs</p>
+        </div>
+      </div>
+
+      <div class="contact-form">
+        <h3>Envi&aacute;nos tu consulta</h3>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Nombre</label>
+            <input type="text" id="fNombre" placeholder="Tu nombre" />
+          </div>
+          <div class="form-field">
+            <label>Apellido</label>
+            <input type="text" id="fApellido" placeholder="Tu apellido" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Email</label>
+            <input type="email" id="fEmail" placeholder="tu@email.com" />
+          </div>
+          <div class="form-field">
+            <label>Tel&eacute;fono</label>
+            <input type="tel" id="fTel" placeholder="+54 9 ..." />
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Me interesa</label>
+          <select id="fInteres">
+            <option value="">Seleccion&aacute; una opci&oacute;n</option>
+            <option>Invertir en una unidad individual</option>
+            <option>Invertir en un complejo completo</option>
+            <option>Invertir en edificios</option>
+            <option>Alquiler corporativo para mi empresa</option>
+            <option>Quiero m&aacute;s informaci&oacute;n general</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Presupuesto estimado (USD)</label>
+          <select id="fPresupuesto">
+            <option value="">Seleccion&aacute; un rango</option>
+            <option>Menos de USD 50.000</option>
+            <option>USD 50.000 &ndash; 100.000</option>
+            <option>USD 100.000 &ndash; 250.000</option>
+            <option>USD 250.000 &ndash; 500.000</option>
+            <option>M&aacute;s de USD 500.000</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Mensaje</label>
+          <textarea id="fMensaje" placeholder="Cont&aacute;nos tu situaci&oacute;n o pregunta..."></textarea>
+        </div>
+        <button class="btn-primary" style="width:100%;" onclick="enviarFormulario()">Enviar consulta</button>
+        <div class="form-success" id="formSuccess">
+          Tu consulta fue enviada correctamente. Te contactaremos en menos de 24 horas.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAPA -->
+  <div class="map-section">
+    <div class="section-label">Ubicaci&oacute;n</div>
+    <div class="section-title">D&oacute;nde estamos</div>
+    <div class="gold-divider"></div>
+    <div class="map-grid">
+      <div class="map-info-card">
+        <h3>Inmobiliaria A&ntilde;elo</h3>
+        <div class="map-detail">
+          <span class="md-icon">&#128205;</span>
+          <div>
+            <div class="md-label">Direcci&oacute;n</div>
+            <div class="md-val">A&ntilde;elo, Neuqu&eacute;n<br/>Vaca Muerta 8305<br/>Argentina</div>
+          </div>
+        </div>
+        <div class="map-detail">
+          <span class="md-icon">&#128222;</span>
+          <div>
+            <div class="md-label">WhatsApp</div>
+            <div class="md-val">+54 9 2972 431619</div>
+          </div>
+        </div>
+        <div class="map-detail">
+          <span class="md-icon">&#9993;</span>
+          <div>
+            <div class="md-label">Email</div>
+            <div class="md-val">grupopampanqn@gmail.com</div>
+          </div>
+        </div>
+        <div style="margin-top:1.5rem;">
+          <a href="https://wa.me/5492972431619" target="_blank"
+            style="display:block; background:var(--gold); color:var(--black); text-align:center; padding:.85rem; border-radius:3px; text-decoration:none; font-weight:700; font-size:.9rem; letter-spacing:.05em; text-transform:uppercase;">
+            Escribir por WhatsApp
+          </a>
+        </div>
+      </div>
+      <div class="map-embed">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d12098.26956975289!2d-68.80177!3d-38.3508!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x960b99e0b3ef0b1d%3A0x4df0d0fd7c4e4e0!2sA%C3%B1elo%2C%20Neuqu%C3%A9n!5e0!3m2!1ses!2sar!4v1710000000000"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Anelo, Neuquen">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</div><!-- /page-contacto -->
+
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="nav-logo" style="cursor:default;">
+        <span class="nav-logo-ia">IA</span>
+        <div class="nav-logo-text">
+          <span>Inmobiliaria</span>
+          <span>A&Ntilde;ELO</span>
+        </div>
+      </div>
+      <p>+25 a&ntilde;os de experiencia inmobiliaria en la Patagonia. Especialistas en alquiler corporativo e inversiones en Vaca Muerta, A&ntilde;elo, Neuqu&eacute;n.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navegaci&oacute;n</h4>
+      <ul>
+        <li><a onclick="showPage('inicio')">Inicio</a></li>
+        <li><a onclick="showPage('corporativo')">Alquiler Corporativo</a></li>
+        <li><a onclick="showPage('invertir')">Invertir</a></li>
+        <li><a onclick="showPage('nosotros')">Nosotros</a></li>
+        <li><a onclick="showPage('contacto')">Contacto</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <ul>
+        <li><a href="tel:+5492972431619">+54 9 2972 431619</a></li>
+        <li><a href="mailto:grupopampanqn@gmail.com">grupopampanqn@gmail.com</a></li>
+        <li><a href="https://wa.me/5492972431619" target="_blank">WhatsApp</a></li>
+        <li><a href="https://www.instagram.com/inmobiliaria.anelo" target="_blank">@inmobiliaria.anelo</a></li>
+        <li><a onclick="showPage('contacto')">A&ntilde;elo, Neuqu&eacute;n 8305</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 Inmobiliaria A&ntilde;elo &middot; Todos los derechos reservados</span>
+    <div class="social-links">
+      <a class="social-link" href="https://wa.me/5492972431619" target="_blank" title="WhatsApp">&#128222;</a>
+      <a class="social-link" href="https://www.instagram.com/inmobiliaria.anelo" target="_blank" title="Instagram">IG</a>
+      <a class="social-link" href="mailto:grupopampanqn@gmail.com" title="Email">&#9993;</a>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.nav-links a').forEach(function(a) { a.classList.remove('active'); });
+    var page = document.getElementById('page-' + id);
+    if (page) { page.classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    var link = document.querySelector('[data-page="' + id + '"]');
+    if (link) link.classList.add('active');
+    closeMenu();
+  }
+
+  function toggleMenu() {
+    document.getElementById('navLinks').classList.toggle('open');
+  }
+  function closeMenu() {
+    document.getElementById('navLinks').classList.remove('open');
+  }
+
+  var yields = {
+    individual: { min: 0.08, max: 0.10, default: 130000, hint: 'Precio de referencia: USD 130.000 por unidad' },
+    complejo:   { min: 0.10, max: 0.12, default: 750000, hint: 'Precio de referencia: USD 750.000 &mdash; 6 unidades funcionales' },
+    edificio:   { min: 0.10, max: 0.12, default: 0,      hint: '' }
+  };
+
+  function onTipoChange() {
+    var tipo = document.getElementById('calcTipo').value;
+    var campoMonto    = document.getElementById('campoMonto');
+    var campoEdificio = document.getElementById('campoEdificio');
+    var calcResult    = document.getElementById('calcResult');
+    if (tipo === 'edificio') {
+      campoMonto.style.display    = 'none';
+      campoEdificio.style.display = 'block';
+      calcResult.style.display    = 'none';
+    } else {
+      campoMonto.style.display    = 'block';
+      campoEdificio.style.display = 'none';
+      calcResult.style.display    = 'block';
+      document.getElementById('calcMonto').value = yields[tipo].default;
+      document.getElementById('montoHint').innerHTML = yields[tipo].hint;
+      calcular();
+    }
+  }
+
+  function calcular() {
+    var tipo   = document.getElementById('calcTipo').value;
+    if (tipo === 'edificio') return;
+    var monto  = parseFloat(document.getElementById('calcMonto').value) || 0;
+    var anios  = parseInt(document.getElementById('calcAnios').value) || 1;
+    var y      = yields[tipo];
+    var midYield = (y.min + y.max) / 2;
+    var anual  = Math.round(monto * midYield);
+    var mensual = Math.round(anual / 12);
+    var total  = anual * anios;
+
+    function fmt(n) { return 'USD ' + n.toLocaleString('es-AR'); }
+    document.getElementById('resTotal').textContent   = fmt(total);
+    document.getElementById('resAnual').textContent   = fmt(anual);
+    document.getElementById('resMensual').textContent = fmt(mensual);
+    document.getElementById('resSub').textContent =
+      'En ' + anios + ' a\u00f1o' + (anios > 1 ? 's' : '') + ' de inversi\u00f3n';
+  }
+
+  // inicializar hint para individual
+  document.getElementById('montoHint').innerHTML = yields['individual'].hint;
+  calcular();
+
+  function enviarFormulario() {
+    var nombre = document.getElementById('fNombre').value.trim();
+    var email  = document.getElementById('fEmail').value.trim();
+    if (!nombre || !email) {
+      alert('Por favor complet\u00e1 al menos tu nombre y email.');
+      return;
+    }
+    var success = document.getElementById('formSuccess');
+    success.style.display = 'block';
+    ['fNombre','fApellido','fEmail','fTel','fMensaje'].forEach(function(id) {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('fInteres').value = '';
+    document.getElementById('fPresupuesto').value = '';
+    setTimeout(function() { success.style.display = 'none'; }, 6000);
+  }
+</script>
+</body>
+</html>
