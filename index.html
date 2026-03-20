@@ -152,7 +152,9 @@
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700;800&display=swap" /></noscript>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -429,7 +431,7 @@
 <!-- NAVBAR -->
 <nav id="navbar">
   <div class="nav-logo" onclick="showPage('inicio')">
-    <img class="nav-logo-img" src="logo-inmobiliaria-anelo.png" alt="Inmobiliaria Añelo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+    <img class="nav-logo-img" src="logo-inmobiliaria-anelo.png" alt="Inmobiliaria Añelo" width="44" height="44" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
     <span class="nav-logo-ia" style="display:none;">IA</span>
     <div class="nav-logo-text">
       <span>Inmobiliaria</span>
@@ -1020,7 +1022,7 @@
   <div class="footer-top">
     <div class="footer-brand">
       <div class="nav-logo" style="cursor:default; pointer-events:none;">
-        <img class="nav-logo-img" src="logo-inmobiliaria-anelo.png" alt="Inmobiliaria Añelo" onerror="this.style.display='none';" />
+        <img class="nav-logo-img" src="logo-inmobiliaria-anelo.png" alt="Inmobiliaria Añelo" width="44" height="44" loading="lazy" onerror="this.style.display='none';" />
         <div class="nav-logo-text"><span>Inmobiliaria</span><span>A&Ntilde;ELO</span></div>
       </div>
       <p>+25 a&ntilde;os de experiencia inmobiliaria en la Patagonia. Especialistas en alquiler corporativo e inversiones en Vaca Muerta, A&ntilde;elo, Neuqu&eacute;n.</p>
