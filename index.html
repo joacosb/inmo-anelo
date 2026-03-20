@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- ═══ PRIMARY SEO ═══ -->
   <title>Inmobiliaria Añelo | Alquiler Corporativo Oil &amp; Gas · Inversión en Vaca Muerta</title>
@@ -158,7 +158,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --black: #0a0a0a; --dark: #111111; --gray: #767676; --light: #f5f5f5;
+      --black: #0a0a0a; --dark: #111111; --gray: #595959; --light: #f5f5f5;
       --white: #ffffff; --gold: #c9a84c; --gold-lt: #e8c97a; --border: #e0e0e0;
     }
     html { scroll-behavior: smooth; }
@@ -186,7 +186,7 @@
 
     /* ── HERO ── */
     .hero { position: relative; min-height: calc(100vh - 70px); background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 60%, #0f0f0f 100%); display: flex; align-items: center; overflow: hidden; }
-    .hero::before { content: ''; position: absolute; inset: 0; background: url('https://inmobiliariaanelo.com.ar/wp-content/uploads/2025/03/dji_fly_20241112_155710_53_1731457357151_photo_optimized.jpg') center/cover no-repeat; opacity: .35; }
+    .hero::before { content: ''; position: absolute; inset: 0; background: url('complejo-yellowstone.jpg') center/cover no-repeat; opacity: .35; }
     .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(10,10,10,.9) 40%, rgba(10,10,10,.2) 100%); }
     .hero-content { position: relative; z-index: 2; max-width: 680px; padding: 2rem 8% 140px; width: 100%; }
     .hero-badge { display: inline-block; background: var(--gold); color: var(--black); font-size: .7rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; padding: .35rem .9rem; border-radius: 2px; margin-bottom: 1.5rem; }
@@ -442,11 +442,11 @@
     </div>
   </div>
   <ul class="nav-links" id="navLinks">
-    <li><a onclick="showPage('inicio')" data-page="inicio">Inicio</a></li>
-    <li><a onclick="showPage('corporativo')" data-page="corporativo">Alquiler Corporativo</a></li>
-    <li><a onclick="showPage('invertir')" data-page="invertir">Invertir</a></li>
-    <li><a onclick="showPage('nosotros')" data-page="nosotros">Nosotros</a></li>
-    <li><a onclick="showPage('contacto')" data-page="contacto" class="nav-cta">Contacto</a></li>
+    <li><a href="#inicio" onclick="showPage('inicio')" data-page="inicio">Inicio</a></li>
+    <li><a href="#corporativo" onclick="showPage('corporativo')" data-page="corporativo">Alquiler Corporativo</a></li>
+    <li><a href="#invertir" onclick="showPage('invertir')" data-page="invertir">Invertir</a></li>
+    <li><a href="#nosotros" onclick="showPage('nosotros')" data-page="nosotros">Nosotros</a></li>
+    <li><a href="#contacto" onclick="showPage('contacto')" data-page="contacto" class="nav-cta">Contacto</a></li>
   </ul>
   <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -526,7 +526,7 @@
       <div class="why-card"><div class="icon">&#36;</div><h3>Rentabilidad en USD</h3><p>Los contratos corporativos se pactan en d&oacute;lares, protegiendo tu inversi&oacute;n de la devaluaci&oacute;n y generando retornos de 8 a 12% anual.</p></div>
       <div class="why-card"><div class="icon">&#9632;</div><h3>Valorizaci&oacute;n del capital</h3><p>A&ntilde;elo crece exponencialmente con cada nueva licitaci&oacute;n de YPF, Shell y TotalEnergies. Los inmuebles se valorizan al ritmo del boom energ&eacute;tico.</p></div>
       <div class="why-card"><div class="icon">&#9679;</div><h3>Administraci&oacute;n integral</h3><p>Nos encargamos de todo: b&uacute;squeda de inquilinos corporativos, contratos, mantenimiento y gesti&oacute;n. Vos solo cob&iacute;as tu renta.</p></div>
-      <div class="why-card"><div class="icon">&#9650;</div><h3>Ingreso desde el d&iacute;a 1 *</h3><p>Sin esperas, sin obra: la renta empieza desde el primer mes despu&eacute;s de la compra. <em style="font-size:.82rem;color:#999;">* Aplica a unidades con contrato corporativo vigente al momento de la adquisici&oacute;n.</em></p></div>
+      <div class="why-card"><div class="icon">&#9650;</div><h3>Ingreso desde el d&iacute;a 1 *</h3><p>Sin esperas, sin obra: la renta empieza desde el primer mes despu&eacute;s de la compra. <em style="font-size:.82rem;color:#595959;">* Aplica a unidades con contrato corporativo vigente al momento de la adquisici&oacute;n.</em></p></div>
     </div>
   </section>
 
@@ -881,7 +881,7 @@
   <section style="padding-top:4rem;">
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center;" class="about-grid">
       <div class="about-img-stack">
-        <img class="about-img-main" loading="lazy" decoding="async" src="https://inmobiliariaanelo.com.ar/wp-content/uploads/2025/03/dji_fly_20241112_155710_53_1731457357151_photo_optimized.jpg" alt="Vista aérea de Añelo, Neuquén – Inmobiliaria Añelo" />
+        <img class="about-img-main" loading="lazy" decoding="async" src="complejo-yellowstone.jpg" alt="Vista aérea de Añelo, Neuquén – Inmobiliaria Añelo" />
         <div class="about-img-badge"><strong>+25</strong><span>a&ntilde;os en<br/>la Patagonia</span></div>
       </div>
       <div class="about-text">
@@ -1036,11 +1036,11 @@
     <div class="footer-col">
       <h4>Navegaci&oacute;n</h4>
       <ul>
-        <li><a onclick="showPage('inicio')">Inicio</a></li>
-        <li><a onclick="showPage('corporativo')">Propiedades</a></li>
-        <li><a onclick="showPage('invertir')">Invertir</a></li>
-        <li><a onclick="showPage('nosotros')">Nosotros</a></li>
-        <li><a onclick="showPage('contacto')">Contacto</a></li>
+        <li><a href="#inicio" onclick="showPage('inicio')">Inicio</a></li>
+        <li><a href="#corporativo" onclick="showPage('corporativo')">Propiedades</a></li>
+        <li><a href="#invertir" onclick="showPage('invertir')">Invertir</a></li>
+        <li><a href="#nosotros" onclick="showPage('nosotros')">Nosotros</a></li>
+        <li><a href="#contacto" onclick="showPage('contacto')">Contacto</a></li>
       </ul>
     </div>
     <div class="footer-col">
