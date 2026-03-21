@@ -409,6 +409,28 @@
     .page { animation: fadeIn .35s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* ── SERVICES POPUP ── */
+    .services-popup-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:3000; align-items:center; justify-content:center; padding:1rem; }
+    .services-popup-overlay.open { display:flex; animation:fadeIn .4s ease; }
+    .services-popup { background:var(--black); border:1px solid rgba(201,168,76,.3); border-radius:12px; padding:2rem 2rem 1.75rem; max-width:460px; width:100%; position:relative; box-shadow:0 24px 70px rgba(0,0,0,.6); }
+    .services-popup-badge { display:inline-block; background:var(--gold); color:var(--black); font-size:.65rem; font-weight:800; letter-spacing:.18em; text-transform:uppercase; padding:.3rem .8rem; border-radius:2px; margin-bottom:1rem; }
+    .services-popup h3 { font-size:1.25rem; font-weight:800; color:var(--white); margin-bottom:.4rem; line-height:1.3; }
+    .services-popup .sp-sub { color:rgba(255,255,255,.55); font-size:.85rem; margin-bottom:1.5rem; }
+    .sp-grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem .75rem; margin-bottom:1.5rem; }
+    .sp-item { display:flex; align-items:center; gap:.5rem; color:rgba(255,255,255,.85); font-size:.82rem; }
+    .sp-item-icon { font-size:1rem; flex-shrink:0; }
+    .sp-divider { border:none; border-top:1px solid rgba(255,255,255,.08); margin:1.25rem 0; }
+    .sp-highlight { background:rgba(201,168,76,.08); border:1px solid rgba(201,168,76,.25); border-radius:6px; padding:.75rem 1rem; color:rgba(255,255,255,.75); font-size:.82rem; text-align:center; margin-bottom:1.25rem; line-height:1.5; }
+    .sp-highlight strong { color:var(--gold); }
+    .sp-actions { display:flex; gap:.75rem; }
+    .sp-btn-wa { flex:1; background:#25D366; color:#fff; border:none; border-radius:5px; padding:.8rem; font-size:.88rem; font-weight:700; cursor:pointer; text-decoration:none; text-align:center; display:block; }
+    .sp-btn-wa:hover { background:#1dba5a; }
+    .sp-btn-close { background:transparent; border:1px solid rgba(255,255,255,.2); color:rgba(255,255,255,.55); border-radius:5px; padding:.8rem 1.2rem; font-size:.88rem; font-weight:600; cursor:pointer; }
+    .sp-btn-close:hover { border-color:rgba(255,255,255,.4); color:#fff; }
+    .services-popup-x { position:absolute; top:.875rem; right:1rem; background:none; border:none; font-size:1.5rem; color:rgba(255,255,255,.4); cursor:pointer; line-height:1; }
+    .services-popup-x:hover { color:#fff; }
+    @media (max-width:480px) { .sp-grid { grid-template-columns:1fr; } .sp-actions { flex-direction:column; } }
+
     /* ── PROP MODAL ── */
     .prop-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.8); z-index:2000; align-items:center; justify-content:center; padding:1rem; }
     .prop-modal-overlay.open { display:flex; }
@@ -1230,6 +1252,19 @@ function closePropModal() {
   document.getElementById('propModal').classList.remove('open');
   document.body.style.overflow = '';
 }
+
+// ─── SERVICES POPUP ───────────────────────────────────────────────────────────
+function closeServicesPopup() {
+  document.getElementById('servicesPopup').classList.remove('open');
+  document.body.style.overflow = '';
+  sessionStorage.setItem('sp_seen', '1');
+}
+if (!sessionStorage.getItem('sp_seen')) {
+  setTimeout(function() {
+    document.getElementById('servicesPopup').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }, 12000);
+}
 </script>
 
 <!-- PROPERTY MODAL -->
@@ -1248,6 +1283,33 @@ function closePropModal() {
       <a id="modalWA" href="#" target="_blank" rel="noopener" class="prop-modal-btn prop-modal-btn-wa">
         <span class="prop-modal-icon">💬</span><span>Consultar por WhatsApp</span>
       </a>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICES POPUP -->
+<div id="servicesPopup" class="services-popup-overlay" onclick="if(event.target===this)closeServicesPopup()">
+  <div class="services-popup">
+    <button class="services-popup-x" onclick="closeServicesPopup()" aria-label="Cerrar">&times;</button>
+    <div class="services-popup-badge">Todo incluido</div>
+    <h3>Llave en mano,<br/>sin sorpresas</h3>
+    <p class="sp-sub">Cada propiedad incluye servicios completos desde el primer d&iacute;a. Sin gestiones adicionales para el inquilino ni el inversor.</p>
+    <div class="sp-grid">
+      <div class="sp-item"><span class="sp-item-icon">🔌</span><span>Electricidad y gas</span></div>
+      <div class="sp-item"><span class="sp-item-icon">💧</span><span>Agua y cloacas</span></div>
+      <div class="sp-item"><span class="sp-item-icon">📶</span><span>WiFi de alta velocidad</span></div>
+      <div class="sp-item"><span class="sp-item-icon">🧹</span><span>Limpieza peri&oacute;dica</span></div>
+      <div class="sp-item"><span class="sp-item-icon">🔧</span><span>Mantenimiento 24/7</span></div>
+      <div class="sp-item"><span class="sp-item-icon">🛋️</span><span>Totalmente amoblado</span></div>
+      <div class="sp-item"><span class="sp-item-icon">🏢</span><span>Administraci&oacute;n integral</span></div>
+      <div class="sp-item"><span class="sp-item-icon">📄</span><span>Contratos en USD</span></div>
+    </div>
+    <div class="sp-highlight">
+      <strong>+25 a&ntilde;os</strong> gestionando propiedades en A&ntilde;elo &mdash; el inversor solo cobra, nosotros nos ocupamos de todo.
+    </div>
+    <div class="sp-actions">
+      <a href="https://wa.me/5492972431619?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20las%20propiedades%20con%20servicios%20incluidos." target="_blank" rel="noopener" class="sp-btn-wa">💬 Consultar por WhatsApp</a>
+      <button class="sp-btn-close" onclick="closeServicesPopup()">Seguir viendo</button>
     </div>
   </div>
 </div>
