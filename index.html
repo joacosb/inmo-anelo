@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0XLBKV85QF"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-0XLBKV85QF');
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -1051,7 +1059,7 @@
         <div class="map-detail"><span class="md-icon">&#128205;</span><div><div class="md-label">Direcci&oacute;n</div><div class="md-val">A&ntilde;elo, Neuqu&eacute;n<br/>Vaca Muerta 8305<br/>Argentina</div></div></div>
         <div class="map-detail"><span class="md-icon">&#128222;</span><div><div class="md-label">WhatsApp</div><div class="md-val">+54 9 2972 431619</div></div></div>
         <div class="map-detail"><span class="md-icon">&#9993;</span><div><div class="md-label">Email</div><div class="md-val">grupopampanqn@gmail.com</div></div></div>
-        <div style="margin-top:1.5rem;"><a href="https://wa.me/5492972431619" target="_blank" style="display:block; background:var(--gold); color:var(--black); text-align:center; padding:.85rem; border-radius:3px; text-decoration:none; font-weight:700; font-size:.9rem; letter-spacing:.05em; text-transform:uppercase;">Escribir por WhatsApp</a></div>
+        <div style="margin-top:1.5rem;"><a href="https://wa.me/5492972431619" target="_blank" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'})" style="display:block; background:var(--gold); color:var(--black); text-align:center; padding:.85rem; border-radius:3px; text-decoration:none; font-weight:700; font-size:.9rem; letter-spacing:.05em; text-transform:uppercase;">Escribir por WhatsApp</a></div>
       </div>
       <div class="map-embed"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d12098.26956975289!2d-68.80177!3d-38.3508!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x960b99e0b3ef0b1d%3A0x4df0d0fd7c4e4e0!2sA%C3%B1elo%2C%20Neuqu%C3%A9n!5e0!3m2!1ses!2sar!4v1710000000000" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Anelo, Neuquen"></iframe></div>
     </div>
@@ -1086,7 +1094,7 @@
       <ul>
         <li><a href="tel:+5492972431619">+54 9 2972 431619</a></li>
         <li><a href="mailto:grupopampanqn@gmail.com">grupopampanqn@gmail.com</a></li>
-        <li><a href="https://wa.me/5492972431619" target="_blank">WhatsApp</a></li>
+        <li><a href="https://wa.me/5492972431619" target="_blank" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'})">WhatsApp</a></li>
         <li><a href="https://www.instagram.com/inmobiliaria.anelo" target="_blank">@inmobiliaria.anelo</a></li>
       </ul>
     </div>
@@ -1094,7 +1102,7 @@
   <div class="footer-bottom">
     <span>&copy; 2026 Inmobiliaria A&ntilde;elo &middot; Todos los derechos reservados</span>
     <div class="social-links">
-      <a class="social-link" href="https://wa.me/5492972431619" target="_blank" title="WhatsApp">&#128222;</a>
+      <a class="social-link" href="https://wa.me/5492972431619" target="_blank" title="WhatsApp" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'})">&#128222;</a>
       <a class="social-link" href="https://www.instagram.com/inmobiliaria.anelo" target="_blank" title="Instagram">IG</a>
       <a class="social-link" href="mailto:grupopampanqn@gmail.com" title="Email">&#9993;</a>
     </div>
@@ -1280,7 +1288,7 @@ if (!sessionStorage.getItem('sp_seen')) {
       <button id="modalSection" class="prop-modal-btn">
         <span class="prop-modal-icon">🏠</span><span id="modalSectionLabel">Ver propiedades similares</span>
       </button>
-      <a id="modalWA" href="#" target="_blank" rel="noopener" class="prop-modal-btn prop-modal-btn-wa">
+      <a id="modalWA" href="#" target="_blank" rel="noopener" class="prop-modal-btn prop-modal-btn-wa" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'})">
         <span class="prop-modal-icon">💬</span><span>Consultar por WhatsApp</span>
       </a>
     </div>
@@ -1307,7 +1315,7 @@ if (!sessionStorage.getItem('sp_seen')) {
       <strong>+25 a&ntilde;os</strong> gestionando propiedades en A&ntilde;elo &mdash; el inversor solo cobra, nosotros nos ocupamos de todo.
     </div>
     <div class="sp-actions">
-      <a href="https://wa.me/5492972431619?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20las%20propiedades%20con%20servicios%20incluidos." target="_blank" rel="noopener" class="sp-btn-wa">💬 Consultar por WhatsApp</a>
+      <a href="https://wa.me/5492972431619?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20las%20propiedades%20con%20servicios%20incluidos." target="_blank" rel="noopener" class="sp-btn-wa" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'})">💬 Consultar por WhatsApp</a>
       <button class="sp-btn-close" onclick="closeServicesPopup()">Seguir viendo</button>
     </div>
   </div>
@@ -1315,7 +1323,7 @@ if (!sessionStorage.getItem('sp_seen')) {
 
 <!-- WHATSAPP FLOAT -->
 <div class="wa-float">
-  <a href="https://wa.me/5492972431619" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp">
+  <a href="https://wa.me/5492972431619" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'})">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
   </a>
 </div>
