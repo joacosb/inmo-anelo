@@ -48,6 +48,8 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; 
 .hero-stat:last-child { border-right: none; }
 .hero-stat strong { display: block; font-family: var(--font-display); font-size: 1.75rem; font-weight: 600; color: var(--gold); letter-spacing: -.01em; }
 .hero-stat span { font-size: .7rem; color: rgba(255,255,255,.6); letter-spacing: .08em; text-transform: uppercase; }
+.hero-action-tertiary { display: none; }
+#por-que-anelo { scroll-margin-top: 70px; }
 
 /* ── QUICK CTA STRIP ── */
 .quick-cta-strip { display: flex; background: var(--black); border-bottom: 2px solid var(--gold); }
@@ -221,14 +223,13 @@ footer { background: var(--black); color: rgba(255,255,255,.5); padding: 3rem 8%
   .nav-links { display: none; flex-direction: column; position: fixed; top: 70px; left: 0; right: 0; background: var(--black); padding: 1.5rem 5%; gap: 1rem; border-bottom: 1px solid rgba(201,168,76,.2); z-index: 999; }
   .nav-links.open { display: flex; }
   .hamburger { display: flex; }
-  .hero-content { padding: 2rem 5% 150px; }
+  .hero-content { padding: 2rem 5% 2.5rem; }
   .hero h1 { font-size: clamp(1.7rem, 7vw, 2.5rem); }
   .hero p { font-size: .95rem; }
   .hero-actions { flex-direction: column; }
   .hero-actions .btn-primary, .hero-actions .btn-outline { width: 100%; text-align: center; }
-  .hero-stats { position: relative; flex-wrap: wrap; }
-  .hero-stat { min-width: 50%; border-bottom: 1px solid rgba(201,168,76,.1); padding: 1rem; }
-  .hero-stat strong { font-size: 1.3rem; }
+  .hero-action-tertiary { display: inline-block; }
+  .hero-stats { display: none; }
   .quick-cta-strip { flex-direction: column; }
   .quick-cta-btn { padding: 1rem; font-size: .88rem; }
   .form-row { grid-template-columns: 1fr; }
@@ -245,8 +246,7 @@ footer { background: var(--black); color: rgba(255,255,255,.5); padding: 3rem 8%
 }
 @media (max-width: 420px) {
   section { padding: 2.5rem 4%; }
-  .hero-content { padding: 1.5rem 4% 160px; }
-  .hero-stat { min-width: 100%; }
+  .hero-content { padding: 1.5rem 4% 2rem; }
   .nav-logo-img { height: 36px; }
 }
 
