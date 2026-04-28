@@ -1,0 +1,54 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Nosotros | +25 Años en la Patagonia - Inmobiliaria Añelo"
+  description="Inmobiliaria Añelo, +25 años de experiencia en alquiler corporativo e inversiones en Vaca Muerta. Conocemos el mercado Oil & Gas como nadie. Gestión integral, transparencia total."
+  pathname="/nosotros/"
+  ogImage="/complejo-maria1.webp"
+>
+
+  <section style="padding-top:4rem;">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center;" class="about-grid">
+      <div class="about-img-stack">
+        <img class="about-img-main" loading="lazy" decoding="async" src="/complejo-maria1.webp" alt="Complejo María I – Inmobiliaria Añelo" />
+        <div class="about-img-badge"><strong>+25</strong><span>años en<br/>la Patagonia</span></div>
+      </div>
+      <div class="about-text">
+        <div class="section-label reveal">Quiénes somos</div>
+        <h2 class="section-title reveal">La inmobiliaria<br/>de <em>Vaca Muerta</em></h2>
+        <div class="gold-divider reveal"></div>
+        <p style="color:var(--gray); margin-bottom:1rem;">Inmobiliaria Añelo nació de la mano del crecimiento de la ciudad. Con más de 25 años de trayectoria en el mercado inmobiliario de la Patagonia, somos la referencia en alquiler corporativo y ventas de inversión en Añelo, Neuquén.</p>
+        <p style="color:var(--gray); margin-bottom:1rem;">Conocemos el mercado como nadie: sabemos qué empresas necesitan alojamiento, cuánto pagan, qué exigen y cómo negociar. Eso le da a nuestros inversores una ventaja real y medible frente a otras alternativas.</p>
+        <p style="color:var(--gray); margin-bottom:1rem;">Nuestro equipo gestiona íntegramente cada propiedad: desde la búsqueda del inquilino corporativo hasta el mantenimiento y la renovación de contratos. El inversor solo tiene que cobrar.</p>
+        <div class="about-values">
+          <div class="about-value"><div class="av-dot"></div><p>Transparencia total en cada operación</p></div>
+          <div class="about-value"><div class="av-dot"></div><p>Contratos en pesos ajustados por inflación</p></div>
+          <div class="about-value"><div class="av-dot"></div><p>Gestión integral sin costos ocultos</p></div>
+          <div class="about-value"><div class="av-dot"></div><p>Clientes corporativos verificados</p></div>
+          <div class="about-value"><div class="av-dot"></div><p>Soporte post-venta permanente</p></div>
+          <div class="about-value"><div class="av-dot"></div><p>+25 años de trayectoria regional</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section style="background:var(--black); color:var(--white);">
+    <div class="section-label reveal">El contexto</div>
+    <h2 class="section-title reveal" style="color:var(--white);"><em>Vaca Muerta:</em><br/>la oportunidad del siglo</h2>
+    <div class="gold-divider reveal"></div>
+    <p style="color:rgba(255,255,255,.6); max-width:640px; margin-bottom:3rem;">Vaca Muerta es la segunda reserva de shale gas y la cuarta de shale oil del planeta. Las inversiones proyectadas superan los USD 100.000 millones en la próxima década. Añelo es la puerta de entrada a todo ese movimiento.</p>
+    <div class="why-grid">
+      <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);"><div class="icon">🌐</div><h3 style="color:var(--white);">2° reserva mundial</h3><p style="color:rgba(255,255,255,.55);">Vaca Muerta es la segunda reserva de shale del mundo, solo comparable con Permian Basin en Texas.</p></div>
+      <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);"><div class="icon">📈</div><h3 style="color:var(--white);">Crecimiento sostenido</h3><p style="color:rgba(255,255,255,.55);">YPF, Shell, TotalEnergies, Chevron y Pan American Energy operan en la cuenca. La actividad crece año a año.</p></div>
+      <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);"><div class="icon">🏘</div><h3 style="color:var(--white);">Déficit habitacional</h3><p style="color:rgba(255,255,255,.55);">La ciudad no da abasto con la demanda de alojamiento. Cada nueva licitación trae cientos de trabajadores que necesitan dónde vivir.</p></div>
+      <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);"><div class="icon">💰</div><h3 style="color:var(--white);">Pagos empresariales</h3><p style="color:rgba(255,255,255,.55);">Los alquileres los pagan las propias operadoras, no individuos. Esto elimina prácticamente el riesgo de impago.</p></div>
+    </div>
+  </section>
+  <section style="text-align:center;">
+    <div class="section-label">¿Querés saber más?</div>
+    <h2 class="section-title">Hablemos de tu inversión</h2>
+    <div class="gold-divider" style="margin:1rem auto 1.5rem;"></div>
+    <p style="color:var(--gray); max-width:500px; margin:0 auto 2.5rem;">Sin compromiso, sin presión. Te explicamos todo el proceso y te mostramos las opciones disponibles según tu presupuesto.</p>
+    <a class="btn-primary" href="/contacto/">Contactar un asesor</a>
+  </section>
+</Layout>

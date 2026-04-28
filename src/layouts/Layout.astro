@@ -1,0 +1,355 @@
+---
+import '../styles/global.css';
+
+export interface Props {
+  title: string;
+  description: string;
+  pathname: string;
+  ogImage?: string;
+}
+
+const { title, description, pathname, ogImage = '/complejo-yellowstone.webp' } = Astro.props;
+const site = 'https://inmobiliariaanelo.com.ar';
+const canonical = site + pathname;
+const fullOg = ogImage.startsWith('http') ? ogImage : site + ogImage;
+
+const navItems = [
+  { href: '/', label: 'Inicio', match: '/' },
+  { href: '/corporativo/', label: 'Alquiler Corporativo', match: '/corporativo/' },
+  { href: '/invertir/', label: 'Invertir', match: '/invertir/' },
+  { href: '/nosotros/', label: 'Nosotros', match: '/nosotros/' },
+  { href: '/contacto/', label: 'Contacto', match: '/contacto/', cta: true },
+];
+---
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0XLBKV85QF"></script>
+  <script is:inline>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-0XLBKV85QF');
+    gtag('config', 'AW-17170667639');
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ═══ PRIMARY SEO ═══ -->
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <meta name="keywords" content="alquiler corporativo Añelo, inmobiliaria Añelo Neuquén, inversión Vaca Muerta, alquiler Oil Gas Neuquén, complejos corporativos Añelo, departamentos Añelo, inversión inmobiliaria Patagonia, alquiler empresas Vaca Muerta, Grupo Pampa inmobiliaria" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="author" content="Inmobiliaria Añelo – Grupo Pampa" />
+  <link rel="canonical" href={canonical} />
+
+  <!-- ═══ GOOGLE SEARCH CONSOLE ═══ -->
+  <meta name="google-site-verification" content="l5EaZ3LATjVHVcCWjnhRTw3EuVLDahLNI5kPrpvQRmA" />
+
+  <!-- ═══ FAVICON & PWA ═══ -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/logo-inmobiliaria-anelo.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/logo-inmobiliaria-anelo.png" />
+  <link rel="apple-touch-icon" href="/logo-inmobiliaria-anelo.png" />
+  <meta name="theme-color" content="#0a0a0a" />
+
+  <!-- ═══ GEO / LOCAL SEO ═══ -->
+  <meta name="geo.region" content="AR-Q" />
+  <meta name="geo.placename" content="Añelo, Neuquén, Argentina" />
+  <meta name="geo.position" content="-38.354;-68.783" />
+  <meta name="ICBM" content="-38.354, -68.783" />
+  <meta name="language" content="es-AR" />
+
+  <!-- ═══ OPEN GRAPH · Facebook & Meta Ads ═══ -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Inmobiliaria Añelo" />
+  <meta property="og:locale" content="es_AR" />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={fullOg} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Inmobiliaria Añelo, Vaca Muerta, Neuquén" />
+
+  <!-- ═══ TWITTER / X CARD ═══ -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={fullOg} />
+
+  <!-- ═══ SCHEMA.ORG JSON-LD ═══ -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "RealEstateAgent",
+        "@id": "https://inmobiliariaanelo.com.ar/#organization",
+        "name": "Inmobiliaria Añelo",
+        "alternateName": "Grupo Pampa Inmobiliaria",
+        "url": "https://inmobiliariaanelo.com.ar/",
+        "logo": { "@type": "ImageObject", "url": "https://inmobiliariaanelo.com.ar/logo-inmobiliaria-anelo.png" },
+        "image": "https://inmobiliariaanelo.com.ar/complejo-yellowstone.webp",
+        "description": "Inmobiliaria especializada en alquiler corporativo para empresas Oil & Gas e inversiones inmobiliarias en Añelo, Neuquén, Vaca Muerta. Complejos, edificios y unidades funcionales totalmente equipadas. +25 años de trayectoria en la Patagonia.",
+        "telephone": "+5492972431619",
+        "email": "grupopampanqn@gmail.com",
+        "sameAs": ["https://www.instagram.com/inmobiliaria.anelo"],
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Vaca Muerta 8305",
+          "addressLocality": "Añelo",
+          "addressRegion": "Neuquén",
+          "postalCode": "8305",
+          "addressCountry": "AR"
+        },
+        "geo": { "@type": "GeoCoordinates", "latitude": -38.354, "longitude": -68.783 },
+        "openingHoursSpecification": [
+          { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], "opens": "09:00", "closes": "18:00" },
+          { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "09:00", "closes": "13:00" }
+        ],
+        "priceRange": "USD 35.000 – USD 500.000",
+        "areaServed": {
+          "@type": "City", "name": "Añelo",
+          "containedInPlace": { "@type": "State", "name": "Neuquén", "containedInPlace": { "@type": "Country", "name": "Argentina" } }
+        },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Propiedades en Alquiler e Inversión – Vaca Muerta",
+          "itemListElement": [
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Alquiler Corporativo Oil & Gas – Complejos de Casas", "description": "Complejos residenciales completos para personal de empresas Oil & Gas en Añelo, Neuquén." } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Inversión en Edificios – Vaca Muerta", "description": "Edificios de departamentos en el centro de Añelo. Retorno 9–12% anual en USD." } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Unidades Funcionales para Inversores", "description": "Departamentos individuales en Añelo desde USD 35.000. Gestión integral incluida." } }
+          ]
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://inmobiliariaanelo.com.ar/#website",
+        "url": "https://inmobiliariaanelo.com.ar/",
+        "name": "Inmobiliaria Añelo",
+        "description": "Alquiler corporativo e inversión inmobiliaria en Vaca Muerta, Añelo, Neuquén",
+        "publisher": { "@id": "https://inmobiliariaanelo.com.ar/#organization" },
+        "inLanguage": "es-AR"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "¿Cuánto cuesta alquilar un complejo corporativo en Añelo?", "acceptedAnswer": { "@type": "Answer", "text": "El precio depende del tamaño y tipo de complejo. Trabajamos con contratos corporativos en USD a nombre de la empresa operadora. Cotizá en menos de 24 horas completando el formulario." } },
+          { "@type": "Question", "name": "¿Qué retorno anual ofrece invertir en Vaca Muerta?", "acceptedAnswer": { "@type": "Answer", "text": "Las propiedades en Añelo, Neuquén ofrecen retornos del 10 al 12% anual en dólares, respaldados por contratos corporativos con empresas Oil & Gas de primer nivel." } },
+          { "@type": "Question", "name": "¿Qué incluye el alquiler corporativo?", "acceptedAnswer": { "@type": "Answer", "text": "Incluye gestión integral, servicios (electricidad, agua, gas, internet, DirecTV), mantenimiento y administración. La empresa operadora paga directamente en USD." } },
+          { "@type": "Question", "name": "¿Desde cuánto se puede invertir en propiedades en Añelo?", "acceptedAnswer": { "@type": "Answer", "text": "Se puede ingresar desde USD 35.000 en unidades funcionales individuales, hasta inversiones mayores en complejos o edificios completos." } }
+        ]
+      }
+    ]
+  })} />
+
+  <link rel="preload" as="image" href="/complejo-yellowstone.webp" fetchpriority="high" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600&display=swap" /></noscript>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a class="nav-logo" href="/">
+    <picture>
+      <source srcset="/logo-inmobiliaria-anelo@2x.webp" type="image/webp" />
+      <img class="nav-logo-img" src="/logo-inmobiliaria-anelo.png" alt="Inmobiliaria Añelo" width="44" height="44" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+    </picture>
+    <span class="nav-logo-ia" style="display:none;">IA</span>
+    <div class="nav-logo-text">
+      <span>Inmobiliaria</span>
+      <span>AÑELO</span>
+    </div>
+  </a>
+  <ul class="nav-links" id="navLinks">
+    {navItems.map((item) => (
+      <li>
+        <a
+          href={item.href}
+          class:list={[
+            { 'nav-cta': item.cta, active: pathname === item.match },
+          ]}
+        >{item.label}</a>
+      </li>
+    ))}
+  </ul>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="page">
+  <slot />
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="nav-logo" style="cursor:default; pointer-events:none;">
+        <picture>
+          <source srcset="/logo-inmobiliaria-anelo@2x.webp" type="image/webp" />
+          <img class="nav-logo-img" src="/logo-inmobiliaria-anelo.png" alt="Inmobiliaria Añelo" width="44" height="44" loading="lazy" onerror="this.style.display='none';" />
+        </picture>
+        <div class="nav-logo-text"><span>Inmobiliaria</span><span>AÑELO</span></div>
+      </div>
+      <p>+25 años de experiencia inmobiliaria en la Patagonia. Especialistas en alquiler corporativo e inversiones en Vaca Muerta, Añelo, Neuquén.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navegación</h4>
+      <ul>
+        <li><a href="/">Inicio</a></li>
+        <li><a href="/corporativo/">Propiedades</a></li>
+        <li><a href="/invertir/">Invertir</a></li>
+        <li><a href="/nosotros/">Nosotros</a></li>
+        <li><a href="/contacto/">Contacto</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <ul>
+        <li><a href="tel:+5492972431619">+54 9 2972 431619</a></li>
+        <li><a href="mailto:grupopampanqn@gmail.com">grupopampanqn@gmail.com</a></li>
+        <li><a href="https://wa.me/5492972431619" target="_blank" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">WhatsApp</a></li>
+        <li><a href="https://www.instagram.com/inmobiliaria.anelo" target="_blank">@inmobiliaria.anelo</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 Inmobiliaria Añelo · Todos los derechos reservados</span>
+    <div class="social-links">
+      <a class="social-link" href="https://wa.me/5492972431619" target="_blank" title="WhatsApp" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">📞</a>
+      <a class="social-link" href="https://www.instagram.com/inmobiliaria.anelo" target="_blank" title="Instagram">IG</a>
+      <a class="social-link" href="mailto:grupopampanqn@gmail.com" title="Email">✉</a>
+    </div>
+  </div>
+</footer>
+
+<!-- PROPERTY MODAL -->
+<div id="propModal" class="prop-modal-overlay" onclick="if(event.target===this)closePropModal()">
+  <div class="prop-modal">
+    <button class="prop-modal-close" onclick="closePropModal()" aria-label="Cerrar">&times;</button>
+    <h3 id="modalPropName"></h3>
+    <p class="prop-modal-sub">¿Qué querés hacer?</p>
+    <div class="prop-modal-actions">
+      <a id="modalVirtual" href="#" target="_blank" rel="noopener" class="prop-modal-btn">
+        <span class="prop-modal-icon">🥽</span><span>Ver recorrido virtual</span>
+      </a>
+      <a id="modalSection" href="#" class="prop-modal-btn">
+        <span class="prop-modal-icon">🏠</span><span id="modalSectionLabel">Ver propiedades similares</span>
+      </a>
+      <a id="modalWA" href="#" target="_blank" rel="noopener" class="prop-modal-btn prop-modal-btn-wa" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">
+        <span class="prop-modal-icon">💬</span><span>Consultar por WhatsApp</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICES POPUP -->
+<div id="servicesPopup" class="services-popup-overlay" onclick="if(event.target===this)closeServicesPopup()">
+  <div class="services-popup">
+    <button class="services-popup-x" onclick="closeServicesPopup()" aria-label="Cerrar">&times;</button>
+    <div class="services-popup-badge">Todo incluido</div>
+    <h3>Llave en mano,<br/>sin sorpresas</h3>
+    <p class="sp-sub">Cada propiedad incluye servicios completos desde el primer día. Sin gestiones adicionales para el inquilino ni el inversor.</p>
+    <div class="sp-grid">
+      <div class="sp-item"><span class="sp-item-icon">🔌</span><span>Electricidad y gas</span></div>
+      <div class="sp-item"><span class="sp-item-icon">💧</span><span>Agua y cloacas</span></div>
+      <div class="sp-item"><span class="sp-item-icon">📶</span><span>WiFi de alta velocidad</span></div>
+      <div class="sp-item"><span class="sp-item-icon">🧹</span><span>Limpieza periódica</span></div>
+      <div class="sp-item"><span class="sp-item-icon">🔧</span><span>Mantenimiento 24/7</span></div>
+      <div class="sp-item"><span class="sp-item-icon">🛋️</span><span>Totalmente amoblado</span></div>
+      <div class="sp-item"><span class="sp-item-icon">🏢</span><span>Administración integral</span></div>
+    </div>
+    <div class="sp-highlight">
+      <strong>+25 años</strong> gestionando propiedades en Añelo &mdash; el inversor solo cobra, nosotros nos ocupamos de todo.
+    </div>
+    <div class="sp-actions">
+      <a href="https://wa.me/5492972431619?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20las%20propiedades%20con%20servicios%20incluidos." target="_blank" rel="noopener" class="sp-btn-wa" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">💬 Consultar por WhatsApp</a>
+      <button class="sp-btn-close" onclick="closeServicesPopup()">Seguir viendo</button>
+    </div>
+  </div>
+</div>
+
+<!-- WHATSAPP FLOAT -->
+<div class="wa-float">
+  <a href="https://wa.me/5492972431619" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+</div>
+
+<!-- ── GLOBAL SCRIPTS ───────────────────────────────────────────────────── -->
+<script is:inline>
+  // ─── MENU / NAV ────────────────────────────────────────────────────────
+  function toggleMenu() { document.getElementById('navLinks').classList.toggle('open'); }
+  function closeMenu() { document.getElementById('navLinks').classList.remove('open'); }
+  document.querySelectorAll('.nav-links a').forEach(function(a) {
+    a.addEventListener('click', closeMenu);
+  });
+
+  // ─── PROPERTY MODAL ────────────────────────────────────────────────────
+  function openPropModal(card) {
+    var name = card.dataset.name;
+    var type = card.dataset.type;
+    var section = card.dataset.section;
+    var virtualUrl = type === 'edificio'
+      ? 'https://my.matterport.com/show/?m=HdzbizKQMrt'
+      : 'https://my.matterport.com/show/?m=z9F3K5h3gok';
+    var waMsg = encodeURIComponent('Hola! Me interesa el ' + name + '. Actualmente busco alquiler para...');
+    var sectionLabel = type === 'edificio' ? 'Ver Edificios Pampa' : 'Ver Complejos Residenciales';
+    var sectionAnchor = section === 'edificios' ? '#secEdificios' : '#secComplejos';
+    document.getElementById('modalPropName').textContent = name;
+    document.getElementById('modalVirtual').href = virtualUrl;
+    document.getElementById('modalWA').href = 'https://wa.me/5492972431619?text=' + waMsg;
+    document.getElementById('modalSectionLabel').textContent = sectionLabel;
+    document.getElementById('modalSection').href = '/corporativo/' + sectionAnchor;
+    document.getElementById('propModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closePropModal() {
+    document.getElementById('propModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.querySelectorAll('.prop-card').forEach(function(card) {
+    card.addEventListener('click', function(e) {
+      if (e.target.closest('a, button')) return;
+      openPropModal(card);
+    });
+  });
+
+  // ─── SERVICES POPUP ────────────────────────────────────────────────────
+  function closeServicesPopup() {
+    document.getElementById('servicesPopup').classList.remove('open');
+    document.body.style.overflow = '';
+    sessionStorage.setItem('sp_seen', '1');
+  }
+  if (!sessionStorage.getItem('sp_seen')) {
+    setTimeout(function() {
+      var popup = document.getElementById('servicesPopup');
+      if (popup) {
+        popup.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+    }, 12000);
+  }
+
+  // ─── REVEAL ON SCROLL ──────────────────────────────────────────────────
+  (function() {
+    if (!('IntersectionObserver' in window)) {
+      document.querySelectorAll('.reveal').forEach(function(el) { el.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
+  })();
+</script>
+
+</body>
+</html>

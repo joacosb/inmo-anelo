@@ -1,0 +1,172 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Contacto | Cotizá tu Alquiler en 24hs - Inmobiliaria Añelo"
+  description="Contactanos para alquiler corporativo o inversión en Añelo, Neuquén. Respuesta en menos de 24 horas. WhatsApp +54 9 2972 431619. Vaca Muerta 8305, Añelo."
+  pathname="/contacto/"
+>
+
+  <section class="contact-section">
+    <div class="section-label reveal">Contacto</div>
+    <div class="section-title reveal"><em>Hablemos</em></div>
+    <div class="gold-divider reveal"></div>
+    <p class="section-sub">Ya sea que quieras invertir, alquilar para tu empresa o simplemente consultar, estamos disponibles para responderte en menos de 24 horas.</p>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h3>Información de contacto</h3>
+        <p>Nuestro equipo está disponible de lunes a sábado para atenderte de manera personalizada.</p>
+        <div class="contact-item"><div class="ci-icon">📞</div><div class="ci-text"><strong>Teléfono / WhatsApp</strong><a href="tel:+5492972431619">+54 9 2972 431619</a></div></div>
+        <div class="contact-item"><div class="ci-icon">✉</div><div class="ci-text"><strong>Email</strong><a href="mailto:grupopampanqn@gmail.com">grupopampanqn@gmail.com</a></div></div>
+        <div class="contact-item"><div class="ci-icon">📍</div><div class="ci-text"><strong>Dirección</strong><span>Añelo, Neuquén · Vaca Muerta 8305, Argentina</span></div></div>
+        <div class="contact-item"><div class="ci-icon">📷</div><div class="ci-text"><strong>Instagram</strong><a href="https://www.instagram.com/inmobiliaria.anelo" target="_blank">@inmobiliaria.anelo</a></div></div>
+        <div style="margin-top:2rem; background:var(--black); border-radius:6px; padding:1.75rem;">
+          <p style="color:var(--gold); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; font-weight:700; margin-bottom:.75rem;">Horarios de atención</p>
+          <p style="color:rgba(255,255,255,.7); font-size:.9rem; line-height:1.8;">Lunes a Viernes: 9:00 – 18:00 hs<br/>Sábados: 9:00 – 13:00 hs</p>
+        </div>
+      </div>
+      <div class="contact-form">
+        <h3>Cotizá gratis — respondemos en menos de 24 hs</h3>
+        <form id="contactForm" novalidate>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="fNombre">Nombre *</label>
+              <input type="text" id="fNombre" name="first_name" placeholder="Tu nombre" autocomplete="given-name" required />
+            </div>
+            <div class="form-field">
+              <label for="fApellido">Apellido</label>
+              <input type="text" id="fApellido" name="last_name" placeholder="Tu apellido" autocomplete="family-name" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="fEmail">Email *</label>
+              <input type="email" id="fEmail" name="email" placeholder="tu@empresa.com" autocomplete="email" required />
+            </div>
+            <div class="form-field">
+              <label for="fTel">Teléfono / WhatsApp *</label>
+              <input type="tel" id="fTel" name="phone" placeholder="+54 9 2972 ..." autocomplete="tel" required />
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="fEmpresa">Empresa (opcional)</label>
+            <input type="text" id="fEmpresa" name="company" placeholder="Nombre de tu empresa u operadora" autocomplete="organization" />
+          </div>
+          <div class="form-field">
+            <label for="fInteres">Me interesa *</label>
+            <select id="fInteres" name="interest" required>
+              <option value="">Seleccioná una opción</option>
+              <option value="inversion-unidad">Invertir en una unidad individual</option>
+              <option value="inversion-complejo">Invertir en un complejo completo</option>
+              <option value="inversion-edificio">Invertir en edificios</option>
+              <option value="alquiler-corporativo">Alquiler corporativo para mi empresa</option>
+              <option value="informacion">Quiero más información general</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="fPresupuesto">Presupuesto estimado (USD)</label>
+            <select id="fPresupuesto" name="budget">
+              <option value="">Seleccioná un rango</option>
+              <option value="lt50k">Menos de USD 50.000</option>
+              <option value="50k-100k">USD 50.000 – 100.000</option>
+              <option value="100k-250k">USD 100.000 – 250.000</option>
+              <option value="250k-500k">USD 250.000 – 500.000</option>
+              <option value="gt500k">Más de USD 500.000</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="fMensaje">Mensaje</label>
+            <textarea id="fMensaje" name="message" placeholder="Contános tu situación: cantidad de personas, plazo estimado, propiedad de interés..."></textarea>
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%;">Enviar consulta →</button>
+          <p style="font-size:.72rem; color:var(--gray); text-align:center; margin-top:.75rem;">🔒 Tu información es confidencial. No compartimos tus datos con terceros.</p>
+          <div class="form-success" id="formSuccess">✓ Tu consulta fue enviada correctamente. Te contactaremos en menos de 24 horas.</div>
+        </form>
+      </div>
+    </div>
+  </section>
+  <div class="map-section">
+    <div class="section-label">Ubicación</div>
+    <div class="section-title">Dónde estamos</div>
+    <div class="gold-divider"></div>
+    <div class="map-grid">
+      <div class="map-info-card">
+        <h3>Inmobiliaria Añelo</h3>
+        <div class="map-detail"><span class="md-icon">📍</span><div><div class="md-label">Dirección</div><div class="md-val">Añelo, Neuquén<br/>Vaca Muerta 8305<br/>Argentina</div></div></div>
+        <div class="map-detail"><span class="md-icon">📞</span><div><div class="md-label">WhatsApp</div><div class="md-val">+54 9 2972 431619</div></div></div>
+        <div class="map-detail"><span class="md-icon">✉</span><div><div class="md-label">Email</div><div class="md-val">grupopampanqn@gmail.com</div></div></div>
+        <div style="margin-top:1.5rem;"><a href="https://wa.me/5492972431619" target="_blank" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})" style="display:block; background:var(--gold); color:var(--black); text-align:center; padding:.85rem; border-radius:3px; text-decoration:none; font-weight:700; font-size:.9rem; letter-spacing:.05em; text-transform:uppercase;">Escribir por WhatsApp</a></div>
+      </div>
+      <div class="map-embed"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d12098.26956975289!2d-68.80177!3d-38.3508!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x960b99e0b3ef0b1d%3A0x4df0d0fd7c4e4e0!2sA%C3%B1elo%2C%20Neuqu%C3%A9n!5e0!3m2!1ses!2sar!4v1710000000000" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Anelo, Neuquen"></iframe></div>
+    </div>
+  </div>
+</Layout>
+
+<script is:inline>
+  // ─── WEB3FORMS CONTACT FORM ────────────────────────────────────────────
+  (function() {
+    var WEB3FORMS_KEY = '053509d0-26d1-4fc2-af1d-04110ee487f9';
+    var form = document.getElementById('contactForm');
+    if (!form) return;
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = form.querySelector('button[type="submit"]');
+
+      if (!form.checkValidity()) {
+        form.querySelectorAll(':invalid').forEach(function(el) {
+          el.style.borderColor = '#ef4444';
+          el.addEventListener('input', function() { el.style.borderColor = ''; }, { once: true });
+        });
+        form.querySelector(':invalid').focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+
+      var data = {
+        access_key:  WEB3FORMS_KEY,
+        subject:     'Nueva consulta – Inmobiliaria Añelo',
+        from_name:   'Web Inmobiliaria Añelo',
+        nombre:      document.getElementById('fNombre').value.trim(),
+        apellido:    document.getElementById('fApellido').value.trim(),
+        email:       document.getElementById('fEmail').value.trim(),
+        telefono:    document.getElementById('fTel').value.trim(),
+        empresa:     document.getElementById('fEmpresa').value.trim(),
+        interes:     document.getElementById('fInteres').value,
+        presupuesto: document.getElementById('fPresupuesto').value,
+        mensaje:     document.getElementById('fMensaje').value.trim()
+      };
+
+      fetch('https://api.web3forms.com/submit', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body:    JSON.stringify(data)
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(json) {
+        if (json.success) {
+          document.getElementById('formSuccess').style.display = 'block';
+          form.querySelectorAll('input, textarea, select').forEach(function(el) { el.value = ''; });
+          btn.textContent = 'Consulta enviada ✓';
+
+          try {
+            if (typeof gtag === 'function') gtag('event', 'generate_lead', { event_category: 'contacto', event_label: data.interes || 'general', value: 1 });
+            if (typeof dataLayer !== 'undefined') dataLayer.push({ event: 'form_submit', form_name: 'contacto_principal', lead_type: data.interes, budget: data.presupuesto });
+          } catch(err) {}
+
+          setTimeout(function() {
+            document.getElementById('formSuccess').style.display = 'none';
+            btn.textContent = 'Enviar consulta →';
+            btn.disabled = false;
+          }, 8000);
+        } else { throw new Error(); }
+      })
+      .catch(function() {
+        btn.textContent = 'Error – escribinos por WhatsApp';
+        btn.style.background = '#ef4444';
+        setTimeout(function() { btn.textContent = 'Enviar consulta →'; btn.style.background = ''; btn.disabled = false; }, 5000);
+      });
+    });
+  })();
+</script>
