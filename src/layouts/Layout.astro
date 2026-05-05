@@ -295,9 +295,11 @@ const navItems = [
     var name = card.dataset.name;
     var type = card.dataset.type;
     var section = card.dataset.section;
-    var virtualUrl = type === 'edificio'
+    var ownTour = card.querySelector('.btn-3d');
+    var fallbackUrl = type === 'edificio'
       ? 'https://my.matterport.com/show/?m=HdzbizKQMrt'
       : 'https://my.matterport.com/show/?m=z9F3K5h3gok';
+    var virtualUrl = ownTour ? ownTour.href : fallbackUrl;
     var waMsg = encodeURIComponent('Hola! Me interesa el ' + name + '. Actualmente busco alquiler para...');
     var sectionLabel = type === 'edificio' ? 'Ver Edificios Pampa' : 'Ver Complejos Residenciales';
     var sectionAnchor = section === 'edificios' ? '#secEdificios' : '#secComplejos';
