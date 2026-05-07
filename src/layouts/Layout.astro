@@ -165,16 +165,61 @@ const navItems = [
     </div>
   </a>
   <ul class="nav-links" id="navLinks">
-    {navItems.map((item) => (
-      <li>
-        <a
-          href={item.href}
-          class:list={[
-            { 'nav-cta': item.cta, active: pathname === item.match },
-          ]}
-        >{item.label}</a>
-      </li>
-    ))}
+    <li class="has-dropdown">
+      <div class="nav-item-row">
+        <a href="/" class:list={[{ active: pathname === '/' }]}>Inicio</a>
+        <button class="nav-chevron-btn" aria-label="Ver secciones" aria-expanded="false">
+          <svg viewBox="0 0 10 6" width="10" height="6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="nav-dropdown">
+        <a href="/#por-que-anelo">Vaca Muerta</a>
+        <a href="/#nuestros-complejos">Nuestros complejos</a>
+        <a href="/#como-invierto">¿Cómo invierto?</a>
+      </div>
+    </li>
+    <li class="has-dropdown">
+      <div class="nav-item-row">
+        <a href="/corporativo/" class:list={[{ active: pathname === '/corporativo/' }]}>Alquiler Corporativo</a>
+        <button class="nav-chevron-btn" aria-label="Ver secciones" aria-expanded="false">
+          <svg viewBox="0 0 10 6" width="10" height="6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="nav-dropdown">
+        <a href="/corporativo/#secComplejos">Complejos residenciales</a>
+        <a href="/corporativo/#secEdificios">Edificios y locales comerciales</a>
+      </div>
+    </li>
+    <li class="has-dropdown">
+      <div class="nav-item-row">
+        <a href="/invertir/" class:list={[{ active: pathname === '/invertir/' }]}>Invertir</a>
+        <button class="nav-chevron-btn" aria-label="Ver secciones" aria-expanded="false">
+          <svg viewBox="0 0 10 6" width="10" height="6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="nav-dropdown">
+        <a href="/invertir/#retornos">Rentabilidad en dólares</a>
+        <a href="/invertir/#retornos">Calculá tu retorno</a>
+        <a href="/invertir/#propiedades">Propiedades disponibles</a>
+        <a href="/invertir/#faq">Preguntas frecuentes</a>
+      </div>
+    </li>
+    <li>
+      <a href="/nosotros/" class:list={[{ active: pathname === '/nosotros/' }]}>Nosotros</a>
+    </li>
+    <li class="has-dropdown">
+      <div class="nav-item-row">
+        <a href="/contacto/" class="nav-cta">Contacto</a>
+        <button class="nav-chevron-btn" aria-label="Ver opciones de contacto" aria-expanded="false" style="color:var(--black);">
+          <svg viewBox="0 0 10 6" width="10" height="6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="nav-dropdown" style="left:auto; right:0; transform:translateY(-4px);">
+        <a href="https://wa.me/5492972431619" target="_blank" rel="noopener" onclick="gtag('event','whatsapp_click',{'event_category':'nav'});">💬 WhatsApp</a>
+        <a href="mailto:grupopampanqn@gmail.com">✉ Mail</a>
+        <a href="https://www.instagram.com/inmobiliaria.anelo" target="_blank" rel="noopener">📷 Instagram</a>
+      </div>
+    </li>
   </ul>
   <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -285,9 +330,40 @@ const navItems = [
 <script is:inline>
   // ─── MENU / NAV ────────────────────────────────────────────────────────
   function toggleMenu() { document.getElementById('navLinks').classList.toggle('open'); }
-  function closeMenu() { document.getElementById('navLinks').classList.remove('open'); }
-  document.querySelectorAll('.nav-links a').forEach(function(a) {
+  function closeMenu() {
+    document.getElementById('navLinks').classList.remove('open');
+    document.querySelectorAll('.has-dropdown.open').forEach(function(el) { el.classList.remove('open'); });
+  }
+  document.querySelectorAll('.nav-links > li > a').forEach(function(a) {
     a.addEventListener('click', closeMenu);
+  });
+  document.querySelectorAll('.nav-dropdown a').forEach(function(a) {
+    a.addEventListener('click', closeMenu);
+  });
+
+  // ─── DROPDOWN CHEVRON (mobile toggle) ──────────────────────────────────
+  document.querySelectorAll('.nav-chevron-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var li = btn.closest('.has-dropdown');
+      var isOpen = li.classList.contains('open');
+      document.querySelectorAll('.has-dropdown.open').forEach(function(el) {
+        el.classList.remove('open');
+        el.querySelector('.nav-chevron-btn').setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) {
+        li.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // close dropdowns on outside click (desktop)
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.has-dropdown')) {
+      document.querySelectorAll('.has-dropdown.open').forEach(function(el) { el.classList.remove('open'); });
+    }
   });
 
   // ─── PROPERTY MODAL ────────────────────────────────────────────────────

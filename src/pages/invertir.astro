@@ -139,7 +139,7 @@ import Layout from '../layouts/Layout.astro';
     </div>
   </section>
 
-  <section class="returns-section">
+  <section class="returns-section" id="retornos">
     <div class="section-label reveal">Por qué invertir</div>
     <div class="section-title reveal">Rentabilidad <em>real</em><br/>en dólares</div>
     <div class="gold-divider reveal"></div>
@@ -204,7 +204,7 @@ import Layout from '../layouts/Layout.astro';
     </div>
   </section>
 
-  <section>
+  <section id="propiedades">
     <div class="section-label reveal">Oportunidades de inversión</div>
     <div class="section-title reveal">Propiedades <em>disponibles</em><br/>para comprar</div>
     <div class="gold-divider reveal"></div>
@@ -255,20 +255,91 @@ import Layout from '../layouts/Layout.astro';
     </div>
   </section>
 
+  <!-- FAQ -->
+  <section class="faq-section" id="faq">
+    <div class="section-label reveal">Preguntas frecuentes</div>
+    <div class="section-title reveal">Todo lo que querés<br/><em>saber antes de invertir</em></div>
+    <div class="gold-divider reveal"></div>
+    <p class="section-sub reveal">Resolvemos las dudas más comunes de nuestros inversores. Si tu pregunta no está acá, escribinos y te respondemos en menos de 24 hs.</p>
+    <div class="faq-grid reveal">
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">¿Cuánto capital necesito para empezar?<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-a"><p>Las opciones se adaptan a distintos perfiles de inversión. Podés entrar desde <strong>USD 60 el m²</strong> en lotes, acceder a unidades funcionales para 1 a 4 personas, o invertir en complejos con capacidad de hasta 24 personas. Para inversores de mayor escala, los <strong>Edificios Pampa</strong> son una excelente alternativa: construcción de calidad en el centro de Añelo, ideal para empresas que necesitan alojar a todo su equipo.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">¿Qué pasa si no consiguen inquilino para mi propiedad?<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-a"><p>La demanda corporativa en Añelo es muy atractiva: ingenieros, ejecutivos y trabajadores de Oil &amp; Gas necesitan alojamiento permanente. Incluso es posible comprar una propiedad con contrato vigente desde el día uno. Si eventualmente queda libre, nos encargamos de mantenerla operativa y conseguir el próximo inquilino — vos no te ocupás de nada.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">¿Cómo funciona el contrato corporativo?<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-a"><p>El contrato se firma con <strong>empresas, no con particulares</strong>, lo que da mayor seguridad al inversor. Nosotros negociamos la tarifa, gestionamos toda la parte legal y nos hacemos cargo de los gastos operativos. Vos cobrás, nosotros administramos.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">¿Cuánto tiempo tarda en concretarse la compra?<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-a"><p>El proceso típico lleva entre <strong>30 y 60 días</strong> desde la reserva hasta la escritura. Toda la documentación legal la gestionamos con un estudio de confianza. Si la unidad ya tiene contrato corporativo vigente al momento de la compra, empezás a cobrar desde el primer mes de concretada la operación.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">¿Puedo vender la propiedad después?<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-a"><p>Sí. Todas nuestras propiedades tienen escritura y son de <strong>dominio pleno</strong> — podés venderlas cuando quieras. Añelo ha mostrado una valorización constante al ritmo del desarrollo de Vaca Muerta. Muchos inversores eligen mantenerlas por la renta y eventualmente vender con plusvalía acumulada.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">¿Qué gastos tengo como inversor?<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-a"><p>Los gastos habituales son impuestos (retributivos y rentas), mantenimiento, servicios y administración. Nos encargamos de mantener todo al día para que no tengas que ocuparte de nada.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">¿Cómo recibo mi renta mensual?<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-a"><p>La renta se transfiere mensualmente a tu cuenta bancaria. Los contratos corporativos se pactan en <strong>pesos con ajuste por IPC</strong> trimestral o cuatrimestral, según la extensión del contrato.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">¿Puedo invertir si soy de otra provincia?<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-a"><p>Sí, trabajamos con inversores de todo el país. Todo el proceso se puede gestionar de forma remota — vos tomás las decisiones, nosotros nos encargamos de los trámites en Añelo.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">¿Qué perspectiva tiene Vaca Muerta a largo plazo?<span class="faq-icon" aria-hidden="true"></span></button>
+        <div class="faq-a"><p>Vaca Muerta es la <strong>2° reserva de shale del mundo</strong> y Argentina aún está en las etapas tempranas de su explotación masiva. Las inversiones de YPF, TotalEnergies, Shell y otros gigantes energéticos están proyectadas por décadas. Cada nueva licitación aumenta la demanda de alojamiento corporativo y la valorización del suelo en Añelo.</p></div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:2.5rem;">
+      <a class="btn-primary" href="https://wa.me/5492972431619?text=Hola%2C%20reci%C3%A9n%20vi%20su%20sitio%20web%20y%20quisiera%20m%C3%A1s%20informaci%C3%B3n%20de%20las%20opciones%20disponibles%20para%20comprar." target="_blank" rel="noopener" onclick="gtag('event','whatsapp_click',{'event_category':'faq_cta'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">Tengo más preguntas — hablemos</a>
+    </div>
+  </section>
+
   <section style="background:var(--light); padding-top:4rem; padding-bottom:4rem;">
     <div class="section-label reveal">Proceso de compra</div>
     <div class="section-title reveal">Invertir en <em>4 pasos</em></div>
     <div class="gold-divider reveal"></div>
     <div class="steps reveal">
-      <div class="step"><div class="step-num" aria-hidden="true">01</div><h4>Elegís tu propiedad</h4><p>Te presentamos las opciones vigentes con proyección de retornos y condiciones de cada operación.</p></div>
+      <div class="step"><div class="step-num" aria-hidden="true">01</div><h4>Elegís tu propiedad</h4><p>Te presentamos las opciones vigentes con perspectiva del mercado local y condiciones de cada operación.</p></div>
       <div class="step"><div class="step-num" aria-hidden="true">02</div><h4>Reserva y escritura</h4><p>Gestionamos toda la documentación legal. Escritura simple y transparente con estudio jurídico de confianza.</p></div>
-      <div class="step"><div class="step-num" aria-hidden="true">03</div><h4>Conseguimos el inquilino</h4><p>Contactamos a nuestros clientes corporativos y firmamos el contrato de alquiler a nombre de la empresa.</p></div>
+      <div class="step"><div class="step-num" aria-hidden="true">03</div><h4>Conseguimos el inquilino</h4><p>Nos encargamos de encontrar el próximo inquilino corporativo, negociar las condiciones y firmar el contrato para que tu propiedad empiece a rendir.</p></div>
       <div class="step"><div class="step-num" aria-hidden="true">04</div><h4>Cobrás tu renta</h4><p>Mensualmente recibís el pago. Nosotros administramos, vos solo monitoréas tus ingresos.</p></div>
     </div>
   </section>
 </Layout>
 
 <script is:inline>
+  // ─── FAQ ACCORDION ────────────────────────────────────────────────────
+  (function() {
+    document.querySelectorAll('.faq-q').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var item = btn.closest('.faq-item');
+        var isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item.open').forEach(function(el) {
+          el.classList.remove('open');
+          el.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+          var ans = el.querySelector('.faq-a');
+          ans.style.maxHeight = '0';
+        });
+        if (!isOpen) {
+          item.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+          var ans = item.querySelector('.faq-a');
+          ans.style.maxHeight = ans.scrollHeight + 'px';
+        }
+      });
+    });
+  })();
+
   // ─── CALCULATOR ────────────────────────────────────────────────────────
   (function() {
     var yields = {
