@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"
+     width="400" height="400" role="img"
+     aria-label="Inmobiliaria Añelo">
+  <rect width="400" height="400" fill="#1B1B18"/>
+  <text x="200" y="278" text-anchor="middle"
+        font-family="'Cormorant Garamond', Garamond, 'Times New Roman', serif"
+        font-weight="500" font-size="290" letter-spacing="-3"
+        fill="#C08070">IA</text>
+</svg>
