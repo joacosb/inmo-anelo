@@ -100,7 +100,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; 
 .quick-cta-btn.alquilar:hover { background: var(--gold-lt); }
 .quick-cta-btn.comprar { background: var(--black); color: var(--white); border-right: 1px solid rgba(201,168,76,.3); }
 .quick-cta-btn.comprar:hover { background: #252520; color: var(--gold); }
-.quick-cta-btn .cta-icon { font-size: 1.3rem; }
+.quick-cta-btn .cta-icon { display: flex; align-items: center; }
 .quick-cta-btn .cta-sub { display: block; font-size: .65rem; font-weight: 400; letter-spacing: .1em; opacity: .7; text-transform: none; }
 
 /* ── SECCIONES GENERALES ── */
@@ -117,7 +117,7 @@ p, .section-sub, .hero p, .step p,
 .why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 2.5rem; }
 .why-card { background: #FFFFFF; padding: 1.75rem; border-radius: var(--radius-md); border: 1px solid rgba(27,27,24,.07); box-shadow: 0 2px 16px rgba(27,27,24,.06); transition: transform .2s, box-shadow .2s; }
 .why-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
-.why-card .icon { width: 44px; height: 44px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; font-size: 1.2rem; }
+.why-card .icon { width: 44px; height: 44px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; color: var(--black); }
 .why-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: .5rem; }
 .why-card p { color: var(--gray); font-size: .9rem; }
 
@@ -266,7 +266,7 @@ footer { background: var(--black); color: rgba(255,255,255,.5); padding: 3rem 8%
 .footer-col ul li a:hover { color: var(--gold); }
 .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 1.5rem; font-size: .78rem; }
 .social-links { display: flex; gap: .75rem; }
-.social-link { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.5); text-decoration: none; font-size: .85rem; transition: border-color .2s, color .2s; }
+.social-link { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.5); text-decoration: none; font-size: .72rem; font-weight: 600; letter-spacing: .04em; transition: border-color .2s, color .2s; }
 .social-link:hover { border-color: var(--gold); color: var(--gold); }
 
 /* ── RESPONSIVE MOBILE ── */
@@ -440,7 +440,6 @@ footer { background: var(--black); color: rgba(255,255,255,.5); padding: 3rem 8%
 .prop-modal-actions { display:flex; flex-direction:column; gap:.625rem; }
 .prop-modal-btn { display:flex; align-items:center; gap:.875rem; padding:.875rem 1.125rem; border-radius:6px; font-size:.9rem; font-weight:600; text-decoration:none; border:2px solid #e0e0e0; color:#0a0a0a; background:#fff; cursor:pointer; transition:border-color .2s, color .2s; text-align:left; width:100%; }
 .prop-modal-btn:hover { border-color:#c9a84c; color:#7a5f00; }
-.prop-modal-icon { font-size:1.25rem; flex-shrink:0; }
 .prop-modal-btn-wa { background:#25D366; border-color:#25D366; color:#fff !important; }
 .prop-modal-btn-wa:hover { background:#1dba5a; border-color:#1dba5a; color:#fff !important; }
 .prop-card { cursor:pointer; }
@@ -564,3 +563,19 @@ footer { background: var(--black); color: rgba(255,255,255,.5); padding: 3rem 8%
   .wa-float a { width: 46px; height: 46px; font-size: 1.35rem; }
   .wa-float a svg { width: 24px; height: 24px; }
 }
+
+/* ── LUCIDE ICONS ── */
+[data-lucide] {
+  display: inline-block;
+  vertical-align: middle;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.75;
+  flex-shrink: 0;
+}
+.why-card [data-lucide]      { width: 20px; height: 20px; }
+.sp-item [data-lucide]       { width: 16px; height: 16px; opacity: .85; }
+.quick-cta-btn [data-lucide] { width: 20px; height: 20px; }
+.amenity-item [data-lucide]  { width: 20px; height: 20px; display: block; margin: 0 auto .3rem; }
+.ci-icon [data-lucide]       { width: 18px; height: 18px; }
+.md-icon [data-lucide]       { width: 16px; height: 16px; }

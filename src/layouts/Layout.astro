@@ -211,9 +211,9 @@ const navItems = [
         </button>
       </div>
       <div class="nav-dropdown" style="left:auto; right:0; transform:translateY(-4px);">
-        <a href="https://wa.me/5492972431619" target="_blank" rel="noopener" onclick="gtag('event','whatsapp_click',{'event_category':'nav'});">💬 WhatsApp</a>
-        <a href="mailto:grupopampanqn@gmail.com">✉ Mail</a>
-        <a href="https://www.instagram.com/inmobiliaria.anelo" target="_blank" rel="noopener">📷 Instagram</a>
+        <a href="https://wa.me/5492972431619" target="_blank" rel="noopener" onclick="gtag('event','whatsapp_click',{'event_category':'nav'});">WhatsApp</a>
+        <a href="mailto:grupopampanqn@gmail.com">Mail</a>
+        <a href="https://www.instagram.com/inmobiliaria.anelo" target="_blank" rel="noopener">Instagram</a>
       </div>
     </li>
   </ul>
@@ -259,9 +259,9 @@ const navItems = [
   <div class="footer-bottom">
     <span>&copy; 2026 Inmobiliaria Añelo · Todos los derechos reservados</span>
     <div class="social-links">
-      <a class="social-link" href="https://wa.me/5492972431619" target="_blank" title="WhatsApp" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">📞</a>
+      <a class="social-link" href="https://wa.me/5492972431619" target="_blank" title="WhatsApp" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">WA</a>
       <a class="social-link" href="https://www.instagram.com/inmobiliaria.anelo" target="_blank" title="Instagram">IG</a>
-      <a class="social-link" href="mailto:grupopampanqn@gmail.com" title="Email">✉</a>
+      <a class="social-link" href="mailto:grupopampanqn@gmail.com" title="Email">Mail</a>
     </div>
   </div>
 </footer>
@@ -274,13 +274,13 @@ const navItems = [
     <p class="prop-modal-sub">¿Qué querés hacer?</p>
     <div class="prop-modal-actions">
       <a id="modalVirtual" href="#" target="_blank" rel="noopener" class="prop-modal-btn">
-        <span class="prop-modal-icon">🥽</span><span>Ver recorrido virtual</span>
+        <span>Ver recorrido virtual</span>
       </a>
       <a id="modalSection" href="#" class="prop-modal-btn">
-        <span class="prop-modal-icon">🏠</span><span id="modalSectionLabel">Ver propiedades similares</span>
+        <span id="modalSectionLabel">Ver propiedades similares</span>
       </a>
       <a id="modalWA" href="#" target="_blank" rel="noopener" class="prop-modal-btn prop-modal-btn-wa" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">
-        <span class="prop-modal-icon">💬</span><span>Consultar por WhatsApp</span>
+        <span>Consultar por WhatsApp</span>
       </a>
     </div>
   </div>
@@ -294,13 +294,13 @@ const navItems = [
     <h3>Llave en mano,<br/>sin sorpresas</h3>
     <p class="sp-sub">Cada propiedad incluye servicios completos desde el primer día. Sin gestiones adicionales para el inquilino ni el inversor.</p>
     <div class="sp-grid">
-      <div class="sp-item"><span class="sp-item-icon">🔌</span><span>Electricidad y gas</span></div>
-      <div class="sp-item"><span class="sp-item-icon">💧</span><span>Agua y cloacas</span></div>
-      <div class="sp-item"><span class="sp-item-icon">📶</span><span>WiFi de alta velocidad</span></div>
-      <div class="sp-item"><span class="sp-item-icon">🧹</span><span>Limpieza periódica</span></div>
-      <div class="sp-item"><span class="sp-item-icon">🔧</span><span>Mantenimiento 24/7</span></div>
-      <div class="sp-item"><span class="sp-item-icon">🛋️</span><span>Totalmente amoblado</span></div>
-      <div class="sp-item"><span class="sp-item-icon">🏢</span><span>Administración integral</span></div>
+      <div class="sp-item"><i data-lucide="zap"></i><span>Electricidad y gas</span></div>
+      <div class="sp-item"><i data-lucide="droplets"></i><span>Agua y cloacas</span></div>
+      <div class="sp-item"><i data-lucide="wifi"></i><span>WiFi de alta velocidad</span></div>
+      <div class="sp-item"><i data-lucide="sparkles"></i><span>Limpieza periódica</span></div>
+      <div class="sp-item"><i data-lucide="wrench"></i><span>Mantenimiento 24/7</span></div>
+      <div class="sp-item"><i data-lucide="sofa"></i><span>Totalmente amoblado</span></div>
+      <div class="sp-item"><i data-lucide="building-2"></i><span>Administración integral</span></div>
     </div>
     <div class="sp-highlight">
       <strong>+25 años</strong> gestionando propiedades en Añelo &mdash; el inversor solo cobra, nosotros nos ocupamos de todo.
@@ -422,5 +422,12 @@ const navItems = [
   })();
 </script>
 
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" is:inline></script>
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+  });
+</script>
 </body>
 </html>
