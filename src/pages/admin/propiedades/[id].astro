@@ -270,7 +270,7 @@ if (!p) return Astro.redirect('/admin/propiedades/');
       const t = document.getElementById('toast');
       t.textContent = msg;
       t.className = isError ? 'error show' : 'show';
-      setTimeout(() => t.classList.remove('show'), 2500);
+      setTimeout(() => t.classList.remove('show'), isError ? 6000 : 2500);
     }
 
     async function patchProperty(data) {
@@ -310,12 +310,14 @@ if (!p) return Astro.redirect('/admin/propiedades/');
           if (!currentCover) currentCover = url;
           appendPhotoCard(url);
         } catch (e) {
-          showToast(`Error al subir ${file.name}`, true);
+          console.error('Upload error:', e);
+          showToast(`Error al subir ${file.name}: ${e.message}`, true);
         }
       }
       const ok = await syncImages();
       progress.textContent = '';
-      showToast(ok ? `✓ ${arr.length} foto${arr.length > 1 ? 's' : ''} agregada${arr.length > 1 ? 's' : ''}` : 'Error al guardar', !ok);
+      if (!ok) console.error('syncImages failed — DB update rejected');
+      showToast(ok ? `✓ ${arr.length} foto${arr.length > 1 ? 's' : ''} agregada${arr.length > 1 ? 's' : ''}` : 'Error al guardar en base de datos', !ok);
     }
 
     async function uploadFile(file) {
