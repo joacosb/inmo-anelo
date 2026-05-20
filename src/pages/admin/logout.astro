@@ -1,0 +1,5 @@
+---
+export const prerender = false;
+Astro.cookies.delete('sb_token', { path: '/' });
+return Astro.redirect('/admin/');
+---

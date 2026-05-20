@@ -1,0 +1,324 @@
+---
+export const prerender = false;
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
+
+const token = Astro.cookies.get('sb_token')!.value;
+
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
+  global: { headers: { Authorization: `Bearer ${token}` } },
+});
+
+const { data: properties = [] } = await sb
+  .from('properties')
+  .select('*')
+  .eq('active', true)
+  .order('sort_order');
+
+const complejos = (properties ?? []).filter((p: any) => p.type === 'complejo');
+const edificios = (properties ?? []).filter((p: any) => p.type === 'edificio');
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Propiedades · Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Montserrat', sans-serif; background: #0d0d0d; color: #fff; min-height: 100vh; }
+
+    /* HEADER */
+    .adm-header {
+      background: #111;
+      border-bottom: 1px solid #222;
+      padding: .9rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .adm-logo { font-size: .7rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #c9a84c; }
+    .adm-header-right { display: flex; align-items: center; gap: 1rem; }
+    .adm-header-right a { color: rgba(255,255,255,.5); font-size: .75rem; text-decoration: none; }
+    .adm-header-right a:hover { color: #fff; }
+    .btn-view { color: #c9a84c !important; border: 1px solid rgba(201,168,76,.4); border-radius: 4px; padding: .3rem .7rem; }
+
+    /* MAIN */
+    .adm-main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .adm-section-title {
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: #c9a84c;
+      margin-bottom: 1rem;
+      margin-top: 2.5rem;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid #222;
+    }
+    .adm-section-title:first-child { margin-top: 0; }
+
+    /* GRID */
+    .adm-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    /* CARD */
+    .adm-card {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+    .adm-card:hover { border-color: #3a3a3a; }
+    .adm-card-img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      display: block;
+    }
+    .adm-card-body { padding: 1rem; }
+    .adm-card-name { font-size: .9rem; font-weight: 700; margin-bottom: .75rem; }
+
+    /* STATUS TOGGLE */
+    .status-row { display: flex; gap: .4rem; margin-bottom: .75rem; }
+    .status-btn {
+      flex: 1;
+      border: none;
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: .45rem .3rem;
+      cursor: pointer;
+      opacity: .35;
+      transition: opacity .15s, transform .1s;
+    }
+    .status-btn:hover { opacity: .65; }
+    .status-btn.active { opacity: 1; }
+    .status-btn:active { transform: scale(.97); }
+    .status-btn.s-available { background: #10b981; color: #fff; }
+    .status-btn.s-partial   { background: #f59e0b; color: #000; }
+    .status-btn.s-occupied  { background: #ef4444; color: #fff; }
+
+    /* BADGE TEXT */
+    .badge-row { display: flex; gap: .4rem; align-items: center; margin-bottom: .85rem; }
+    .badge-input {
+      flex: 1;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 5px;
+      color: #fff;
+      font-family: inherit;
+      font-size: .78rem;
+      padding: .45rem .7rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .badge-input:focus { border-color: #c9a84c; }
+    .save-badge-btn {
+      background: #c9a84c;
+      border: none;
+      border-radius: 5px;
+      color: #000;
+      font-family: inherit;
+      font-size: .7rem;
+      font-weight: 700;
+      padding: .45rem .75rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s;
+    }
+    .save-badge-btn:hover { background: #b8953d; }
+
+    /* EDIT LINK */
+    .adm-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: .75rem;
+      border-top: 1px solid #222;
+    }
+    .adm-meta { font-size: .7rem; color: rgba(255,255,255,.35); }
+    .btn-edit {
+      font-size: .72rem;
+      font-weight: 600;
+      color: #c9a84c;
+      text-decoration: none;
+      border: 1px solid rgba(201,168,76,.35);
+      border-radius: 4px;
+      padding: .3rem .7rem;
+      transition: background .2s;
+    }
+    .btn-edit:hover { background: rgba(201,168,76,.1); }
+
+    /* TOAST */
+    #toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: #10b981;
+      color: #fff;
+      font-size: .8rem;
+      font-weight: 600;
+      padding: .7rem 1.2rem;
+      border-radius: 6px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .2s, transform .2s;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.error { background: #ef4444; }
+  </style>
+</head>
+<body>
+  <header class="adm-header">
+    <span class="adm-logo">Inmobiliaria Añelo · Admin</span>
+    <div class="adm-header-right">
+      <a href="/corporativo/" target="_blank" class="btn-view">Ver sitio →</a>
+      <a href="/admin/logout/">Cerrar sesión</a>
+    </div>
+  </header>
+
+  <main class="adm-main">
+
+    <div class="adm-section-title">Complejos Residenciales</div>
+    <div class="adm-grid">
+      {complejos.map((p: any) => (
+        <div class="adm-card" data-id={p.id}>
+          <img class="adm-card-img" src={p.cover_image} alt={p.name} loading="lazy" />
+          <div class="adm-card-body">
+            <div class="adm-card-name">{p.name}</div>
+
+            <div class="status-row">
+              <button class={`status-btn s-available ${p.status === 'available' ? 'active' : ''}`}
+                data-status="available" onclick="setStatus(this)">Disponible</button>
+              <button class={`status-btn s-partial ${p.status === 'partial' ? 'active' : ''}`}
+                data-status="partial" onclick="setStatus(this)">Parcial</button>
+              <button class={`status-btn s-occupied ${p.status === 'occupied' ? 'active' : ''}`}
+                data-status="occupied" onclick="setStatus(this)">Ocupado</button>
+            </div>
+
+            <div class="badge-row">
+              <input class="badge-input" type="text" value={p.status_text}
+                placeholder="Texto del badge…" data-field="status_text" />
+              <button class="save-badge-btn" onclick="saveBadge(this)">Guardar</button>
+            </div>
+
+            <div class="adm-card-footer">
+              <span class="adm-meta">
+                {p.max_guests ? `Hasta ${p.max_guests} huésp.` : ''}
+                {p.zone === 'forestada' ? ' · La Forestada' : ' · Añelo'}
+              </span>
+              <a class="btn-edit" href={`/admin/propiedades/${p.id}/`}>Editar todo →</a>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="adm-section-title">Edificios Pampa</div>
+    <div class="adm-grid">
+      {edificios.map((p: any) => (
+        <div class="adm-card" data-id={p.id}>
+          <img class="adm-card-img" src={p.cover_image} alt={p.name} loading="lazy" />
+          <div class="adm-card-body">
+            <div class="adm-card-name">{p.name}</div>
+
+            <div class="status-row">
+              <button class={`status-btn s-available ${p.status === 'available' ? 'active' : ''}`}
+                data-status="available" onclick="setStatus(this)">Disponible</button>
+              <button class={`status-btn s-partial ${p.status === 'partial' ? 'active' : ''}`}
+                data-status="partial" onclick="setStatus(this)">Parcial</button>
+              <button class={`status-btn s-occupied ${p.status === 'occupied' ? 'active' : ''}`}
+                data-status="occupied" onclick="setStatus(this)">Ocupado</button>
+            </div>
+
+            <div class="badge-row">
+              <input class="badge-input" type="text" value={p.status_text}
+                placeholder="Texto del badge…" data-field="status_text" />
+              <button class="save-badge-btn" onclick="saveBadge(this)">Guardar</button>
+            </div>
+
+            <div class="adm-card-footer">
+              <span class="adm-meta">
+                {p.max_guests ? `Hasta ${p.max_guests} huésp.` : ''}
+                · Centro Añelo
+              </span>
+              <a class="btn-edit" href={`/admin/propiedades/${p.id}/`}>Editar todo →</a>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+  </main>
+
+  <div id="toast">Guardado</div>
+
+  <script define:vars={{ SUPABASE_URL, SUPABASE_ANON, token }}>
+    function cardOf(el) {
+      return el.closest('[data-id]');
+    }
+
+    function showToast(msg, isError) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = isError ? 'error' : '';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    async function patch(id, data) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/properties?id=eq.${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON,
+          'Authorization': `Bearer ${token}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify(data),
+      });
+      return res.ok;
+    }
+
+    async function setStatus(btn) {
+      const card   = cardOf(btn);
+      const id     = card.dataset.id;
+      const status = btn.dataset.status;
+
+      // Actualizar UI inmediatamente
+      card.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const ok = await patch(id, { status });
+      showToast(ok ? '✓ Estado actualizado' : 'Error al guardar', !ok);
+    }
+
+    async function saveBadge(btn) {
+      const card  = cardOf(btn);
+      const id    = card.dataset.id;
+      const input = card.querySelector('.badge-input');
+      const text  = input.value.trim();
+
+      const ok = await patch(id, { status_text: text });
+      showToast(ok ? '✓ Badge guardado' : 'Error al guardar', !ok);
+    }
+  </script>
+</body>
+</html>

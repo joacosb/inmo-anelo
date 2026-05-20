@@ -1,0 +1,133 @@
+---
+export const prerender = false;
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
+
+let loginError = '';
+
+// Si ya tiene sesión válida, redirigir
+const existingToken = Astro.cookies.get('sb_token')?.value;
+if (existingToken) {
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+  const { data: { user } } = await sb.auth.getUser(existingToken);
+  if (user) return Astro.redirect('/admin/propiedades/');
+}
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const email    = form.get('email')?.toString()    ?? '';
+  const password = form.get('password')?.toString() ?? '';
+
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+  if (error || !data.session) {
+    loginError = 'Email o contraseña incorrectos.';
+  } else {
+    Astro.cookies.set('sb_token', data.session.access_token, {
+      path: '/',
+      maxAge: 60 * 60 * 8,
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+    });
+    return Astro.redirect('/admin/propiedades/');
+  }
+}
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin · Inmobiliaria Añelo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #0d0d0d;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-box {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 380px;
+    }
+    .login-logo {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: #c9a84c;
+      margin-bottom: 1.5rem;
+    }
+    h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: .4rem; }
+    .login-sub { font-size: .8rem; color: rgba(255,255,255,.45); margin-bottom: 2rem; }
+    label { display: block; font-size: .72rem; font-weight: 700; letter-spacing: .08em; color: rgba(255,255,255,.55); margin-bottom: .4rem; }
+    input[type=email], input[type=password] {
+      width: 100%;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #fff;
+      font-family: inherit;
+      font-size: .9rem;
+      padding: .75rem 1rem;
+      margin-bottom: 1.25rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input:focus { border-color: #c9a84c; }
+    .btn-login {
+      width: 100%;
+      background: #c9a84c;
+      border: none;
+      border-radius: 6px;
+      color: #000;
+      font-family: inherit;
+      font-size: .85rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      padding: .85rem;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-login:hover { background: #b8953d; }
+    .error {
+      background: rgba(239,68,68,.15);
+      border: 1px solid rgba(239,68,68,.4);
+      border-radius: 6px;
+      color: #f87171;
+      font-size: .8rem;
+      padding: .65rem .9rem;
+      margin-bottom: 1.25rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <div class="login-logo">Inmobiliaria Añelo</div>
+    <h1>Panel Admin</h1>
+    <p class="login-sub">Ingresá con tu cuenta de administrador</p>
+    {loginError && <div class="error">{loginError}</div>}
+    <form method="POST">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required autocomplete="email" placeholder="admin@ejemplo.com" />
+      <label for="password">Contraseña</label>
+      <input id="password" name="password" type="password" required autocomplete="current-password" placeholder="••••••••" />
+      <button class="btn-login" type="submit">Ingresar</button>
+    </form>
+  </div>
+</body>
+</html>
