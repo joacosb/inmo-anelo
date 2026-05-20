@@ -381,10 +381,16 @@ try {
     var idx  = 0;
     var img  = wrap.querySelector('.prop-img');
     var dots = wrap.querySelectorAll('.car-dot');
+    // preload all images for this card
+    imgs.forEach(function(src) { (new Image()).src = src; });
     function go(n) {
       idx = (idx + n + imgs.length) % imgs.length;
+      var next = imgs[idx];
       img.style.opacity = '0';
-      setTimeout(function() { img.src = imgs[idx]; img.style.opacity = '1'; }, 150);
+      var tmp = new Image();
+      tmp.onload = function() { img.src = next; img.style.opacity = '1'; };
+      tmp.src = next;
+      if (tmp.complete) { img.src = next; img.style.opacity = '1'; }
       dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
     }
     wrap.querySelector('.car-prev').addEventListener('click', function(e) { e.stopPropagation(); go(-1); });
