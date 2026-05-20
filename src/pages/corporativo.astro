@@ -5,19 +5,23 @@ import Layout from '../layouts/Layout.astro';
 import { supabase, statusClass, zoneLabel } from '../lib/supabase';
 import type { Property } from '../lib/supabase';
 
-const { data: complejos = [] } = await supabase
-  .from('properties')
-  .select('*')
-  .eq('type', 'complejo')
-  .eq('active', true)
-  .order('sort_order');
+let complejos: any[] = [];
+let edificios: any[] = [];
+let dbError: string | null = null;
 
-const { data: edificios = [] } = await supabase
-  .from('properties')
-  .select('*')
-  .eq('type', 'edificio')
-  .eq('active', true)
-  .order('sort_order');
+try {
+  const [r1, r2] = await Promise.all([
+    supabase.from('properties').select('*').eq('type', 'complejo').eq('active', true).order('sort_order'),
+    supabase.from('properties').select('*').eq('type', 'edificio').eq('active', true).order('sort_order'),
+  ]);
+  if (r1.error) throw r1.error;
+  if (r2.error) throw r2.error;
+  complejos = r1.data ?? [];
+  edificios = r2.data ?? [];
+} catch (e: any) {
+  dbError = e?.message ?? 'Error desconocido';
+  console.error('[corporativo] Supabase error:', dbError);
+}
 ---
 <Layout
   title="Alquiler Corporativo Añelo | Complejos y Edificios Oil & Gas - Inmobiliaria Añelo"
@@ -25,6 +29,13 @@ const { data: edificios = [] } = await supabase
   pathname="/corporativo/"
   ogImage="/complejo-yellowstone.webp"
 >
+
+  {dbError && (
+    <div style="background:#c0392b;color:#fff;padding:1rem 2rem;font-family:monospace;font-size:.85rem;word-break:break-all;">
+      <strong>DB ERROR:</strong> {dbError} &nbsp;|&nbsp;
+      URL: {import.meta.env.PUBLIC_SUPABASE_URL ?? '(no definida)'}
+    </div>
+  )}
 
   <div class="corporate-hero">
     <div class="section-label reveal">Propiedades Disponibles</div>
