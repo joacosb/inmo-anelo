@@ -182,20 +182,38 @@ try {
 <div id="detailModal" class="dm-overlay" onclick="if(event.target===this)closeDM()">
   <div class="dm-inner">
     <button class="dm-close" onclick="closeDM()" aria-label="Cerrar">&times;</button>
+
+    <!-- LEFT: carrusel fijo -->
     <div class="dm-carousel">
-      <img id="dmImg" src="" alt="" />
+      <div class="dm-img-frame">
+        <img id="dmImg" src="" alt="" />
+      </div>
       <button class="dm-car-btn dm-prev" onclick="dmGo(-1)">&#8249;</button>
       <button class="dm-car-btn dm-next" onclick="dmGo(1)">&#8250;</button>
       <div id="dmDots" class="dm-dots"></div>
     </div>
+
+    <!-- RIGHT: info -->
     <div class="dm-info">
-      <span id="dmStatus" class="prop-status"></span>
-      <h2 id="dmName"></h2>
+      <div class="dm-header">
+        <h2 id="dmName"></h2>
+        <span id="dmStatus" class="prop-status dm-status-badge"></span>
+      </div>
       <p id="dmDesc"></p>
+      <div class="dm-divider"></div>
       <div class="dm-meta">
-        <div id="dmGuests" class="dm-meta-item"></div>
-        <div id="dmUnits"  class="dm-meta-item"></div>
-        <div id="dmZone"   class="dm-meta-item"></div>
+        <div id="dmGuests" class="dm-meta-item">
+          <span class="dm-meta-label">Huéspedes</span>
+          <span id="dmGuestsVal" class="dm-meta-val"></span>
+        </div>
+        <div id="dmUnits" class="dm-meta-item">
+          <span class="dm-meta-label">UFs</span>
+          <span id="dmUnitsVal" class="dm-meta-val"></span>
+        </div>
+        <div id="dmZone" class="dm-meta-item">
+          <span class="dm-meta-label">Zona</span>
+          <span id="dmZoneVal" class="dm-meta-val"></span>
+        </div>
       </div>
       <div class="dm-actions">
         <a id="dmWA" href="#" target="_blank" rel="noopener" class="dm-btn dm-btn-wa"
@@ -215,56 +233,64 @@ try {
   /* ── DETAIL MODAL ── */
   .dm-overlay {
     position: fixed; inset: 0;
-    background: rgba(0,0,0,.88);
+    background: rgba(0,0,0,.75);
+    backdrop-filter: blur(4px);
     z-index: 9100;
     display: flex; align-items: center; justify-content: center;
-    padding: 1rem;
+    padding: 1.5rem;
     opacity: 0; pointer-events: none;
-    transition: opacity .25s;
+    transition: opacity .2s;
   }
   .dm-overlay.open { opacity: 1; pointer-events: all; }
 
   .dm-inner {
-    background: #111;
-    border-radius: 14px;
+    background: #fff;
+    border-radius: 16px;
     overflow: hidden;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 55% 45%;
     width: 100%;
-    max-width: 920px;
-    max-height: 88vh;
+    max-width: 900px;
+    height: min(580px, 88vh);
     position: relative;
+    box-shadow: 0 24px 64px rgba(0,0,0,.45);
   }
 
-  /* ── LEFT: carousel ── */
+  /* ── LEFT: carrusel ── */
   .dm-carousel {
     position: relative;
-    background: #000;
-    min-height: 320px;
+    background: #111;
+    overflow: hidden;
   }
-  .dm-carousel img {
+  /* frame fijo — la imagen siempre llena esto sin mover nada */
+  .dm-img-frame {
+    position: absolute; inset: 0;
+  }
+  .dm-img-frame img {
     width: 100%; height: 100%;
     object-fit: cover;
     display: block;
-    transition: opacity .15s;
+    transition: opacity .18s ease;
   }
   .dm-car-btn {
     position: absolute; top: 50%; transform: translateY(-50%);
-    background: rgba(0,0,0,.55); border: none; color: #fff;
-    font-size: 2rem; line-height: 1; width: 2.4rem; height: 2.4rem;
-    border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: background .15s;
+    background: rgba(0,0,0,.45); border: none; color: #fff;
+    font-size: 2rem; width: 2.4rem; height: 2.4rem;
+    border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .15s; z-index: 2;
   }
-  .dm-car-btn:hover { background: rgba(0,0,0,.8); }
-  .dm-prev { left: .6rem; }
-  .dm-next { right: .6rem; }
+  .dm-car-btn:hover { background: rgba(0,0,0,.75); }
+  .dm-prev { left: .7rem; }
+  .dm-next { right: .7rem; }
   .dm-dots {
-    position: absolute; bottom: .75rem; left: 50%; transform: translateX(-50%);
-    display: flex; gap: .4rem;
+    position: absolute; bottom: .9rem; left: 50%; transform: translateX(-50%);
+    display: flex; gap: .45rem; z-index: 2;
   }
   .dm-dot {
     width: 7px; height: 7px; border-radius: 50%;
-    background: rgba(255,255,255,.45); cursor: pointer; transition: background .15s;
+    background: rgba(255,255,255,.5); cursor: pointer; transition: background .15s;
+    border: none;
   }
   .dm-dot.active { background: #c9a84c; }
 
@@ -272,58 +298,70 @@ try {
   .dm-info {
     padding: 2rem 1.75rem 1.75rem;
     overflow-y: auto;
-    display: flex; flex-direction: column; gap: 1rem;
+    display: flex; flex-direction: column; gap: .9rem;
     font-family: 'Montserrat', sans-serif;
-    color: #fff;
+    color: #111;
+    background: #fff;
   }
+  .dm-header { display: flex; flex-direction: column; gap: .4rem; }
   .dm-info h2 {
-    font-size: 1.5rem; font-weight: 700; margin: 0; line-height: 1.2;
+    font-size: 1.45rem; font-weight: 700; margin: 0; line-height: 1.2; color: #111;
   }
+  .dm-status-badge { font-size: .72rem !important; }
   .dm-info p {
-    font-size: .88rem; color: rgba(255,255,255,.65); line-height: 1.6; margin: 0;
+    font-size: .84rem; color: #555; line-height: 1.65; margin: 0;
+  }
+  .dm-divider {
+    border: none; border-top: 1px solid #eee; margin: .1rem 0;
   }
   .dm-meta {
     display: flex; flex-wrap: wrap; gap: .6rem;
   }
   .dm-meta-item {
-    background: rgba(255,255,255,.07); border-radius: 6px;
-    padding: .45rem .8rem; font-size: .8rem;
-    display: flex; flex-direction: column; gap: .1rem;
+    background: #f5f4f1; border-radius: 8px;
+    padding: .6rem .9rem; font-size: .8rem;
+    display: flex; flex-direction: column; gap: .15rem;
+    min-width: 80px;
   }
-  .dm-meta-item strong { font-size: .95rem; color: #c9a84c; }
+  .dm-meta-label { color: #888; font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+  .dm-meta-val   { color: #111; font-weight: 700; font-size: .95rem; }
   .dm-actions {
-    display: flex; flex-direction: column; gap: .65rem; margin-top: auto;
+    display: flex; flex-direction: column; gap: .6rem; margin-top: auto;
   }
   .dm-btn {
-    display: block; text-align: center; border-radius: 7px;
-    padding: .75rem 1rem; font-size: .85rem; font-weight: 700;
+    display: block; text-align: center; border-radius: 8px;
+    padding: .78rem 1rem; font-size: .85rem; font-weight: 700;
     font-family: 'Montserrat', sans-serif;
-    text-decoration: none; transition: background .15s, opacity .15s;
-    cursor: pointer;
+    text-decoration: none; transition: background .15s, filter .15s;
+    cursor: pointer; border: none;
   }
-  .dm-btn-wa  { background: #25d366; color: #000; }
-  .dm-btn-wa:hover { background: #1db954; }
-  .dm-btn-tour { background: rgba(201,168,76,.18); color: #c9a84c; border: 1px solid rgba(201,168,76,.4); }
-  .dm-btn-tour:hover { background: rgba(201,168,76,.28); }
+  .dm-btn-wa   { background: #25d366; color: #000; }
+  .dm-btn-wa:hover { filter: brightness(.93); }
+  .dm-btn-tour { background: #f0ebe0; color: #8a6f2e; border: 1px solid #d4b96a; }
+  .dm-btn-tour:hover { background: #e8e0cc; }
 
   /* ── CLOSE ── */
   .dm-close {
-    position: absolute; top: .75rem; right: .75rem; z-index: 10;
-    background: rgba(0,0,0,.6); border: none; color: #fff;
-    font-size: 1.4rem; width: 2rem; height: 2rem; border-radius: 50%;
+    position: absolute; top: .8rem; right: .8rem; z-index: 10;
+    background: rgba(0,0,0,.5); border: none; color: #fff;
+    font-size: 1.3rem; width: 2rem; height: 2rem; border-radius: 50%;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
-    line-height: 1; transition: background .15s;
+    transition: background .15s;
   }
-  .dm-close:hover { background: rgba(0,0,0,.9); }
+  .dm-close:hover { background: rgba(0,0,0,.85); }
 
   /* ── MOBILE ── */
   @media (max-width: 640px) {
+    .dm-overlay { padding: 0; align-items: flex-end; }
     .dm-inner {
       grid-template-columns: 1fr;
-      grid-template-rows: 52vw 1fr;
-      max-height: 92vh;
+      grid-template-rows: 56vw 1fr;
+      height: 92vh;
+      border-radius: 16px 16px 0 0;
+      max-width: 100%;
     }
-    .dm-info { padding: 1.25rem 1rem 1rem; }
+    .dm-carousel { min-height: 56vw; }
+    .dm-info { padding: 1.25rem 1.1rem 1.5rem; }
     .dm-info h2 { font-size: 1.2rem; }
   }
 </style>
@@ -357,11 +395,17 @@ try {
   var dmImgs = [];
   var dmIdx  = 0;
 
+  function dmPreload(imgs) {
+    imgs.forEach(function(src) { (new Image()).src = src; });
+  }
+
   function openDM(card) {
     dmImgs = JSON.parse(card.dataset.images || '[]');
     dmIdx  = 0;
+    dmPreload(dmImgs);
 
     var imgEl = document.getElementById('dmImg');
+    imgEl.style.opacity = '1';
     imgEl.src = dmImgs[0] || '';
 
     // dots
@@ -375,8 +419,6 @@ try {
         dotsEl.appendChild(d);
       });
     }
-
-    // show/hide arrows
     document.querySelector('.dm-prev').style.display = dmImgs.length > 1 ? '' : 'none';
     document.querySelector('.dm-next').style.display = dmImgs.length > 1 ? '' : 'none';
 
@@ -386,34 +428,26 @@ try {
 
     var statusEl = document.getElementById('dmStatus');
     statusEl.textContent = '● ' + (card.dataset.status || '');
-    statusEl.className = 'prop-status ' + (card.dataset.statusClass || '');
+    statusEl.className = 'prop-status dm-status-badge ' + (card.dataset.statusClass || '');
 
     var gEl = document.getElementById('dmGuests');
-    if (card.dataset.guests) {
-      gEl.style.display = '';
-      gEl.innerHTML = '<strong>Hasta ' + card.dataset.guests + '</strong>huéspedes';
-    } else { gEl.style.display = 'none'; }
+    gEl.style.display = card.dataset.guests ? '' : 'none';
+    document.getElementById('dmGuestsVal').textContent = 'Hasta ' + card.dataset.guests;
 
     var uEl = document.getElementById('dmUnits');
-    if (card.dataset.units) {
-      uEl.style.display = '';
-      uEl.innerHTML = '<strong>' + card.dataset.units + '</strong>UFs';
-    } else { uEl.style.display = 'none'; }
+    uEl.style.display = card.dataset.units ? '' : 'none';
+    document.getElementById('dmUnitsVal').textContent = card.dataset.units;
 
     var zEl = document.getElementById('dmZone');
-    if (card.dataset.zone) {
-      zEl.style.display = '';
-      zEl.innerHTML = '<strong>' + card.dataset.zone + '</strong>';
-    } else { zEl.style.display = 'none'; }
+    zEl.style.display = card.dataset.zone ? '' : 'none';
+    document.getElementById('dmZoneVal').textContent = card.dataset.zone;
 
     var waMsg = encodeURIComponent('Hola! Me interesa ' + (card.dataset.name || '') + '. Actualmente busco alquiler para...');
     document.getElementById('dmWA').href = 'https://wa.me/5492972431619?text=' + waMsg;
 
     var tourEl = document.getElementById('dmTour');
-    if (card.dataset.matterport) {
-      tourEl.style.display = '';
-      tourEl.href = card.dataset.matterport;
-    } else { tourEl.style.display = 'none'; }
+    tourEl.style.display = card.dataset.matterport ? '' : 'none';
+    if (card.dataset.matterport) tourEl.href = card.dataset.matterport;
 
     document.getElementById('detailModal').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -428,16 +462,22 @@ try {
     dmIdx = (dmIdx + n + dmImgs.length) % dmImgs.length;
     dmUpdate();
   }
-
-  function dmJump(i) {
-    dmIdx = i;
-    dmUpdate();
-  }
+  function dmJump(i) { dmIdx = i; dmUpdate(); }
 
   function dmUpdate() {
-    var img = document.getElementById('dmImg');
-    img.style.opacity = '0';
-    setTimeout(function() { img.src = dmImgs[dmIdx]; img.style.opacity = '1'; }, 150);
+    var imgEl = document.getElementById('dmImg');
+    imgEl.style.opacity = '0';
+    var next = dmImgs[dmIdx];
+    // use a temp image to confirm it's loaded (likely from preload cache)
+    var tmp = new Image();
+    tmp.onload = function() {
+      imgEl.src = next;
+      imgEl.style.opacity = '1';
+    };
+    // if already cached onload won't fire in all browsers — handle that
+    tmp.src = next;
+    if (tmp.complete) { imgEl.src = next; imgEl.style.opacity = '1'; }
+
     document.querySelectorAll('.dm-dot').forEach(function(d, i) {
       d.classList.toggle('active', i === dmIdx);
     });
