@@ -276,8 +276,8 @@ const navItems = [
       <a id="modalVirtual" href="#" target="_blank" rel="noopener" class="prop-modal-btn">
         <span>Ver recorrido virtual</span>
       </a>
-      <a id="modalSection" href="#" class="prop-modal-btn">
-        <span id="modalSectionLabel">Ver propiedades similares</span>
+      <a id="modalSection" href="/contacto/" class="prop-modal-btn">
+        <span>Solicitar cotización</span>
       </a>
       <a id="modalWA" href="#" target="_blank" rel="noopener" class="prop-modal-btn prop-modal-btn-wa" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">
         <span>Consultar por WhatsApp</span>
@@ -370,13 +370,9 @@ const navItems = [
       : 'https://my.matterport.com/show/?m=z9F3K5h3gok';
     var virtualUrl = ownTour ? ownTour.href : fallbackUrl;
     var waMsg = encodeURIComponent('Hola! Me interesa el ' + name + '. Actualmente busco alquiler para...');
-    var sectionLabel = type === 'edificio' ? 'Ver Edificios Pampa' : 'Ver Complejos Residenciales';
-    var sectionAnchor = section === 'edificios' ? '#secEdificios' : '#secComplejos';
     document.getElementById('modalPropName').textContent = name;
     document.getElementById('modalVirtual').href = virtualUrl;
     document.getElementById('modalWA').href = 'https://wa.me/5492972431619?text=' + waMsg;
-    document.getElementById('modalSectionLabel').textContent = sectionLabel;
-    document.getElementById('modalSection').href = '/corporativo/' + sectionAnchor;
     document.getElementById('propModal').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
