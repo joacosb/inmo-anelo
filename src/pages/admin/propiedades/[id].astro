@@ -384,6 +384,12 @@ if (!p) return Astro.redirect('/admin/propiedades/');
       });
     }
 
+    // expose to window for inline HTML handlers
+    window.handleFiles = handleFiles;
+    window.handleDrop  = handleDrop;
+    window.setCover    = setCover;
+    window.deletePhoto = deletePhoto;
+
     // ── ELIMINAR ─────────────────────────────────────────────
     async function deletePhoto(btn) {
       const item = btn.closest('.photo-item');
