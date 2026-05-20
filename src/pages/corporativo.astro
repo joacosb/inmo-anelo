@@ -82,7 +82,16 @@ try {
     <div class="props-grid">
       {(complejos as Property[]).map((p) => (
         <div class="prop-card" data-name={p.name} data-type={p.type} data-section="complejos">
-          <img class="prop-img" loading="lazy" decoding="async" src={p.cover_image} alt={p.name} />
+          <div class="prop-img-wrap" data-images={JSON.stringify(p.images?.length > 1 ? p.images : [p.cover_image])}>
+            <img class="prop-img" loading="lazy" decoding="async" src={p.cover_image} alt={p.name} />
+            {p.images?.length > 1 && (
+              <>
+                <button class="car-btn car-prev" aria-label="Anterior">&#8249;</button>
+                <button class="car-btn car-next" aria-label="Siguiente">&#8250;</button>
+                <div class="car-dots">{p.images.map((_: string, i: number) => <span class={`car-dot${i === 0 ? ' active' : ''}`}></span>)}</div>
+              </>
+            )}
+          </div>
           <span class={`prop-status ${statusClass(p.status)}`}>● {p.status_text}</span>
           <div class="prop-body">
             <span class="prop-tag">Complejo</span>
@@ -113,7 +122,16 @@ try {
     <div class="props-grid">
       {(edificios as Property[]).map((p) => (
         <div class="prop-card" data-name={p.name} data-type={p.type} data-section="edificios">
-          <img class="prop-img" loading="lazy" decoding="async" src={p.cover_image} alt={p.name} />
+          <div class="prop-img-wrap" data-images={JSON.stringify(p.images?.length > 1 ? p.images : [p.cover_image])}>
+            <img class="prop-img" loading="lazy" decoding="async" src={p.cover_image} alt={p.name} />
+            {p.images?.length > 1 && (
+              <>
+                <button class="car-btn car-prev" aria-label="Anterior">&#8249;</button>
+                <button class="car-btn car-next" aria-label="Siguiente">&#8250;</button>
+                <div class="car-dots">{p.images.map((_: string, i: number) => <span class={`car-dot${i === 0 ? ' active' : ''}`}></span>)}</div>
+              </>
+            )}
+          </div>
           <span class={`prop-status ${statusClass(p.status)}`}>● {p.status_text}</span>
           <div class="prop-body">
             <span class="prop-tag">Edificio</span>
@@ -151,4 +169,23 @@ try {
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }, 100);
   }
+
+  // ── CARRUSEL ──────────────────────────────────────────────
+  document.querySelectorAll('.prop-img-wrap[data-images]').forEach(function(wrap) {
+    var imgs = JSON.parse(wrap.dataset.images);
+    if (imgs.length <= 1) return;
+    var idx   = 0;
+    var img   = wrap.querySelector('.prop-img');
+    var dots  = wrap.querySelectorAll('.car-dot');
+
+    function go(n) {
+      idx = (idx + n + imgs.length) % imgs.length;
+      img.style.opacity = '0';
+      setTimeout(function() { img.src = imgs[idx]; img.style.opacity = '1'; }, 150);
+      dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+    }
+
+    wrap.querySelector('.car-prev').addEventListener('click', function(e) { e.stopPropagation(); go(-1); });
+    wrap.querySelector('.car-next').addEventListener('click', function(e) { e.stopPropagation(); go(1); });
+  });
 </script>

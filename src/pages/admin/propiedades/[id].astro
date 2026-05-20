@@ -14,18 +14,17 @@ const { id } = Astro.params;
 let saved = false;
 let saveError = '';
 
-// Guardar cambios
 if (Astro.request.method === 'POST') {
   const form = await Astro.request.formData();
   const updates = {
-    name:          form.get('name')?.toString()          ?? '',
-    status:        form.get('status')?.toString()        ?? 'available',
-    status_text:   form.get('status_text')?.toString()   ?? '',
-    description:   form.get('description')?.toString()   ?? '',
-    zone:          form.get('zone')?.toString()           ?? 'centro',
-    max_guests:    Number(form.get('max_guests'))         || null,
-    unit_count:    Number(form.get('unit_count'))         || null,
-    matterport_url: form.get('matterport_url')?.toString() || null,
+    name:           form.get('name')?.toString()           ?? '',
+    status:         form.get('status')?.toString()         ?? 'available',
+    status_text:    form.get('status_text')?.toString()    ?? '',
+    description:    form.get('description')?.toString()    ?? '',
+    zone:           form.get('zone')?.toString()            ?? 'centro',
+    max_guests:     Number(form.get('max_guests'))          || null,
+    unit_count:     Number(form.get('unit_count'))          || null,
+    matterport_url: form.get('matterport_url')?.toString()  || null,
   };
   const { error } = await sb.from('properties').update(updates).eq('id', id);
   if (error) saveError = error.message;
@@ -54,64 +53,96 @@ if (!p) return Astro.redirect('/admin/propiedades/');
     .adm-logo { font-size: .7rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #c9a84c; }
     .adm-back { color: rgba(255,255,255,.5); font-size: .75rem; text-decoration: none; }
     .adm-back:hover { color: #fff; }
-
-    .adm-main { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .adm-main { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
     .adm-page-title { font-size: 1.3rem; font-weight: 700; margin-bottom: .3rem; }
     .adm-page-sub { font-size: .75rem; color: rgba(255,255,255,.4); margin-bottom: 2rem; }
 
-    .cover-preview {
-      width: 100%; height: 200px; object-fit: cover;
-      border-radius: 8px; margin-bottom: 2rem;
-      border: 1px solid #2a2a2a;
+    /* ── FOTOS ── */
+    .section-heading {
+      font-size: .65rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+      color: #c9a84c; padding-bottom: .6rem; border-bottom: 1px solid #222; margin-bottom: 1.25rem;
     }
+    .photos-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .75rem;
+      margin-bottom: 1.25rem;
+    }
+    .photo-item { position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 4/3; background: #1a1a1a; }
+    .photo-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-cover-badge {
+      position: absolute; top: 6px; left: 6px;
+      background: #c9a84c; color: #000; font-size: .6rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase; padding: .2rem .5rem; border-radius: 4px;
+    }
+    .photo-actions {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      display: flex; gap: .3rem; padding: .4rem;
+      background: linear-gradient(transparent, rgba(0,0,0,.75));
+      opacity: 0; transition: opacity .2s;
+    }
+    .photo-item:hover .photo-actions { opacity: 1; }
+    .photo-btn {
+      flex: 1; border: none; border-radius: 4px; font-family: inherit; font-size: .65rem;
+      font-weight: 700; padding: .35rem; cursor: pointer; transition: background .15s;
+    }
+    .photo-btn-cover { background: #c9a84c; color: #000; }
+    .photo-btn-cover:hover { background: #b8953d; }
+    .photo-btn-delete { background: rgba(239,68,68,.85); color: #fff; }
+    .photo-btn-delete:hover { background: #dc2626; }
 
+    /* ── UPLOAD ── */
+    .upload-area {
+      border: 2px dashed #333; border-radius: 8px; padding: 2rem 1rem;
+      text-align: center; cursor: pointer; transition: border-color .2s, background .2s;
+      margin-bottom: 2rem;
+    }
+    .upload-area:hover, .upload-area.drag-over { border-color: #c9a84c; background: rgba(201,168,76,.04); }
+    .upload-area input { display: none; }
+    .upload-icon { font-size: 1.8rem; margin-bottom: .5rem; opacity: .4; }
+    .upload-label { font-size: .8rem; color: rgba(255,255,255,.5); }
+    .upload-label strong { color: #c9a84c; }
+    #upload-progress { margin-top: .75rem; font-size: .75rem; color: rgba(255,255,255,.5); min-height: 1.2em; }
+
+    /* ── FORM ── */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .form-grid .full { grid-column: 1 / -1; }
-
     .field { display: flex; flex-direction: column; gap: .4rem; }
     label { font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.45); }
-
     input[type=text], input[type=number], input[type=url], textarea, select {
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 6px;
-      color: #fff;
-      font-family: inherit;
-      font-size: .88rem;
-      padding: .65rem .9rem;
-      outline: none;
-      transition: border-color .2s;
-      width: 100%;
+      background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; color: #fff;
+      font-family: inherit; font-size: .88rem; padding: .65rem .9rem; outline: none;
+      transition: border-color .2s; width: 100%;
     }
     input:focus, textarea:focus, select:focus { border-color: #c9a84c; }
     textarea { min-height: 90px; resize: vertical; }
     select option { background: #1a1a1a; }
-
-    /* STATUS VISUAL */
-    .status-select-wrap { position: relative; }
-    select[name=status] { appearance: none; padding-right: 2rem; }
-
     .divider { border: none; border-top: 1px solid #222; margin: 1.5rem 0; }
-
     .form-actions { display: flex; align-items: center; gap: 1rem; margin-top: 1.5rem; }
     .btn-save {
-      background: #c9a84c; border: none; border-radius: 6px;
-      color: #000; font-family: inherit; font-size: .85rem; font-weight: 700;
-      padding: .8rem 2rem; cursor: pointer; transition: background .2s;
+      background: #c9a84c; border: none; border-radius: 6px; color: #000;
+      font-family: inherit; font-size: .85rem; font-weight: 700; padding: .8rem 2rem;
+      cursor: pointer; transition: background .2s;
     }
     .btn-save:hover { background: #b8953d; }
     .btn-cancel { color: rgba(255,255,255,.4); font-size: .8rem; text-decoration: none; }
     .btn-cancel:hover { color: #fff; }
-
-    .alert {
-      border-radius: 6px; font-size: .8rem; padding: .7rem 1rem; margin-bottom: 1.5rem;
-    }
+    .alert { border-radius: 6px; font-size: .8rem; padding: .7rem 1rem; margin-bottom: 1.5rem; }
     .alert-ok    { background: rgba(16,185,129,.15); border: 1px solid rgba(16,185,129,.4); color: #6ee7b7; }
     .alert-error { background: rgba(239,68,68,.15);  border: 1px solid rgba(239,68,68,.4);  color: #f87171; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; background: #10b981; color: #fff;
+      font-size: .8rem; font-weight: 600; padding: .7rem 1.2rem; border-radius: 6px;
+      opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s;
+      pointer-events: none; z-index: 9999;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.error { background: #ef4444; }
 
     @media (max-width: 600px) {
       .form-grid { grid-template-columns: 1fr; }
       .form-grid .full { grid-column: 1; }
+      .photos-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -123,12 +154,46 @@ if (!p) return Astro.redirect('/admin/propiedades/');
 
   <main class="adm-main">
     <div class="adm-page-title">{p.name}</div>
-    <div class="adm-page-sub">Editar todos los datos de esta propiedad</div>
-
-    <img class="cover-preview" src={p.cover_image} alt={p.name} />
+    <div class="adm-page-sub">Editar datos y fotos de esta propiedad</div>
 
     {saved     && <div class="alert alert-ok">✓ Cambios guardados correctamente.</div>}
     {saveError && <div class="alert alert-error">Error: {saveError}</div>}
+
+    <!-- FOTOS -->
+    <div class="section-heading">Fotos</div>
+
+    <div class="photos-grid" id="photos-grid">
+      {(p.images ?? []).map((url: string) => (
+        <div class="photo-item" data-url={url}>
+          <img src={url} alt="" loading="lazy" />
+          {url === p.cover_image && <span class="photo-cover-badge">Portada</span>}
+          <div class="photo-actions">
+            {url !== p.cover_image && (
+              <button class="photo-btn photo-btn-cover" onclick="setCover(this)">Portada</button>
+            )}
+            <button class="photo-btn photo-btn-delete" onclick="deletePhoto(this)">Eliminar</button>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()"
+      ondragover="event.preventDefault();this.classList.add('drag-over')"
+      ondragleave="this.classList.remove('drag-over')"
+      ondrop="handleDrop(event)">
+      <input id="file-input" type="file" accept="image/*" multiple onchange="handleFiles(this.files)" />
+      <div class="upload-icon">📷</div>
+      <div class="upload-label">
+        <strong>Hacé click</strong> o arrastrá fotos acá<br/>
+        JPG, PNG o WEBP · Máx. 10MB por imagen
+      </div>
+      <div id="upload-progress"></div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- DATOS -->
+    <div class="section-heading" style="margin-top:0">Datos</div>
 
     <form method="POST">
       <div class="form-grid">
@@ -194,5 +259,150 @@ if (!p) return Astro.redirect('/admin/propiedades/');
       </div>
     </form>
   </main>
+
+  <div id="toast">Guardado</div>
+
+  <script define:vars={{ SUPABASE_URL, SUPABASE_ANON, token, propertyId: p.id, initialCover: p.cover_image, initialImages: p.images ?? [] }}>
+    let currentImages = [...initialImages];
+    let currentCover  = initialCover;
+
+    function showToast(msg, isError) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = isError ? 'error show' : 'show';
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    async function patchProperty(data) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/properties?id=eq.${propertyId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON,
+          'Authorization': `Bearer ${token}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify(data),
+      });
+      return res.ok;
+    }
+
+    async function syncImages() {
+      return patchProperty({ images: currentImages, cover_image: currentCover });
+    }
+
+    // ── UPLOAD ──────────────────────────────────────────────
+    function handleDrop(e) {
+      e.preventDefault();
+      document.getElementById('upload-area').classList.remove('drag-over');
+      handleFiles(e.dataTransfer.files);
+    }
+
+    async function handleFiles(files) {
+      const progress = document.getElementById('upload-progress');
+      const arr = Array.from(files);
+      for (let i = 0; i < arr.length; i++) {
+        const file = arr[i];
+        progress.textContent = `Subiendo ${i + 1} de ${arr.length}: ${file.name}…`;
+        try {
+          const url = await uploadFile(file);
+          currentImages.push(url);
+          if (!currentCover) currentCover = url;
+          appendPhotoCard(url);
+        } catch (e) {
+          showToast(`Error al subir ${file.name}`, true);
+        }
+      }
+      const ok = await syncImages();
+      progress.textContent = '';
+      showToast(ok ? `✓ ${arr.length} foto${arr.length > 1 ? 's' : ''} agregada${arr.length > 1 ? 's' : ''}` : 'Error al guardar', !ok);
+    }
+
+    async function uploadFile(file) {
+      const ext      = file.name.split('.').pop();
+      const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const path     = `${propertyId}/${filename}`;
+      const res = await fetch(`${SUPABASE_URL}/storage/v1/object/property-images/${path}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': file.type,
+          'x-upsert': 'false',
+        },
+        body: file,
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return `${SUPABASE_URL}/storage/v1/object/public/property-images/${path}`;
+    }
+
+    function appendPhotoCard(url) {
+      const grid = document.getElementById('photos-grid');
+      const div  = document.createElement('div');
+      div.className = 'photo-item';
+      div.dataset.url = url;
+      div.innerHTML = `
+        <img src="${url}" alt="" loading="lazy" />
+        <div class="photo-actions">
+          <button class="photo-btn photo-btn-cover" onclick="setCover(this)">Portada</button>
+          <button class="photo-btn photo-btn-delete" onclick="deletePhoto(this)">Eliminar</button>
+        </div>`;
+      grid.appendChild(div);
+      if (currentImages.length === 1) refreshCoverBadges();
+    }
+
+    // ── PORTADA ─────────────────────────────────────────────
+    async function setCover(btn) {
+      const item = btn.closest('.photo-item');
+      currentCover = item.dataset.url;
+      const ok = await syncImages();
+      if (ok) { refreshCoverBadges(); showToast('✓ Portada actualizada'); }
+      else showToast('Error al guardar', true);
+    }
+
+    function refreshCoverBadges() {
+      document.querySelectorAll('.photo-item').forEach(item => {
+        item.querySelector('.photo-cover-badge')?.remove();
+        const actions = item.querySelector('.photo-actions');
+        const coverBtn = actions.querySelector('.photo-btn-cover');
+
+        if (item.dataset.url === currentCover) {
+          const badge = document.createElement('span');
+          badge.className = 'photo-cover-badge';
+          badge.textContent = 'Portada';
+          item.prepend(badge);
+          coverBtn?.remove();
+        } else if (!coverBtn) {
+          const btn = document.createElement('button');
+          btn.className = 'photo-btn photo-btn-cover';
+          btn.textContent = 'Portada';
+          btn.setAttribute('onclick', 'setCover(this)');
+          actions.prepend(btn);
+        }
+      });
+    }
+
+    // ── ELIMINAR ─────────────────────────────────────────────
+    async function deletePhoto(btn) {
+      const item = btn.closest('.photo-item');
+      const url  = item.dataset.url;
+
+      // Borrar del storage solo si es una URL de Supabase Storage
+      if (url.includes('/storage/v1/object/public/property-images/')) {
+        const path = url.split('/property-images/')[1];
+        await fetch(`${SUPABASE_URL}/storage/v1/object/property-images/${path}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+      }
+
+      currentImages = currentImages.filter(u => u !== url);
+      if (currentCover === url) currentCover = currentImages[0] ?? null;
+      item.remove();
+
+      const ok = await syncImages();
+      if (ok) { refreshCoverBadges(); showToast('✓ Foto eliminada'); }
+      else showToast('Error al guardar', true);
+    }
+  </script>
 </body>
 </html>
