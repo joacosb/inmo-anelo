@@ -122,11 +122,11 @@ p, .section-sub, .hero p, .step p,
 .why-card p { color: var(--gray); font-size: .9rem; }
 
 /* ── PROPIEDADES ── */
-.props-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 380px)); gap: 1.75rem; justify-content: center; }
-.prop-card { border-radius: var(--radius-md); overflow: hidden; transition: transform .2s, box-shadow .2s; background: var(--white); position: relative; box-shadow: 0 2px 20px rgba(27,27,24,.08); }
+.props-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2rem; }
+.prop-card { border-radius: var(--radius-lg); overflow: hidden; transition: transform .2s, box-shadow .2s; background: var(--white); position: relative; box-shadow: 0 2px 20px rgba(27,27,24,.08); }
 .prop-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(27,27,24,.14); }
-.prop-img-wrap { position: relative; overflow: hidden; }
-.prop-img { width: 100%; height: 200px; object-fit: cover; display: block; background: var(--light); transition: opacity .25s; }
+.prop-img-wrap { position: relative; overflow: hidden; aspect-ratio: 4/3; }
+.prop-img { width: 100%; height: 100%; object-fit: cover; display: block; background: var(--light); transition: opacity .25s; }
 .car-btn {
   position: absolute; top: 50%; transform: translateY(-50%); z-index: 6;
   background: rgba(0,0,0,.45); border: none; color: #fff; font-size: 1.4rem;
