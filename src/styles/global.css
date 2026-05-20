@@ -332,7 +332,11 @@ footer { background: var(--black); color: rgba(255,255,255,.5); padding: 3rem 8%
   .hero-actions { flex-direction: column; }
   .hero-actions .btn-primary, .hero-actions .btn-outline { width: 100%; text-align: center; }
   .hero-action-tertiary { display: inline-block; }
-  .hero-stats { display: none; }
+  .hero-stats { display: flex; flex-wrap: wrap; }
+  .hero-stat { flex: 1 1 50%; min-width: 0; padding: .7rem 1rem; }
+  .hero-stat:nth-child(even) { border-right: none; }
+  .hero-stat strong { font-size: 1.2rem; }
+  .hero-stat span { font-size: .58rem; letter-spacing: .07em; }
   .quick-cta-strip { flex-direction: column; }
   .quick-cta-btn { padding: 1rem; font-size: .88rem; }
   .form-row { grid-template-columns: 1fr; }
@@ -480,6 +484,8 @@ footer { background: var(--black); color: rgba(255,255,255,.5); padding: 3rem 8%
     transform: none;
     box-shadow: 0 2px 20px rgba(27,27,24,.08);
   }
+  /* botones del carrusel siempre visibles en touch */
+  .car-btn { opacity: 1; }
 }
 
 /* ── MOBILE ESTÉTICO ── */

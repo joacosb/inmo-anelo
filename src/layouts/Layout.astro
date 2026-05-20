@@ -6,9 +6,10 @@ export interface Props {
   description: string;
   pathname: string;
   ogImage?: string;
+  preloadHero?: boolean;
 }
 
-const { title, description, pathname, ogImage = '/complejo-yellowstone.webp' } = Astro.props;
+const { title, description, pathname, ogImage = '/complejo-yellowstone.webp', preloadHero = false } = Astro.props;
 const site = 'https://inmobiliariaanelo.com.ar';
 const canonical = site + pathname;
 const fullOg = ogImage.startsWith('http') ? ogImage : site + ogImage;
@@ -143,7 +144,7 @@ const navItems = [
     ]
   })} />
 
-  <link rel="preload" as="image" href="/complejo-yellowstone.webp" fetchpriority="high" />
+  {preloadHero && <link rel="preload" as="image" href="/complejo-yellowstone.webp" fetchpriority="high" />}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Montserrat:wght@300;400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
@@ -411,6 +412,18 @@ const navItems = [
     }, 12000);
   }
 
+  // ─── TICKER: pausar animación cuando no está en pantalla ──────────────────
+  (function() {
+    if (!('IntersectionObserver' in window)) return;
+    var obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        var track = e.target.querySelector('.ticker-track');
+        if (track) track.style.animationPlayState = e.isIntersecting ? 'running' : 'paused';
+      });
+    }, { threshold: 0 });
+    document.querySelectorAll('.ticker-bar').forEach(function(el) { obs.observe(el); });
+  })();
+
   // ─── REVEAL ON SCROLL ──────────────────────────────────────────────────
   (function() {
     if (!('IntersectionObserver' in window)) {
@@ -427,7 +440,7 @@ const navItems = [
 </script>
 
 
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" is:inline></script>
+<script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js" is:inline></script>
 <script is:inline>
   document.addEventListener('DOMContentLoaded', function() {
     lucide.createIcons();

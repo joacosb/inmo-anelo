@@ -74,6 +74,14 @@ try {
     </div>
   </div>
 
+  <div class="filter-bar">
+    <label class="filter-toggle">
+      <input type="checkbox" id="filterDisponibles" />
+      <span class="filter-toggle-track"><span class="filter-toggle-thumb"></span></span>
+      <span class="filter-toggle-label">Filtrar sólo disponibles</span>
+    </label>
+  </div>
+
   <section id="secComplejos">
     <div class="section-label reveal">Complejos de casas</div>
     <div class="section-title reveal">Complejos <em>Residenciales</em></div>
@@ -398,6 +406,40 @@ try {
     .dm-info { padding: 1.25rem 1.1rem 1.5rem; }
     .dm-info h2 { font-size: 1.2rem; }
   }
+
+  /* ── FILTER BAR ── */
+  .filter-bar {
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: .75rem 8%;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+  }
+  .filter-toggle {
+    display: inline-flex; align-items: center; gap: .75rem;
+    cursor: pointer; user-select: none;
+  }
+  .filter-toggle input { display: none; }
+  .filter-toggle-track {
+    position: relative; width: 40px; height: 22px;
+    background: #ccc; border-radius: 11px;
+    transition: background .2s;
+    flex-shrink: 0;
+  }
+  .filter-toggle input:checked + .filter-toggle-track { background: var(--gold); }
+  .filter-toggle-thumb {
+    position: absolute; top: 3px; left: 3px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #fff; transition: transform .2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  }
+  .filter-toggle input:checked + .filter-toggle-track .filter-toggle-thumb { transform: translateX(18px); }
+  .filter-toggle-label {
+    font-size: .78rem; font-weight: 600; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--gray);
+    transition: color .2s;
+  }
+  .filter-toggle input:checked ~ .filter-toggle-label { color: var(--black); }
+  .prop-card.filtered-out { display: none; }
 </style>
 
 <script is:inline>
@@ -413,35 +455,72 @@ try {
     var imgs = JSON.parse(wrap.dataset.images);
     if (imgs.length <= 1) return;
     var positions = JSON.parse(wrap.dataset.positions || '[]');
-    var idx  = 0;
-    var img  = wrap.querySelector('.prop-img');
+    var idx = 0;
+    var img = wrap.querySelector('.prop-img');
     var dots = wrap.querySelectorAll('.car-dot');
-    // preload all images for this card
-    imgs.forEach(function(src) { (new Image()).src = src; });
+
+    // Lazy loading: solo precargar ventana de ±1 alrededor del índice actual
+    var preloaded = {};
+    preloaded[0] = true; // portada ya está en el DOM
+    function preloadImg(i) {
+      if (preloaded[i]) return;
+      preloaded[i] = true;
+      (new Image()).src = imgs[i];
+    }
+    function preloadWindow(center) {
+      preloadImg((center + 1) % imgs.length);
+      preloadImg((center - 1 + imgs.length) % imgs.length);
+    }
+    preloadWindow(0); // precarga índice 1 y último (cubre primera nav en ambas direcciones)
+
     function go(n) {
       idx = (idx + n + imgs.length) % imgs.length;
       var next = imgs[idx];
       var nextPos = positions[idx] || '50% 50%';
+      var targetIdx = idx;
+      var applied = false;
+
       img.style.opacity = '0';
+
+      function apply() {
+        if (applied) return;
+        applied = true;
+        img.src = next;
+        img.style.objectPosition = nextPos;
+        img.style.opacity = '1';
+        dots.forEach(function(d, i) { d.classList.toggle('active', i === targetIdx); });
+        preloadWindow(targetIdx);
+      }
+
       var tmp = new Image();
-      tmp.onload = function() { img.src = next; img.style.objectPosition = nextPos; img.style.opacity = '1'; };
+      tmp.onload = function() { setTimeout(apply, 120); };
       tmp.src = next;
-      if (tmp.complete) { img.src = next; img.style.objectPosition = nextPos; img.style.opacity = '1'; }
-      dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+      if (tmp.complete) setTimeout(apply, 120);
     }
+
     wrap.querySelector('.car-prev').addEventListener('click', function(e) { e.stopPropagation(); go(-1); });
     wrap.querySelector('.car-next').addEventListener('click', function(e) { e.stopPropagation(); go(1); });
+
+    // Swipe en touch
+    var touchStartX = 0;
+    wrap.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; }, { passive: true });
+    wrap.addEventListener('touchend', function(e) {
+      var dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 40) { e.stopPropagation(); go(dx > 0 ? -1 : 1); }
+    });
   });
 
   // ── DETAIL MODAL ─────────────────────────────────────────
   var dmImgs = [];
   var dmIdx  = 0;
+  var dmLastCard = null;
 
   function dmPreload(imgs) {
     imgs.forEach(function(src) { (new Image()).src = src; });
   }
 
   function openDM(card) {
+    dmLastCard = card;
     dmImgs = JSON.parse(card.dataset.images || '[]');
     dmIdx  = 0;
     dmPreload(dmImgs);
@@ -498,6 +577,11 @@ try {
   function closeDM() {
     document.getElementById('detailModal').classList.remove('open');
     document.body.style.overflow = '';
+    if (dmLastCard) {
+      dmLastCard.setAttribute('tabindex', '-1');
+      dmLastCard.focus({ preventScroll: true });
+      dmLastCard = null;
+    }
   }
 
   function dmGo(n) {
@@ -537,5 +621,14 @@ try {
     if (e.key === 'Escape') closeDM();
     if (e.key === 'ArrowLeft')  dmGo(-1);
     if (e.key === 'ArrowRight') dmGo(1);
+  });
+
+  // ── FILTRO DISPONIBLES ────────────────────────────────────
+  document.getElementById('filterDisponibles').addEventListener('change', function() {
+    var onlyAvail = this.checked;
+    document.querySelectorAll('.prop-card--detail').forEach(function(card) {
+      var isAvail = card.dataset.statusClass === 'disponible';
+      card.classList.toggle('filtered-out', onlyAvail && !isAvail);
+    });
   });
 </script>
