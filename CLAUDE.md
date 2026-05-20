@@ -8,7 +8,7 @@
 | Adapter | `@astrojs/vercel` — deploy en Vercel |
 | Base de datos | Supabase (PostgreSQL) |
 | Auth admin | Supabase Auth (email/password) |
-| Storage imágenes | Aún no implementado — imágenes en `public/` del repo |
+| Storage imágenes | Supabase Storage — bucket `property-images` (público) |
 | Estilos | CSS vanilla con variables (`var(--gold)`, `var(--black)`, etc.) en `src/styles/global.css` |
 | Iconos | Lucide (CDN) |
 | Fuentes | Google Fonts — Cormorant Garamond (títulos) + Montserrat (cuerpo) |
@@ -32,13 +32,13 @@ src/
       logout.astro       — borra cookie, redirige
       propiedades/
         index.astro      — lista de propiedades con toggle de estado 1-click (JS + Supabase REST API)
-        [id].astro       — formulario de edición completa (POST server-side)
+        [id].astro       — formulario de edición completa + gestión de fotos + preview de portada
   layouts/
-    Layout.astro         — navbar, footer, modal de propiedades, popup de servicios, WhatsApp float
+    Layout.astro         — navbar, footer, modal de propiedades (homepage), popup de servicios, WhatsApp float
   styles/
     global.css           — todos los estilos del sitio
 public/
-  *.webp                 — imágenes de propiedades (hoy están hardcodeadas en el repo)
+  *.webp                 — imágenes legacy (las nuevas van a Supabase Storage)
 ```
 
 ## Modelo de datos — tabla `properties` en Supabase
@@ -52,8 +52,9 @@ zone           enum (centro | forestada)
 status         enum (available | occupied | partial)
 status_text    text   -- badge custom: "Ocupado", "¡Quedan 2!", etc.
 description    text
-cover_image    text   -- hoy: path relativo "/complejo-abedules.webp"
-images         text[] -- galería adicional (aún no usada en frontend)
+cover_image    text   -- URL pública en Supabase Storage (o path legacy /xxx.webp)
+cover_position text   -- object-position CSS para el encuadre del card, ej: "42% 30%". DEFAULT '50% 50%'
+images         text[] -- todas las fotos de la propiedad (URLs de Supabase Storage)
 unit_count     int    -- cantidad de UFs
 max_guests     int
 matterport_url text
@@ -62,6 +63,14 @@ active         bool
 created_at / updated_at timestamptz
 ```
 
+### Supabase Storage — bucket `property-images`
+
+- **Bucket**: `property-images` (público)
+- **Path por propiedad**: `{propertyId}/{timestamp}-{random}.{ext}`
+- **URL pública**: `https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/{path}`
+- **Políticas**: lectura pública para `anon`; upload/delete solo para `authenticated`
+- Las llamadas directas a la Storage API REST requieren **ambos** headers: `apikey` (anon key) + `Authorization: Bearer {token}`
+
 ## Convenciones importantes
 
 - El campo `status_text` siempre va sin el "● " — el frontend lo agrega
@@ -69,94 +78,44 @@ created_at / updated_at timestamptz
 - Mapeo de zona: `forestada` → "La Forestada" | `centro` + tipo `edificio` → "Centro Añelo" | `centro` + tipo `complejo` → "Añelo"
 - Las credenciales de Supabase están hardcodeadas en `src/lib/supabase.ts` (la anon key es pública por diseño)
 - La cookie de sesión admin se llama `sb_token` (httpOnly)
+- Los `<script define:vars>` en Astro quedan en scope local — las funciones llamadas desde handlers inline (`onclick`, `onchange`) deben exponerse con `window.fnName = fnName`
+- Los `<style>` en Astro son scoped por defecto — usar `<style is:global>` para estilos que aplican a elementos creados dinámicamente con JS
 
 ---
 
-## Plan de acción — Carrusel de múltiples fotos por propiedad
+## Features implementadas
 
-### Contexto
+### Gestión de fotos en el admin (`[id].astro`)
 
-El campo `images text[]` ya existe en la base de datos pero aún no se usa. Hoy cada propiedad tiene solo una foto de portada (`cover_image`). El objetivo es permitir:
+- **Subida**: drag & drop o click, múltiples archivos, hasta 10MB. Se suben directo a Supabase Storage y se sincronizan en `images[]` y `cover_image` via PATCH REST.
+- **Portada**: click en "Portada" sobre cualquier foto la marca como cover y sincroniza la DB.
+- **Eliminar**: borra del Storage y del array `images[]`.
+- **Preview de card**: panel lateral que muestra en tiempo real cómo quedará el card público con la portada actual. Hacer hover sobre otra foto la previsualiza temporalmente.
+- **Encuadre de portada**: el panel de preview es **arrastrable** — el drag actualiza `object-position` en tiempo real y guarda `cover_position` en la DB al soltar. Al cambiar de portada se resetea a `50% 50%`.
 
-1. **Admin**: subir varias fotos por propiedad y elegir cuál es la portada
-2. **Público**: en el card de corporativo, poder deslizar entre fotos
+### Cards en `/corporativo/`
 
-### Paso 1 — Supabase Storage
+- Carrusel de fotos con flechas prev/next y dots. Las imágenes se precargan al cargar la página para transiciones fluidas sin flash.
+- `object-position` se aplica desde `cover_position` de la DB para respetar el encuadre configurado en el admin.
+- Al hacer click en un card (no en botones/links) se abre el **modal de detalle**.
 
-Crear un bucket en Supabase para almacenar las imágenes (en lugar de tenerlas en `public/`).
+### Modal de detalle (`corporativo.astro`)
 
-```sql
--- En Supabase Dashboard → Storage → New bucket
--- Nombre: property-images
--- Public: true (las fotos son públicas)
-```
+- Layout fijo split 55/45: carrusel a la izquierda, info a la derecha. El tamaño del modal no cambia con las fotos.
+- Carrusel precarga todas las imágenes al abrir para transiciones instantáneas.
+- Info: nombre, estado, descripción, huéspedes, UFs, zona, botones WhatsApp y Matterport.
+- Teclado: ← → navegan, Escape cierra.
+- Mobile: sheet desde abajo, imagen arriba, info con scroll.
 
-Política de storage:
-```sql
--- Lectura pública
-CREATE POLICY "Public read" ON storage.objects FOR SELECT TO anon USING (bucket_id = 'property-images');
--- Solo admin puede subir/borrar
-CREATE POLICY "Admin upload" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'property-images');
-CREATE POLICY "Admin delete" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'property-images');
-```
+### Modal de homepage (`Layout.astro`)
 
-Las URLs de las imágenes subirán a `https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/{filename}`.
+- Los cards de la sección "Nuestros complejos" en `index.astro` tienen `data-dest` con la URL de destino.
+- Al hacer click: modal con "Ver los complejos/edificios" (navega a `/corporativo/` o `/corporativo/#secEdificios`) + "Consultar por WhatsApp".
+- Los cards de `corporativo.astro` tienen `data-no-modal` para saltear este modal genérico y usar el modal de detalle propio.
 
-### Paso 2 — Uploader en el panel admin (`[id].astro`)
+---
 
-Agregar una sección de gestión de fotos al formulario de edición completa:
+## Pendiente / próximos pasos
 
-- Input `<input type="file" accept="image/*" multiple>` para subir nuevas fotos
-- Preview de las fotos actuales con botón de eliminar por cada una
-- Drag para reordenar (o simplemente botones arriba/abajo para simplicidad)
-- Checkbox o clic para marcar cuál es la portada (`cover_image`)
-
-**Flujo de subida (cliente → Supabase Storage):**
-```javascript
-// En el admin, con el access token del usuario autenticado
-const sb = createClient(url, anon, { global: { headers: { Authorization: `Bearer ${token}` }}});
-const { data } = await sb.storage.from('property-images').upload(`${propertyId}/${filename}`, file);
-// Luego actualizar el array images[] en la tabla properties
-await sb.from('properties').update({ images: [...existingImages, publicUrl] }).eq('id', propertyId);
-```
-
-### Paso 3 — Carrusel en la página pública (`corporativo.astro`)
-
-Modificar el template del card para que si `images.length > 1`, muestre controles de navegación:
-
-```html
-<div class="prop-img-wrap">
-  <img class="prop-img" src={p.cover_image} />
-  {p.images.length > 1 && (
-    <div class="carousel-dots">…</div>
-    <button class="carousel-prev">‹</button>
-    <button class="carousel-next">›</button>
-  )}
-</div>
-```
-
-JS mínimo para el carrusel (sin librerías externas):
-- Mantener un array de URLs de imágenes en un `data-images` attribute
-- Al hacer click en prev/next, cambiar el `src` del `<img>` y actualizar los dots
-
-### Paso 4 — Migrar imágenes actuales
-
-Las imágenes actuales están en `public/*.webp`. Hay que:
-1. Subirlas a Supabase Storage vía el dashboard o script
-2. Actualizar el campo `cover_image` en cada fila de `properties` con la nueva URL pública
-3. Una vez verificado que todo funciona, se pueden borrar del repo (o dejarlas como fallback)
-
-### Orden sugerido de implementación
-
-1. Crear el bucket en Supabase Storage (5 min, sin código)
-2. Agregar uploader al admin `[id].astro` (el cambio más complejo)
-3. Actualizar el template del card en `corporativo.astro` para soportar carrusel
-4. Migrar imágenes existentes al bucket
-5. Verificar en producción y limpiar imágenes del repo
-
-### Consideraciones
-
-- Las imágenes subidas desde el admin quedan en Supabase Storage con URLs permanentes — no dependen del deploy
-- El bucket es público, no hace falta auth para leer las fotos
-- Supabase Storage acepta hasta 50MB por archivo en el plan gratuito (más que suficiente para fotos webp)
-- Para las imágenes actuales del repo, los paths `/complejo-abedules.webp` siguen funcionando hasta que se migren
+- Migrar imágenes legacy de `public/*.webp` a Supabase Storage y actualizar `cover_image` en la DB
+- Carrusel de fotos también en la homepage (featured Pampa III)
