@@ -112,6 +112,8 @@ if (!p) return Astro.redirect('/admin/propiedades/');
     .photo-item[draggable] { cursor: grab; }
     .photo-item.is-dragging { opacity: .35; cursor: grabbing; }
     .photo-item.drag-over { outline: 2px solid #c9a84c; outline-offset: -2px; }
+    .photo-item.editing { outline: 2px solid #c9a84c; outline-offset: -2px; }
+    .photo-item.editing .photo-drag-handle { background: rgba(201,168,76,.8); color: #000; }
     .photo-drag-handle {
       position: absolute; top: 5px; left: 5px; z-index: 5;
       background: rgba(0,0,0,.55); color: rgba(255,255,255,.8);
@@ -215,7 +217,7 @@ if (!p) return Astro.redirect('/admin/propiedades/');
           </div>
         </div>
         <div class="preview-pos-label" id="pos-label">arrastrá para reencuadrar</div>
-        <div class="preview-hint">Pasá el mouse sobre una foto para previsualizarla como portada</div>
+        <div class="preview-hint">Hacé <strong style="color:#c9a84c">click</strong> en una foto para fijarla y ajustar su encuadre en el carrusel. Hover para previsualizar.</div>
       </div>
       <div class="photos-grid" id="photos-grid" style="margin-bottom:0">
       {(p.images ?? []).map((url: string) => (
@@ -330,6 +332,7 @@ if (!p) return Astro.redirect('/admin/propiedades/');
       return initialImagePositions[i] || (url === initialCover ? initialPosition : '50% 50%');
     });
     let previewingUrl    = null; // which photo is currently hovered in the grid
+    let pinnedPhotoUrl   = null; // photo locked in preview via click for position editing
     let isDraggingPhoto  = false; // true while drag-reorder is in progress
 
     // Apply saved position to preview on load
@@ -391,12 +394,23 @@ if (!p) return Astro.redirect('/admin/propiedades/');
       if (idx >= 0) currentPositions[idx] = pos;
       if (targetUrl === currentCover) coverPosition = pos;
       document.getElementById('preview-img').style.objectPosition = pos;
-      document.getElementById('pos-label').textContent = x + '% · ' + y + '%';
+      var labelEl = document.getElementById('pos-label');
+      var targetUrl2 = previewingUrl || currentCover;
+      if (targetUrl2 && targetUrl2 !== currentCover) {
+        var n2 = currentImages.indexOf(targetUrl2) + 1;
+        labelEl.textContent = 'Foto ' + n2 + ' · ' + x + '% · ' + y + '%';
+      } else {
+        labelEl.textContent = x + '% · ' + y + '%';
+      }
     }
 
     function previewCover(url) {
-      if (isDraggingPhoto) return;
+      if (isDraggingPhoto || pinnedPhotoUrl) return; // ignore hover when dragging or a photo is pinned
       previewingUrl = url;
+      showInPreview(url);
+    }
+
+    function showInPreview(url) {
       var img = document.getElementById('preview-img');
       img.style.opacity = '0';
       setTimeout(function() {
@@ -409,7 +423,13 @@ if (!p) return Astro.redirect('/admin/propiedades/');
           pos = coverPosition;
         }
         img.style.objectPosition = pos;
-        document.getElementById('pos-label').textContent = pos === '50% 50%' ? 'arrastrá para reencuadrar' : pos;
+        var labelEl = document.getElementById('pos-label');
+        if (!url || url === currentCover) {
+          labelEl.textContent = pos === '50% 50%' ? 'arrastrá para reencuadrar' : pos;
+        } else {
+          var n = currentImages.indexOf(url) + 1;
+          labelEl.textContent = 'Foto ' + n + ' de ' + currentImages.length + (pos !== '50% 50%' ? ' · ' + pos : ' · arrastrá para reencuadrar');
+        }
         img.style.opacity = '1';
       }, 80);
     }
@@ -447,6 +467,26 @@ if (!p) return Astro.redirect('/admin/propiedades/');
 
     function setupDragHandlers(item) {
       item.setAttribute('draggable', 'true');
+
+      // Click to pin/unpin photo for carousel position editing
+      item.addEventListener('click', function(e) {
+        if (e.target.closest('button')) return;
+        var url = item.dataset.url;
+        if (pinnedPhotoUrl === url) {
+          // Unpin — revert to cover preview
+          pinnedPhotoUrl = null;
+          previewingUrl  = null;
+          item.classList.remove('editing');
+          showInPreview(null);
+        } else {
+          document.querySelectorAll('.photo-item.editing').forEach(function(el) { el.classList.remove('editing'); });
+          pinnedPhotoUrl = url;
+          previewingUrl  = url;
+          item.classList.add('editing');
+          showInPreview(url);
+        }
+      });
+
       item.addEventListener('dragstart', function(e) {
         dragSrcUrl = item.dataset.url;
         isDraggingPhoto = true;
@@ -601,6 +641,8 @@ if (!p) return Astro.redirect('/admin/propiedades/');
           btn.setAttribute('onclick', 'setCover(this)');
           actions.prepend(btn);
         }
+        // re-apply editing class after DOM refresh
+        if (item.dataset.url === pinnedPhotoUrl) item.classList.add('editing');
       });
     }
 
@@ -628,6 +670,7 @@ if (!p) return Astro.redirect('/admin/propiedades/');
       currentImages    = currentImages.filter(u => u !== url);
       currentPositions.splice(idx, 1);
       if (currentCover === url) currentCover = currentImages[0] ?? null;
+      if (pinnedPhotoUrl === url) { pinnedPhotoUrl = null; previewingUrl = null; }
       item.remove();
 
       const ok = await syncImages();
