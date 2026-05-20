@@ -162,6 +162,13 @@ p, .section-sub, .hero p, .step p,
 .prop-3d-label { font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gray); white-space: nowrap; }
 .btn-3d { display: inline-flex; align-items: center; gap: .35rem; background: var(--black); color: var(--gold); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: .3rem .8rem; border-radius: 4px; text-decoration: none; transition: background .2s, color .2s; }
 .btn-3d:hover { background: var(--gold); color: var(--black); }
+.prop-actions { display: flex; gap: .5rem; padding-top: .85rem; margin-top: .6rem; border-top: 1px solid var(--border); }
+.btn-action { display: inline-flex; align-items: center; justify-content: center; gap: .3rem; font-family: var(--font-body); font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: .45rem .7rem; border-radius: 4px; text-decoration: none; transition: background .2s, color .2s, border-color .2s; flex: 1; white-space: nowrap; }
+.btn-icon { width: 13px; height: 13px; flex-shrink: 0; }
+.btn-action--tour { background: var(--black); color: var(--gold); border: 1.5px solid var(--black); }
+.btn-action--tour:hover { background: var(--gold); color: var(--black); border-color: var(--gold); }
+.btn-action--mail { background: transparent; color: var(--black); border: 1.5px solid var(--border); }
+.btn-action--mail:hover { background: var(--black); color: var(--white); border-color: var(--black); }
 
 /* ── RETURNS / CALCULATOR ── */
 .returns-section { background: var(--black); color: var(--white); }

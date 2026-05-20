@@ -117,6 +117,14 @@ try {
               {p.unit_count  && <div class="prop-meta-item"><strong>{p.unit_count}</strong>UFs</div>}
               <div class="prop-meta-item"><strong>{zoneLabel(p.zone, p.type)}</strong></div>
             </div>
+            <div class="prop-actions">
+              <a class="btn-action btn-action--tour" href={p.matterport_url || 'https://my.matterport.com/show/?m=z9F3K5h3gok'} target="_blank" rel="noopener noreferrer">
+                <i data-lucide="scan-search" class="btn-icon"></i>Recorrido 3D
+              </a>
+              <a class="btn-action btn-action--mail" href={`mailto:grupopampanqn@gmail.com?subject=Alquiler%20corporativo&body=${encodeURIComponent('Hola, estuve en su sitio web y me interesa el complejo ' + p.name)}`}>
+                <i data-lucide="mail" class="btn-icon"></i>Contactar
+              </a>
+            </div>
           </div>
         </div>
       ))}
@@ -165,6 +173,14 @@ try {
               {p.max_guests && <div class="prop-meta-item"><strong>Hasta {p.max_guests}</strong>huéspedes</div>}
               {p.unit_count  && <div class="prop-meta-item"><strong>{p.unit_count}</strong>UFs</div>}
               <div class="prop-meta-item"><strong>{zoneLabel(p.zone, p.type)}</strong></div>
+            </div>
+            <div class="prop-actions">
+              <a class="btn-action btn-action--tour" href={p.matterport_url || 'https://my.matterport.com/show/?m=z9F3K5h3gok'} target="_blank" rel="noopener noreferrer">
+                <i data-lucide="scan-search" class="btn-icon"></i>Recorrido 3D
+              </a>
+              <a class="btn-action btn-action--mail" href={`mailto:grupopampanqn@gmail.com?subject=Alquiler%20corporativo&body=${encodeURIComponent('Hola, estuve en su sitio web y me interesa el complejo ' + p.name)}`}>
+                <i data-lucide="mail" class="btn-icon"></i>Contactar
+              </a>
             </div>
           </div>
         </div>
