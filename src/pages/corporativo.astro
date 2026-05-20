@@ -81,7 +81,21 @@ try {
     <p class="section-sub reveal">Complejos cerrados en La Forestada y zonas residenciales de Añelo. Ideales para personal de empresas Oil &amp; Gas.</p>
     <div class="props-grid">
       {(complejos as Property[]).map((p) => (
-        <div class="prop-card" data-name={p.name} data-type={p.type} data-section="complejos">
+        <div
+          class="prop-card prop-card--detail"
+          data-name={p.name}
+          data-type={p.type}
+          data-section="complejos"
+          data-no-modal="1"
+          data-images={JSON.stringify(p.images?.length > 0 ? p.images : (p.cover_image ? [p.cover_image] : []))}
+          data-desc={p.description ?? ''}
+          data-guests={p.max_guests ?? ''}
+          data-units={p.unit_count ?? ''}
+          data-zone={zoneLabel(p.zone, p.type)}
+          data-matterport={p.matterport_url ?? ''}
+          data-status={p.status_text ?? ''}
+          data-status-class={statusClass(p.status)}
+        >
           <div class="prop-img-wrap" data-images={JSON.stringify(p.images?.length > 1 ? p.images : [p.cover_image])}>
             <img class="prop-img" loading="lazy" decoding="async" src={p.cover_image} alt={p.name} />
             {p.images?.length > 1 && (
@@ -102,12 +116,6 @@ try {
               {p.unit_count  && <div class="prop-meta-item"><strong>{p.unit_count}</strong>UFs</div>}
               <div class="prop-meta-item"><strong>{zoneLabel(p.zone, p.type)}</strong></div>
             </div>
-            {p.matterport_url && (
-              <div class="prop-3d">
-                <span class="prop-3d-label">Ver en 3D</span>
-                <a href={p.matterport_url} target="_blank" class="btn-3d">▶ Recorrido Virtual</a>
-              </div>
-            )}
           </div>
         </div>
       ))}
@@ -121,7 +129,21 @@ try {
     <p class="section-sub reveal">Edificios de varios pisos en el centro de Añelo. Departamentos de 1 y 2 dormitorios, ideal para inversores que buscan diversificar.</p>
     <div class="props-grid">
       {(edificios as Property[]).map((p) => (
-        <div class="prop-card" data-name={p.name} data-type={p.type} data-section="edificios">
+        <div
+          class="prop-card prop-card--detail"
+          data-name={p.name}
+          data-type={p.type}
+          data-section="edificios"
+          data-no-modal="1"
+          data-images={JSON.stringify(p.images?.length > 0 ? p.images : (p.cover_image ? [p.cover_image] : []))}
+          data-desc={p.description ?? ''}
+          data-guests={p.max_guests ?? ''}
+          data-units={p.unit_count ?? ''}
+          data-zone={zoneLabel(p.zone, p.type)}
+          data-matterport={p.matterport_url ?? ''}
+          data-status={p.status_text ?? ''}
+          data-status-class={statusClass(p.status)}
+        >
           <div class="prop-img-wrap" data-images={JSON.stringify(p.images?.length > 1 ? p.images : [p.cover_image])}>
             <img class="prop-img" loading="lazy" decoding="async" src={p.cover_image} alt={p.name} />
             {p.images?.length > 1 && (
@@ -142,12 +164,6 @@ try {
               {p.unit_count  && <div class="prop-meta-item"><strong>{p.unit_count}</strong>UFs</div>}
               <div class="prop-meta-item"><strong>{zoneLabel(p.zone, p.type)}</strong></div>
             </div>
-            {p.matterport_url && (
-              <div class="prop-3d">
-                <span class="prop-3d-label">Ver en 3D</span>
-                <a href={p.matterport_url} target="_blank" class="btn-3d">▶ Recorrido Virtual</a>
-              </div>
-            )}
           </div>
         </div>
       ))}
@@ -162,6 +178,156 @@ try {
   </section>
 </Layout>
 
+<!-- DETAIL MODAL -->
+<div id="detailModal" class="dm-overlay" onclick="if(event.target===this)closeDM()">
+  <div class="dm-inner">
+    <button class="dm-close" onclick="closeDM()" aria-label="Cerrar">&times;</button>
+    <div class="dm-carousel">
+      <img id="dmImg" src="" alt="" />
+      <button class="dm-car-btn dm-prev" onclick="dmGo(-1)">&#8249;</button>
+      <button class="dm-car-btn dm-next" onclick="dmGo(1)">&#8250;</button>
+      <div id="dmDots" class="dm-dots"></div>
+    </div>
+    <div class="dm-info">
+      <span id="dmStatus" class="prop-status"></span>
+      <h2 id="dmName"></h2>
+      <p id="dmDesc"></p>
+      <div class="dm-meta">
+        <div id="dmGuests" class="dm-meta-item"></div>
+        <div id="dmUnits"  class="dm-meta-item"></div>
+        <div id="dmZone"   class="dm-meta-item"></div>
+      </div>
+      <div class="dm-actions">
+        <a id="dmWA" href="#" target="_blank" rel="noopener" class="dm-btn dm-btn-wa"
+          onclick="gtag('event','whatsapp_click',{'event_category':'detail_modal'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">
+          💬 Consultar por WhatsApp
+        </a>
+        <a id="dmTour" href="#" target="_blank" rel="noopener" class="dm-btn dm-btn-tour"
+          onclick="gtag('event','virtual_tour',{'event_category':'detail_modal'})">
+          ▶ Recorrido Virtual
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  /* ── DETAIL MODAL ── */
+  .dm-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.88);
+    z-index: 9100;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem;
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s;
+  }
+  .dm-overlay.open { opacity: 1; pointer-events: all; }
+
+  .dm-inner {
+    background: #111;
+    border-radius: 14px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    max-width: 920px;
+    max-height: 88vh;
+    position: relative;
+  }
+
+  /* ── LEFT: carousel ── */
+  .dm-carousel {
+    position: relative;
+    background: #000;
+    min-height: 320px;
+  }
+  .dm-carousel img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: opacity .15s;
+  }
+  .dm-car-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(0,0,0,.55); border: none; color: #fff;
+    font-size: 2rem; line-height: 1; width: 2.4rem; height: 2.4rem;
+    border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background .15s;
+  }
+  .dm-car-btn:hover { background: rgba(0,0,0,.8); }
+  .dm-prev { left: .6rem; }
+  .dm-next { right: .6rem; }
+  .dm-dots {
+    position: absolute; bottom: .75rem; left: 50%; transform: translateX(-50%);
+    display: flex; gap: .4rem;
+  }
+  .dm-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: rgba(255,255,255,.45); cursor: pointer; transition: background .15s;
+  }
+  .dm-dot.active { background: #c9a84c; }
+
+  /* ── RIGHT: info ── */
+  .dm-info {
+    padding: 2rem 1.75rem 1.75rem;
+    overflow-y: auto;
+    display: flex; flex-direction: column; gap: 1rem;
+    font-family: 'Montserrat', sans-serif;
+    color: #fff;
+  }
+  .dm-info h2 {
+    font-size: 1.5rem; font-weight: 700; margin: 0; line-height: 1.2;
+  }
+  .dm-info p {
+    font-size: .88rem; color: rgba(255,255,255,.65); line-height: 1.6; margin: 0;
+  }
+  .dm-meta {
+    display: flex; flex-wrap: wrap; gap: .6rem;
+  }
+  .dm-meta-item {
+    background: rgba(255,255,255,.07); border-radius: 6px;
+    padding: .45rem .8rem; font-size: .8rem;
+    display: flex; flex-direction: column; gap: .1rem;
+  }
+  .dm-meta-item strong { font-size: .95rem; color: #c9a84c; }
+  .dm-actions {
+    display: flex; flex-direction: column; gap: .65rem; margin-top: auto;
+  }
+  .dm-btn {
+    display: block; text-align: center; border-radius: 7px;
+    padding: .75rem 1rem; font-size: .85rem; font-weight: 700;
+    font-family: 'Montserrat', sans-serif;
+    text-decoration: none; transition: background .15s, opacity .15s;
+    cursor: pointer;
+  }
+  .dm-btn-wa  { background: #25d366; color: #000; }
+  .dm-btn-wa:hover { background: #1db954; }
+  .dm-btn-tour { background: rgba(201,168,76,.18); color: #c9a84c; border: 1px solid rgba(201,168,76,.4); }
+  .dm-btn-tour:hover { background: rgba(201,168,76,.28); }
+
+  /* ── CLOSE ── */
+  .dm-close {
+    position: absolute; top: .75rem; right: .75rem; z-index: 10;
+    background: rgba(0,0,0,.6); border: none; color: #fff;
+    font-size: 1.4rem; width: 2rem; height: 2rem; border-radius: 50%;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    line-height: 1; transition: background .15s;
+  }
+  .dm-close:hover { background: rgba(0,0,0,.9); }
+
+  /* ── MOBILE ── */
+  @media (max-width: 640px) {
+    .dm-inner {
+      grid-template-columns: 1fr;
+      grid-template-rows: 52vw 1fr;
+      max-height: 92vh;
+    }
+    .dm-info { padding: 1.25rem 1rem 1rem; }
+    .dm-info h2 { font-size: 1.2rem; }
+  }
+</style>
+
 <script is:inline>
   if (location.hash) {
     setTimeout(function() {
@@ -170,22 +336,124 @@ try {
     }, 100);
   }
 
-  // ── CARRUSEL ──────────────────────────────────────────────
+  // ── CARRUSEL DE CARD ──────────────────────────────────────
   document.querySelectorAll('.prop-img-wrap[data-images]').forEach(function(wrap) {
     var imgs = JSON.parse(wrap.dataset.images);
     if (imgs.length <= 1) return;
-    var idx   = 0;
-    var img   = wrap.querySelector('.prop-img');
-    var dots  = wrap.querySelectorAll('.car-dot');
-
+    var idx  = 0;
+    var img  = wrap.querySelector('.prop-img');
+    var dots = wrap.querySelectorAll('.car-dot');
     function go(n) {
       idx = (idx + n + imgs.length) % imgs.length;
       img.style.opacity = '0';
       setTimeout(function() { img.src = imgs[idx]; img.style.opacity = '1'; }, 150);
       dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
     }
-
     wrap.querySelector('.car-prev').addEventListener('click', function(e) { e.stopPropagation(); go(-1); });
     wrap.querySelector('.car-next').addEventListener('click', function(e) { e.stopPropagation(); go(1); });
+  });
+
+  // ── DETAIL MODAL ─────────────────────────────────────────
+  var dmImgs = [];
+  var dmIdx  = 0;
+
+  function openDM(card) {
+    dmImgs = JSON.parse(card.dataset.images || '[]');
+    dmIdx  = 0;
+
+    var imgEl = document.getElementById('dmImg');
+    imgEl.src = dmImgs[0] || '';
+
+    // dots
+    var dotsEl = document.getElementById('dmDots');
+    dotsEl.innerHTML = '';
+    if (dmImgs.length > 1) {
+      dmImgs.forEach(function(_, i) {
+        var d = document.createElement('span');
+        d.className = 'dm-dot' + (i === 0 ? ' active' : '');
+        d.addEventListener('click', function() { dmJump(i); });
+        dotsEl.appendChild(d);
+      });
+    }
+
+    // show/hide arrows
+    document.querySelector('.dm-prev').style.display = dmImgs.length > 1 ? '' : 'none';
+    document.querySelector('.dm-next').style.display = dmImgs.length > 1 ? '' : 'none';
+
+    // info
+    document.getElementById('dmName').textContent = card.dataset.name || '';
+    document.getElementById('dmDesc').textContent = card.dataset.desc || '';
+
+    var statusEl = document.getElementById('dmStatus');
+    statusEl.textContent = '● ' + (card.dataset.status || '');
+    statusEl.className = 'prop-status ' + (card.dataset.statusClass || '');
+
+    var gEl = document.getElementById('dmGuests');
+    if (card.dataset.guests) {
+      gEl.style.display = '';
+      gEl.innerHTML = '<strong>Hasta ' + card.dataset.guests + '</strong>huéspedes';
+    } else { gEl.style.display = 'none'; }
+
+    var uEl = document.getElementById('dmUnits');
+    if (card.dataset.units) {
+      uEl.style.display = '';
+      uEl.innerHTML = '<strong>' + card.dataset.units + '</strong>UFs';
+    } else { uEl.style.display = 'none'; }
+
+    var zEl = document.getElementById('dmZone');
+    if (card.dataset.zone) {
+      zEl.style.display = '';
+      zEl.innerHTML = '<strong>' + card.dataset.zone + '</strong>';
+    } else { zEl.style.display = 'none'; }
+
+    var waMsg = encodeURIComponent('Hola! Me interesa ' + (card.dataset.name || '') + '. Actualmente busco alquiler para...');
+    document.getElementById('dmWA').href = 'https://wa.me/5492972431619?text=' + waMsg;
+
+    var tourEl = document.getElementById('dmTour');
+    if (card.dataset.matterport) {
+      tourEl.style.display = '';
+      tourEl.href = card.dataset.matterport;
+    } else { tourEl.style.display = 'none'; }
+
+    document.getElementById('detailModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDM() {
+    document.getElementById('detailModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function dmGo(n) {
+    dmIdx = (dmIdx + n + dmImgs.length) % dmImgs.length;
+    dmUpdate();
+  }
+
+  function dmJump(i) {
+    dmIdx = i;
+    dmUpdate();
+  }
+
+  function dmUpdate() {
+    var img = document.getElementById('dmImg');
+    img.style.opacity = '0';
+    setTimeout(function() { img.src = dmImgs[dmIdx]; img.style.opacity = '1'; }, 150);
+    document.querySelectorAll('.dm-dot').forEach(function(d, i) {
+      d.classList.toggle('active', i === dmIdx);
+    });
+  }
+
+  document.querySelectorAll('.prop-card--detail').forEach(function(card) {
+    card.addEventListener('click', function(e) {
+      if (e.target.closest('a, button')) return;
+      openDM(card);
+    });
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (!document.getElementById('detailModal').classList.contains('open')) return;
+    if (e.key === 'Escape') closeDM();
+    if (e.key === 'ArrowLeft')  dmGo(-1);
+    if (e.key === 'ArrowRight') dmGo(1);
   });
 </script>

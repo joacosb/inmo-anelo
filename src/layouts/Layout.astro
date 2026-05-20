@@ -360,15 +360,25 @@ const navItems = [
   function openPropModal(card) {
     var name = card.dataset.name;
     var type = card.dataset.type;
-    var section = card.dataset.section;
-    var ownTour = card.querySelector('.btn-3d');
-    var fallbackUrl = type === 'edificio'
-      ? 'https://my.matterport.com/show/?m=HdzbizKQMrt'
-      : 'https://my.matterport.com/show/?m=z9F3K5h3gok';
-    var virtualUrl = ownTour ? ownTour.href : fallbackUrl;
-    var waMsg = encodeURIComponent('Hola! Me interesa el ' + name + '. Actualmente busco alquiler para...');
+    var dest = card.dataset.dest;
+    var btn1 = document.getElementById('modalVirtual');
+    var waMsg = encodeURIComponent('Hola! Me interesa ' + name + '. Actualmente busco alquiler para...');
+
+    if (dest) {
+      btn1.href = dest;
+      btn1.removeAttribute('target');
+      btn1.querySelector('span').textContent = type === 'edificio' ? 'Ver los edificios' : 'Ver los complejos';
+    } else {
+      var ownTour = card.querySelector('.btn-3d');
+      var fallbackUrl = type === 'edificio'
+        ? 'https://my.matterport.com/show/?m=HdzbizKQMrt'
+        : 'https://my.matterport.com/show/?m=z9F3K5h3gok';
+      btn1.href = ownTour ? ownTour.href : fallbackUrl;
+      btn1.setAttribute('target', '_blank');
+      btn1.querySelector('span').textContent = 'Ver recorrido virtual';
+    }
+
     document.getElementById('modalPropName').textContent = name;
-    document.getElementById('modalVirtual').href = virtualUrl;
     document.getElementById('modalWA').href = 'https://wa.me/5492972431619?text=' + waMsg;
     document.getElementById('propModal').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -380,6 +390,7 @@ const navItems = [
   document.querySelectorAll('.prop-card').forEach(function(card) {
     card.addEventListener('click', function(e) {
       if (e.target.closest('a, button')) return;
+      if (card.dataset.noModal) return;
       openPropModal(card);
     });
   });
