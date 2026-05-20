@@ -22,10 +22,10 @@ export interface Property {
   active:         boolean;
 }
 
-export const supabase = createClient(
-  import.meta.env.PUBLIC_SUPABASE_URL,
-  import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
-);
+const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
+
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 
 export function statusClass(status: PropertyStatus): string {
   if (status === 'available') return 'disponible';
