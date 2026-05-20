@@ -761,6 +761,23 @@ footer { background: var(--black); color: rgba(255,255,255,.5); padding: 3rem 8%
   color: #fff;
 }
 .fp-wa-btn [data-lucide] { width: 15px; height: 15px; }
+.fp-tour-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .7rem 1.4rem;
+  border-radius: 6px;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-family: 'Montserrat', sans-serif;
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-decoration: none;
+  transition: background .2s, color .2s;
+}
+.fp-tour-btn:hover { background: var(--gold); color: var(--black); }
+.fp-tour-btn [data-lucide] { width: 15px; height: 15px; }
 @media (max-width: 860px) {
   .fp-inner { grid-template-columns: 1fr; min-height: auto; }
   .fp-img-col { height: 260px; }
