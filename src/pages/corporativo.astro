@@ -97,7 +97,8 @@ try {
           data-status-class={statusClass(p.status)}
         >
           <div class="prop-img-wrap" data-images={JSON.stringify(p.images?.length > 1 ? p.images : [p.cover_image])}>
-            <img class="prop-img" loading="lazy" decoding="async" src={p.cover_image} alt={p.name} />
+            <img class="prop-img" loading="lazy" decoding="async" src={p.cover_image} alt={p.name}
+              style={`object-position: ${p.cover_position ?? '50% 50%'}`} />
             {p.images?.length > 1 && (
               <>
                 <button class="car-btn car-prev" aria-label="Anterior">&#8249;</button>
@@ -145,7 +146,8 @@ try {
           data-status-class={statusClass(p.status)}
         >
           <div class="prop-img-wrap" data-images={JSON.stringify(p.images?.length > 1 ? p.images : [p.cover_image])}>
-            <img class="prop-img" loading="lazy" decoding="async" src={p.cover_image} alt={p.name} />
+            <img class="prop-img" loading="lazy" decoding="async" src={p.cover_image} alt={p.name}
+              style={`object-position: ${p.cover_position ?? '50% 50%'}`} />
             {p.images?.length > 1 && (
               <>
                 <button class="car-btn car-prev" aria-label="Anterior">&#8249;</button>

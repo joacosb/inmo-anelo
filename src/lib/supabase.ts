@@ -14,6 +14,7 @@ export interface Property {
   status_text:    string;
   description:    string | null;
   cover_image:    string;
+  cover_position: string | null;
   images:         string[];
   unit_count:     number | null;
   max_guests:     number | null;

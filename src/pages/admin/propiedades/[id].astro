@@ -66,8 +66,10 @@ if (!p) return Astro.redirect('/admin/propiedades/');
       border-radius: 10px; overflow: hidden; background: #fff;
       box-shadow: 0 4px 20px rgba(0,0,0,.4); flex-shrink: 0;
     }
-    .preview-img-wrap { position: relative; aspect-ratio: 4/3; overflow: hidden; background: #222; }
-    .preview-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .15s; }
+    .preview-img-wrap { position: relative; aspect-ratio: 4/3; overflow: hidden; background: #222; cursor: move; user-select: none; }
+    .preview-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .15s; pointer-events: none; }
+    .preview-img-wrap.dragging { cursor: grabbing; }
+    .preview-pos-label { font-size: .62rem; color: rgba(255,255,255,.28); text-align: center; margin-top: .3rem; font-variant-numeric: tabular-nums; }
     .preview-status {
       position: absolute; top: .6rem; right: .6rem;
       font-size: .65rem; font-weight: 700; padding: .25rem .55rem; border-radius: 20px;
@@ -203,6 +205,7 @@ if (!p) return Astro.redirect('/admin/propiedades/');
             <div class="preview-name">{p.name}</div>
           </div>
         </div>
+        <div class="preview-pos-label" id="pos-label">arrastrá para reencuadrar</div>
         <div class="preview-hint">Pasá el mouse sobre una foto para previsualizarla como portada</div>
       </div>
       <div class="photos-grid" id="photos-grid" style="margin-bottom:0">
@@ -308,15 +311,71 @@ if (!p) return Astro.redirect('/admin/propiedades/');
 
   <div id="toast">Guardado</div>
 
-  <script define:vars={{ SUPABASE_URL, SUPABASE_ANON, token, propertyId: p.id, initialCover: p.cover_image, initialImages: p.images ?? [] }}>
-    let currentImages = [...initialImages];
-    let currentCover  = initialCover;
+  <script define:vars={{ SUPABASE_URL, SUPABASE_ANON, token, propertyId: p.id, initialCover: p.cover_image, initialImages: p.images ?? [], initialPosition: p.cover_position ?? '50% 50%' }}>
+    let currentImages   = [...initialImages];
+    let currentCover    = initialCover;
+    let coverPosition   = initialPosition;
+
+    // Apply saved position to preview on load
+    var previewImgEl = document.getElementById('preview-img');
+    previewImgEl.style.objectPosition = coverPosition;
+
+    // ── DRAG TO REPOSITION ───────────────────────────────────
+    var previewFrame = document.querySelector('.preview-img-wrap');
+    var isDragging   = false;
+
+    previewFrame.addEventListener('mousedown', function(e) {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      isDragging = true;
+      previewFrame.classList.add('dragging');
+      applyDragPos(e.clientX, e.clientY);
+    });
+    document.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      applyDragPos(e.clientX, e.clientY);
+    });
+    document.addEventListener('mouseup', async function() {
+      if (!isDragging) return;
+      isDragging = false;
+      previewFrame.classList.remove('dragging');
+      const ok = await patchProperty({ cover_position: coverPosition });
+      if (ok) showToast('✓ Encuadre guardado');
+      else    showToast('Error al guardar', true);
+    });
+
+    // Touch support
+    previewFrame.addEventListener('touchstart', function(e) {
+      isDragging = true;
+      applyDragPos(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+    document.addEventListener('touchmove', function(e) {
+      if (!isDragging) return;
+      applyDragPos(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+    document.addEventListener('touchend', async function() {
+      if (!isDragging) return;
+      isDragging = false;
+      const ok = await patchProperty({ cover_position: coverPosition });
+      if (ok) showToast('✓ Encuadre guardado');
+      else    showToast('Error al guardar', true);
+    });
+
+    function applyDragPos(clientX, clientY) {
+      var rect = previewFrame.getBoundingClientRect();
+      var x = Math.round(Math.max(0, Math.min(100, (clientX - rect.left)  / rect.width  * 100)));
+      var y = Math.round(Math.max(0, Math.min(100, (clientY - rect.top)   / rect.height * 100)));
+      coverPosition = x + '% ' + y + '%';
+      document.getElementById('preview-img').style.objectPosition = coverPosition;
+      document.getElementById('pos-label').textContent = x + '% · ' + y + '%';
+    }
 
     function previewCover(url) {
       var img = document.getElementById('preview-img');
       img.style.opacity = '0';
       setTimeout(function() {
         img.src = url ?? currentCover ?? '';
+        img.style.objectPosition = url ? '50% 50%' : coverPosition;
         img.style.opacity = '1';
       }, 80);
     }
@@ -413,10 +472,18 @@ if (!p) return Astro.redirect('/admin/propiedades/');
     // ── PORTADA ─────────────────────────────────────────────
     async function setCover(btn) {
       const item = btn.closest('.photo-item');
-      currentCover = item.dataset.url;
-      document.getElementById('preview-img').src = currentCover;
+      currentCover  = item.dataset.url;
+      coverPosition = '50% 50%';
+      var img = document.getElementById('preview-img');
+      img.src = currentCover;
+      img.style.objectPosition = coverPosition;
+      document.getElementById('pos-label').textContent = 'arrastrá para reencuadrar';
       const ok = await syncImages();
-      if (ok) { refreshCoverBadges(); showToast('✓ Portada actualizada'); }
+      if (ok) {
+        await patchProperty({ cover_position: coverPosition });
+        refreshCoverBadges();
+        showToast('✓ Portada actualizada');
+      }
       else showToast('Error al guardar', true);
     }
 
