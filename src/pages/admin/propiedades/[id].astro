@@ -57,6 +57,33 @@ if (!p) return Astro.redirect('/admin/propiedades/');
     .adm-page-title { font-size: 1.3rem; font-weight: 700; margin-bottom: .3rem; }
     .adm-page-sub { font-size: .75rem; color: rgba(255,255,255,.4); margin-bottom: 2rem; }
 
+    /* ── PREVIEW CARD ── */
+    .preview-wrap {
+      display: grid; grid-template-columns: 260px 1fr; gap: 1.5rem; align-items: start;
+      margin-bottom: 1.5rem;
+    }
+    .preview-card {
+      border-radius: 10px; overflow: hidden; background: #fff;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4); flex-shrink: 0;
+    }
+    .preview-img-wrap { position: relative; aspect-ratio: 4/3; overflow: hidden; background: #222; }
+    .preview-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .15s; }
+    .preview-status {
+      position: absolute; top: .6rem; right: .6rem;
+      font-size: .65rem; font-weight: 700; padding: .25rem .55rem; border-radius: 20px;
+      letter-spacing: .04em;
+    }
+    .preview-status.disponible    { background: rgba(16,185,129,.9); color: #fff; }
+    .preview-status.ocupado       { background: rgba(239,68,68,.9);  color: #fff; }
+    .preview-status.parcialmente-ocupado { background: rgba(245,158,11,.9); color: #fff; }
+    .preview-body { padding: .8rem 1rem; background: #fff; }
+    .preview-name { font-size: .9rem; font-weight: 700; color: #111; margin-bottom: .25rem; }
+    .preview-hint { font-size: .68rem; color: rgba(255,255,255,.35); margin-top: .3rem; }
+    .preview-label {
+      font-size: .6rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+      color: #c9a84c; margin-bottom: .6rem;
+    }
+
     /* ── FOTOS ── */
     .section-heading {
       font-size: .65rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
@@ -162,9 +189,27 @@ if (!p) return Astro.redirect('/admin/propiedades/');
     <!-- FOTOS -->
     <div class="section-heading">Fotos</div>
 
-    <div class="photos-grid" id="photos-grid">
+    <div class="preview-wrap">
+      <div>
+        <div class="preview-label">Previsualización del card</div>
+        <div class="preview-card">
+          <div class="preview-img-wrap">
+            <img id="preview-img" src={p.cover_image ?? ''} alt={p.name} />
+            <span class={`preview-status ${p.status === 'available' ? 'disponible' : p.status === 'occupied' ? 'ocupado' : 'parcialmente-ocupado'}`}>
+              ● {p.status_text}
+            </span>
+          </div>
+          <div class="preview-body">
+            <div class="preview-name">{p.name}</div>
+          </div>
+        </div>
+        <div class="preview-hint">Pasá el mouse sobre una foto para previsualizarla como portada</div>
+      </div>
+      <div class="photos-grid" id="photos-grid" style="margin-bottom:0">
       {(p.images ?? []).map((url: string) => (
-        <div class="photo-item" data-url={url}>
+        <div class="photo-item" data-url={url}
+          onmouseenter="previewCover(this.dataset.url)"
+          onmouseleave="previewCover(null)">
           <img src={url} alt="" loading="lazy" />
           {url === p.cover_image && <span class="photo-cover-badge">Portada</span>}
           <div class="photo-actions">
@@ -175,6 +220,7 @@ if (!p) return Astro.redirect('/admin/propiedades/');
           </div>
         </div>
       ))}
+      </div>
     </div>
 
     <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()"
@@ -266,6 +312,15 @@ if (!p) return Astro.redirect('/admin/propiedades/');
     let currentImages = [...initialImages];
     let currentCover  = initialCover;
 
+    function previewCover(url) {
+      var img = document.getElementById('preview-img');
+      img.style.opacity = '0';
+      setTimeout(function() {
+        img.src = url ?? currentCover ?? '';
+        img.style.opacity = '1';
+      }, 80);
+    }
+
     function showToast(msg, isError) {
       const t = document.getElementById('toast');
       t.textContent = msg;
@@ -349,6 +404,8 @@ if (!p) return Astro.redirect('/admin/propiedades/');
           <button class="photo-btn photo-btn-cover" onclick="setCover(this)">Portada</button>
           <button class="photo-btn photo-btn-delete" onclick="deletePhoto(this)">Eliminar</button>
         </div>`;
+      div.addEventListener('mouseenter', function() { previewCover(url); });
+      div.addEventListener('mouseleave', function() { previewCover(null); });
       grid.appendChild(div);
       if (currentImages.length === 1) refreshCoverBadges();
     }
@@ -357,6 +414,7 @@ if (!p) return Astro.redirect('/admin/propiedades/');
     async function setCover(btn) {
       const item = btn.closest('.photo-item');
       currentCover = item.dataset.url;
+      document.getElementById('preview-img').src = currentCover;
       const ok = await syncImages();
       if (ok) { refreshCoverBadges(); showToast('✓ Portada actualizada'); }
       else showToast('Error al guardar', true);
@@ -385,10 +443,11 @@ if (!p) return Astro.redirect('/admin/propiedades/');
     }
 
     // expose to window for inline HTML handlers
-    window.handleFiles = handleFiles;
-    window.handleDrop  = handleDrop;
-    window.setCover    = setCover;
-    window.deletePhoto = deletePhoto;
+    window.handleFiles   = handleFiles;
+    window.handleDrop    = handleDrop;
+    window.setCover      = setCover;
+    window.deletePhoto   = deletePhoto;
+    window.previewCover  = previewCover;
 
     // ── ELIMINAR ─────────────────────────────────────────────
     async function deletePhoto(btn) {
