@@ -96,7 +96,15 @@ try {
           data-status={p.status_text ?? ''}
           data-status-class={statusClass(p.status)}
         >
-          <div class="prop-img-wrap" data-images={JSON.stringify(p.images?.length > 1 ? p.images : [p.cover_image])}>
+          <div class="prop-img-wrap"
+            data-images={JSON.stringify(p.images?.length > 1 ? p.images : [p.cover_image])}
+            data-positions={JSON.stringify(
+              (p.images?.length > 1 ? p.images : [p.cover_image]).map((url: string, i: number) =>
+                url === p.cover_image
+                  ? ((p.image_positions ?? [])[i] ?? p.cover_position ?? '50% 50%')
+                  : ((p.image_positions ?? [])[i] ?? '50% 50%')
+              )
+            )}>
             <img class="prop-img" loading="lazy" decoding="async" src={p.cover_image} alt={p.name}
               style={`object-position: ${p.cover_position ?? '50% 50%'}`} />
             {p.images?.length > 1 && (
@@ -153,7 +161,15 @@ try {
           data-status={p.status_text ?? ''}
           data-status-class={statusClass(p.status)}
         >
-          <div class="prop-img-wrap" data-images={JSON.stringify(p.images?.length > 1 ? p.images : [p.cover_image])}>
+          <div class="prop-img-wrap"
+            data-images={JSON.stringify(p.images?.length > 1 ? p.images : [p.cover_image])}
+            data-positions={JSON.stringify(
+              (p.images?.length > 1 ? p.images : [p.cover_image]).map((url: string, i: number) =>
+                url === p.cover_image
+                  ? ((p.image_positions ?? [])[i] ?? p.cover_position ?? '50% 50%')
+                  : ((p.image_positions ?? [])[i] ?? '50% 50%')
+              )
+            )}>
             <img class="prop-img" loading="lazy" decoding="async" src={p.cover_image} alt={p.name}
               style={`object-position: ${p.cover_position ?? '50% 50%'}`} />
             {p.images?.length > 1 && (
@@ -396,6 +412,7 @@ try {
   document.querySelectorAll('.prop-img-wrap[data-images]').forEach(function(wrap) {
     var imgs = JSON.parse(wrap.dataset.images);
     if (imgs.length <= 1) return;
+    var positions = JSON.parse(wrap.dataset.positions || '[]');
     var idx  = 0;
     var img  = wrap.querySelector('.prop-img');
     var dots = wrap.querySelectorAll('.car-dot');
@@ -404,11 +421,12 @@ try {
     function go(n) {
       idx = (idx + n + imgs.length) % imgs.length;
       var next = imgs[idx];
+      var nextPos = positions[idx] || '50% 50%';
       img.style.opacity = '0';
       var tmp = new Image();
-      tmp.onload = function() { img.src = next; img.style.opacity = '1'; };
+      tmp.onload = function() { img.src = next; img.style.objectPosition = nextPos; img.style.opacity = '1'; };
       tmp.src = next;
-      if (tmp.complete) { img.src = next; img.style.opacity = '1'; }
+      if (tmp.complete) { img.src = next; img.style.objectPosition = nextPos; img.style.opacity = '1'; }
       dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
     }
     wrap.querySelector('.car-prev').addEventListener('click', function(e) { e.stopPropagation(); go(-1); });

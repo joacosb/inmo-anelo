@@ -14,8 +14,9 @@ export interface Property {
   status_text:    string;
   description:    string | null;
   cover_image:    string;
-  cover_position: string | null;
-  images:         string[];
+  cover_position:   string | null;
+  images:           string[];
+  image_positions:  string[] | null;
   unit_count:     number | null;
   max_guests:     number | null;
   matterport_url: string | null;

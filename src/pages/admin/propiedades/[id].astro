@@ -109,6 +109,15 @@ if (!p) return Astro.redirect('/admin/propiedades/');
       opacity: 0; transition: opacity .2s;
     }
     .photo-item:hover .photo-actions { opacity: 1; }
+    .photo-item[draggable] { cursor: grab; }
+    .photo-item.is-dragging { opacity: .35; cursor: grabbing; }
+    .photo-item.drag-over { outline: 2px solid #c9a84c; outline-offset: -2px; }
+    .photo-drag-handle {
+      position: absolute; top: 5px; left: 5px; z-index: 5;
+      background: rgba(0,0,0,.55); color: rgba(255,255,255,.8);
+      border-radius: 3px; padding: 2px 5px; font-size: .8rem;
+      line-height: 1; pointer-events: none; letter-spacing: .05em;
+    }
     .photo-btn {
       flex: 1; border: none; border-radius: 4px; font-family: inherit; font-size: .65rem;
       font-weight: 700; padding: .35rem; cursor: pointer; transition: background .15s;
@@ -210,10 +219,11 @@ if (!p) return Astro.redirect('/admin/propiedades/');
       </div>
       <div class="photos-grid" id="photos-grid" style="margin-bottom:0">
       {(p.images ?? []).map((url: string) => (
-        <div class="photo-item" data-url={url}
+        <div class="photo-item" data-url={url} draggable="true"
           onmouseenter="previewCover(this.dataset.url)"
           onmouseleave="previewCover(null)">
           <img src={url} alt="" loading="lazy" />
+          <span class="photo-drag-handle">⠿</span>
           {url === p.cover_image && <span class="photo-cover-badge">Portada</span>}
           <div class="photo-actions">
             {url !== p.cover_image && (
@@ -311,52 +321,62 @@ if (!p) return Astro.redirect('/admin/propiedades/');
 
   <div id="toast">Guardado</div>
 
-  <script define:vars={{ SUPABASE_URL, SUPABASE_ANON, token, propertyId: p.id, initialCover: p.cover_image, initialImages: p.images ?? [], initialPosition: p.cover_position ?? '50% 50%' }}>
-    let currentImages   = [...initialImages];
-    let currentCover    = initialCover;
-    let coverPosition   = initialPosition;
+  <script define:vars={{ SUPABASE_URL, SUPABASE_ANON, token, propertyId: p.id, initialCover: p.cover_image, initialImages: p.images ?? [], initialPosition: p.cover_position ?? '50% 50%', initialImagePositions: p.image_positions ?? [] }}>
+    let currentImages    = [...initialImages];
+    let currentCover     = initialCover;
+    let coverPosition    = initialPosition;
+    // Per-image positions parallel to currentImages; fallback to cover_position for cover, else '50% 50%'
+    let currentPositions = initialImages.map(function(url, i) {
+      return initialImagePositions[i] || (url === initialCover ? initialPosition : '50% 50%');
+    });
+    let previewingUrl    = null; // which photo is currently hovered in the grid
+    let isDraggingPhoto  = false; // true while drag-reorder is in progress
 
     // Apply saved position to preview on load
-    var previewImgEl = document.getElementById('preview-img');
-    previewImgEl.style.objectPosition = coverPosition;
+    document.getElementById('preview-img').style.objectPosition = coverPosition;
 
-    // ── DRAG TO REPOSITION ───────────────────────────────────
+    // ── DRAG TO REPOSITION (preview panel) ──────────────────
     var previewFrame = document.querySelector('.preview-img-wrap');
-    var isDragging   = false;
+    var isReposDrag  = false;
 
     previewFrame.addEventListener('mousedown', function(e) {
       if (e.button !== 0) return;
       e.preventDefault();
-      isDragging = true;
+      isReposDrag = true;
       previewFrame.classList.add('dragging');
       applyDragPos(e.clientX, e.clientY);
     });
     document.addEventListener('mousemove', function(e) {
-      if (!isDragging) return;
+      if (!isReposDrag) return;
       applyDragPos(e.clientX, e.clientY);
     });
     document.addEventListener('mouseup', async function() {
-      if (!isDragging) return;
-      isDragging = false;
+      if (!isReposDrag) return;
+      isReposDrag = false;
       previewFrame.classList.remove('dragging');
-      const ok = await patchProperty({ cover_position: coverPosition });
+      var patches = { image_positions: currentPositions };
+      var targetUrl = previewingUrl || currentCover;
+      if (targetUrl === currentCover) patches.cover_position = coverPosition;
+      const ok = await patchProperty(patches);
       if (ok) showToast('✓ Encuadre guardado');
       else    showToast('Error al guardar', true);
     });
 
-    // Touch support
     previewFrame.addEventListener('touchstart', function(e) {
-      isDragging = true;
+      isReposDrag = true;
       applyDragPos(e.touches[0].clientX, e.touches[0].clientY);
     }, { passive: true });
     document.addEventListener('touchmove', function(e) {
-      if (!isDragging) return;
+      if (!isReposDrag) return;
       applyDragPos(e.touches[0].clientX, e.touches[0].clientY);
     }, { passive: true });
     document.addEventListener('touchend', async function() {
-      if (!isDragging) return;
-      isDragging = false;
-      const ok = await patchProperty({ cover_position: coverPosition });
+      if (!isReposDrag) return;
+      isReposDrag = false;
+      var patches = { image_positions: currentPositions };
+      var targetUrl = previewingUrl || currentCover;
+      if (targetUrl === currentCover) patches.cover_position = coverPosition;
+      const ok = await patchProperty(patches);
       if (ok) showToast('✓ Encuadre guardado');
       else    showToast('Error al guardar', true);
     });
@@ -365,17 +385,31 @@ if (!p) return Astro.redirect('/admin/propiedades/');
       var rect = previewFrame.getBoundingClientRect();
       var x = Math.round(Math.max(0, Math.min(100, (clientX - rect.left)  / rect.width  * 100)));
       var y = Math.round(Math.max(0, Math.min(100, (clientY - rect.top)   / rect.height * 100)));
-      coverPosition = x + '% ' + y + '%';
-      document.getElementById('preview-img').style.objectPosition = coverPosition;
+      var pos = x + '% ' + y + '%';
+      var targetUrl = previewingUrl || currentCover;
+      var idx = currentImages.indexOf(targetUrl);
+      if (idx >= 0) currentPositions[idx] = pos;
+      if (targetUrl === currentCover) coverPosition = pos;
+      document.getElementById('preview-img').style.objectPosition = pos;
       document.getElementById('pos-label').textContent = x + '% · ' + y + '%';
     }
 
     function previewCover(url) {
+      if (isDraggingPhoto) return;
+      previewingUrl = url;
       var img = document.getElementById('preview-img');
       img.style.opacity = '0';
       setTimeout(function() {
         img.src = url ?? currentCover ?? '';
-        img.style.objectPosition = url ? '50% 50%' : coverPosition;
+        var pos;
+        if (url) {
+          var idx = currentImages.indexOf(url);
+          pos = (idx >= 0 && currentPositions[idx]) ? currentPositions[idx] : '50% 50%';
+        } else {
+          pos = coverPosition;
+        }
+        img.style.objectPosition = pos;
+        document.getElementById('pos-label').textContent = pos === '50% 50%' ? 'arrastrá para reencuadrar' : pos;
         img.style.opacity = '1';
       }, 80);
     }
@@ -402,8 +436,69 @@ if (!p) return Astro.redirect('/admin/propiedades/');
     }
 
     async function syncImages() {
-      return patchProperty({ images: currentImages, cover_image: currentCover });
+      var patches = { images: currentImages, cover_image: currentCover, image_positions: currentPositions };
+      var coverIdx = currentImages.indexOf(currentCover);
+      if (coverIdx >= 0) { patches.cover_position = currentPositions[coverIdx]; coverPosition = currentPositions[coverIdx]; }
+      return patchProperty(patches);
     }
+
+    // ── DRAG-TO-REORDER photos ───────────────────────────────
+    var dragSrcUrl = null;
+
+    function setupDragHandlers(item) {
+      item.setAttribute('draggable', 'true');
+      item.addEventListener('dragstart', function(e) {
+        dragSrcUrl = item.dataset.url;
+        isDraggingPhoto = true;
+        e.dataTransfer.effectAllowed = 'move';
+        setTimeout(function() { item.classList.add('is-dragging'); }, 0);
+      });
+      item.addEventListener('dragend', function() {
+        item.classList.remove('is-dragging');
+        document.querySelectorAll('.photo-item').forEach(function(i) { i.classList.remove('drag-over'); });
+        isDraggingPhoto = false;
+      });
+      item.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        document.querySelectorAll('.photo-item').forEach(function(i) { i.classList.remove('drag-over'); });
+        if (item.dataset.url !== dragSrcUrl) item.classList.add('drag-over');
+      });
+      item.addEventListener('drop', async function(e) {
+        e.preventDefault();
+        item.classList.remove('drag-over');
+        var targetUrl = item.dataset.url;
+        if (!dragSrcUrl || dragSrcUrl === targetUrl) return;
+
+        var grid = document.getElementById('photos-grid');
+        var srcEl = grid.querySelector('[data-url="' + CSS.escape(dragSrcUrl) + '"]');
+        if (!srcEl) return;
+
+        var items = Array.from(grid.querySelectorAll('.photo-item'));
+        var srcDomIdx = items.indexOf(srcEl);
+        var tgtDomIdx = items.indexOf(item);
+
+        // Move DOM element
+        if (srcDomIdx < tgtDomIdx) {
+          grid.insertBefore(srcEl, item.nextSibling);
+        } else {
+          grid.insertBefore(srcEl, item);
+        }
+
+        // Rebuild arrays from new DOM order
+        var posMap = {};
+        currentImages.forEach(function(u, i) { posMap[u] = currentPositions[i] || '50% 50%'; });
+        currentImages    = Array.from(grid.querySelectorAll('.photo-item')).map(function(el) { return el.dataset.url; });
+        currentPositions = currentImages.map(function(u) { return posMap[u] || '50% 50%'; });
+
+        const ok = await syncImages();
+        if (ok) showToast('✓ Orden guardado');
+        else    showToast('Error al guardar', true);
+      });
+    }
+
+    // Set up drag handlers on existing photos
+    document.querySelectorAll('.photo-item').forEach(setupDragHandlers);
 
     // ── UPLOAD ──────────────────────────────────────────────
     function handleDrop(e) {
@@ -421,6 +516,7 @@ if (!p) return Astro.redirect('/admin/propiedades/');
         try {
           const url = await uploadFile(file);
           currentImages.push(url);
+          currentPositions.push('50% 50%');
           if (!currentCover) currentCover = url;
           appendPhotoCard(url);
         } catch (e) {
@@ -457,14 +553,17 @@ if (!p) return Astro.redirect('/admin/propiedades/');
       const div  = document.createElement('div');
       div.className = 'photo-item';
       div.dataset.url = url;
+      div.setAttribute('draggable', 'true');
       div.innerHTML = `
         <img src="${url}" alt="" loading="lazy" />
+        <span class="photo-drag-handle">⠿</span>
         <div class="photo-actions">
           <button class="photo-btn photo-btn-cover" onclick="setCover(this)">Portada</button>
           <button class="photo-btn photo-btn-delete" onclick="deletePhoto(this)">Eliminar</button>
         </div>`;
       div.addEventListener('mouseenter', function() { previewCover(url); });
       div.addEventListener('mouseleave', function() { previewCover(null); });
+      setupDragHandlers(div);
       grid.appendChild(div);
       if (currentImages.length === 1) refreshCoverBadges();
     }
@@ -472,18 +571,15 @@ if (!p) return Astro.redirect('/admin/propiedades/');
     // ── PORTADA ─────────────────────────────────────────────
     async function setCover(btn) {
       const item = btn.closest('.photo-item');
-      currentCover  = item.dataset.url;
-      coverPosition = '50% 50%';
+      currentCover = item.dataset.url;
+      var coverIdx = currentImages.indexOf(currentCover);
+      coverPosition = (coverIdx >= 0 && currentPositions[coverIdx]) ? currentPositions[coverIdx] : '50% 50%';
       var img = document.getElementById('preview-img');
       img.src = currentCover;
       img.style.objectPosition = coverPosition;
-      document.getElementById('pos-label').textContent = 'arrastrá para reencuadrar';
+      document.getElementById('pos-label').textContent = coverPosition === '50% 50%' ? 'arrastrá para reencuadrar' : coverPosition;
       const ok = await syncImages();
-      if (ok) {
-        await patchProperty({ cover_position: coverPosition });
-        refreshCoverBadges();
-        showToast('✓ Portada actualizada');
-      }
+      if (ok) { refreshCoverBadges(); showToast('✓ Portada actualizada'); }
       else showToast('Error al guardar', true);
     }
 
@@ -492,7 +588,6 @@ if (!p) return Astro.redirect('/admin/propiedades/');
         item.querySelector('.photo-cover-badge')?.remove();
         const actions = item.querySelector('.photo-actions');
         const coverBtn = actions.querySelector('.photo-btn-cover');
-
         if (item.dataset.url === currentCover) {
           const badge = document.createElement('span');
           badge.className = 'photo-cover-badge';
@@ -510,30 +605,28 @@ if (!p) return Astro.redirect('/admin/propiedades/');
     }
 
     // expose to window for inline HTML handlers
-    window.handleFiles   = handleFiles;
-    window.handleDrop    = handleDrop;
-    window.setCover      = setCover;
-    window.deletePhoto   = deletePhoto;
-    window.previewCover  = previewCover;
+    window.handleFiles  = handleFiles;
+    window.handleDrop   = handleDrop;
+    window.setCover     = setCover;
+    window.deletePhoto  = deletePhoto;
+    window.previewCover = previewCover;
 
     // ── ELIMINAR ─────────────────────────────────────────────
     async function deletePhoto(btn) {
       const item = btn.closest('.photo-item');
       const url  = item.dataset.url;
 
-      // Borrar del storage solo si es una URL de Supabase Storage
       if (url.includes('/storage/v1/object/public/property-images/')) {
         const path = url.split('/property-images/')[1];
         await fetch(`${SUPABASE_URL}/storage/v1/object/property-images/${path}`, {
           method: 'DELETE',
-          headers: {
-            'apikey': SUPABASE_ANON,
-            'Authorization': `Bearer ${token}`,
-          },
+          headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${token}` },
         });
       }
 
-      currentImages = currentImages.filter(u => u !== url);
+      var idx = currentImages.indexOf(url);
+      currentImages    = currentImages.filter(u => u !== url);
+      currentPositions.splice(idx, 1);
       if (currentCover === url) currentCover = currentImages[0] ?? null;
       item.remove();
 
