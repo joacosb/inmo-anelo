@@ -627,8 +627,8 @@ try {
   document.getElementById('filterDisponibles').addEventListener('change', function() {
     var onlyAvail = this.checked;
     document.querySelectorAll('.prop-card--detail').forEach(function(card) {
-      var isAvail = card.dataset.statusClass === 'disponible';
-      card.classList.toggle('filtered-out', onlyAvail && !isAvail);
+      var isOccupied = card.dataset.statusClass === 'ocupado';
+      card.classList.toggle('filtered-out', onlyAvail && isOccupied);
     });
   });
 </script>
