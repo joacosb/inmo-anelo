@@ -86,6 +86,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; 
 .btn-outline { background: transparent; color: var(--white); border: 1px solid rgba(255,255,255,.4); padding: .85rem 2rem; font-family: inherit; font-size: .9rem; font-weight: 400; letter-spacing: .06em; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: border-color .2s, color .2s; white-space: nowrap; text-decoration: none; display: inline-block; text-align: center; }
 .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
 .hero-stats { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; display: flex; background: rgba(201,168,76,.08); border-top: 1px solid rgba(201,168,76,.2); backdrop-filter: blur(8px); flex-wrap: wrap; }
+.hero-stats-mobile { display: none; }
 .hero-stat { flex: 1; min-width: 140px; padding: 1.25rem 1.5rem; text-align: center; border-right: 1px solid rgba(201,168,76,.15); }
 .hero-stat:last-child { border-right: none; }
 .hero-stat strong { display: block; font-family: var(--font-display); font-size: 1.75rem; font-weight: 600; color: var(--gold); letter-spacing: -.01em; }
@@ -332,11 +333,13 @@ footer { background: var(--black); color: rgba(255,255,255,.5); padding: 3rem 8%
   .hero-actions { flex-direction: column; }
   .hero-actions .btn-primary, .hero-actions .btn-outline { width: 100%; text-align: center; }
   .hero-action-tertiary { display: inline-block; }
-  .hero-stats { display: flex; flex-wrap: wrap; }
-  .hero-stat { flex: 1 1 50%; min-width: 0; padding: .7rem 1rem; }
-  .hero-stat:nth-child(even) { border-right: none; }
-  .hero-stat strong { font-size: 1.2rem; }
-  .hero-stat span { font-size: .58rem; letter-spacing: .07em; }
+  .hero-stats { display: none; }
+  .hero-stats-mobile { display: flex; flex-wrap: wrap; background: var(--black); border-bottom: 1px solid rgba(201,168,76,.2); }
+  .hero-stats-mobile .hero-stat { flex: 1 1 50%; min-width: 0; padding: .85rem 1rem; border-right: 1px solid rgba(201,168,76,.15); border-bottom: 1px solid rgba(201,168,76,.1); }
+  .hero-stats-mobile .hero-stat:nth-child(even) { border-right: none; }
+  .hero-stats-mobile .hero-stat:nth-child(n+3) { border-bottom: none; }
+  .hero-stats-mobile .hero-stat strong { font-size: 1.2rem; }
+  .hero-stats-mobile .hero-stat span { font-size: .58rem; letter-spacing: .07em; }
   .quick-cta-strip { flex-direction: column; }
   .quick-cta-btn { padding: 1rem; font-size: .88rem; }
   .form-row { grid-template-columns: 1fr; }
