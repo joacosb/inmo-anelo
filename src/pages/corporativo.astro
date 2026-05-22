@@ -490,52 +490,48 @@ try {
     if (imgs.length <= 1) return;
     var positions = JSON.parse(wrap.dataset.positions || '[]');
     var idx = 0;
-    var img = wrap.querySelector('.prop-img');
     var dots = wrap.querySelectorAll('.car-dot');
 
-    // Lazy loading: solo precargar ventana de ±1 alrededor del índice actual
+    // Cross-fade: dos capas superpuestas
+    var imgA = wrap.querySelector('.prop-img');
+    var layerStyle = 'position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transition:opacity .35s ease;';
+    var initPos = imgA.style.objectPosition || '50% 50%';
+    imgA.style.cssText = layerStyle + 'opacity:1;object-position:' + initPos;
+    var imgB = document.createElement('img');
+    imgB.className = 'prop-img';
+    imgB.alt = imgA.alt;
+    imgB.decoding = 'async';
+    imgB.style.cssText = layerStyle + 'opacity:0;object-position:' + initPos;
+    imgA.after(imgB);
+    var activeImg = imgA, inactiveImg = imgB;
+
     var preloaded = {};
-    preloaded[0] = true; // portada ya está en el DOM
-    function preloadImg(i) {
-      if (preloaded[i]) return;
-      preloaded[i] = true;
-      (new Image()).src = imgs[i];
-    }
-    function preloadWindow(center) {
-      preloadImg((center + 1) % imgs.length);
-      preloadImg((center - 1 + imgs.length) % imgs.length);
-    }
-    preloadWindow(0); // precarga índice 1 y último (cubre primera nav en ambas direcciones)
+    preloaded[0] = true;
+    function preloadImg(i) { if (preloaded[i]) return; preloaded[i] = true; (new Image()).src = imgs[i]; }
+    function preloadWindow(c) { preloadImg((c+1)%imgs.length); preloadImg((c-1+imgs.length)%imgs.length); }
+    preloadWindow(0);
 
     function go(n) {
       idx = (idx + n + imgs.length) % imgs.length;
-      var next = imgs[idx];
-      var nextPos = positions[idx] || '50% 50%';
-      var targetIdx = idx;
-      var applied = false;
-
-      img.style.opacity = '0';
-
-      function apply() {
-        if (applied) return;
-        applied = true;
-        img.src = next;
-        img.style.objectPosition = nextPos;
-        img.style.opacity = '1';
+      var next = imgs[idx], nextPos = positions[idx] || '50% 50%', targetIdx = idx;
+      var cur = { a: activeImg, b: inactiveImg };
+      function swap() {
+        cur.b.style.objectPosition = nextPos;
+        cur.b.style.opacity = '1';
+        cur.a.style.opacity = '0';
+        activeImg = cur.b; inactiveImg = cur.a;
         dots.forEach(function(d, i) { d.classList.toggle('active', i === targetIdx); });
         preloadWindow(targetIdx);
       }
-
+      cur.b.src = next;
       var tmp = new Image();
-      tmp.onload = function() { setTimeout(apply, 120); };
-      tmp.src = next;
-      if (tmp.complete) setTimeout(apply, 120);
+      tmp.onload = swap; tmp.src = next;
+      if (tmp.complete) swap();
     }
 
     wrap.querySelector('.car-prev').addEventListener('click', function(e) { e.stopPropagation(); go(-1); });
     wrap.querySelector('.car-next').addEventListener('click', function(e) { e.stopPropagation(); go(1); });
 
-    // Swipe en touch
     var touchStartX = 0;
     wrap.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; }, { passive: true });
     wrap.addEventListener('touchend', function(e) {
