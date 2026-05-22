@@ -145,14 +145,12 @@ try {
                 <i data-lucide="mail" style="width:14px;height:14px;flex-shrink:0;"></i>
                 Email
               </a>
-              {p.matterport_url && (
-                <a class="btn-inv btn-inv-tour"
-                  href={p.matterport_url} target="_blank" rel="noopener noreferrer"
-                  title="Recorrido 3D">
-                  <i data-lucide="scan-search" style="width:14px;height:14px;flex-shrink:0;"></i>
-                  3D
-                </a>
-              )}
+              <a class="btn-inv btn-inv-tour"
+                href={p.matterport_url || 'https://my.matterport.com/show/?m=z9F3K5h3gok'} target="_blank" rel="noopener noreferrer"
+                title="Recorrido 3D">
+                <i data-lucide="scan-search" style="width:14px;height:14px;flex-shrink:0;"></i>
+                3D
+              </a>
             </div>
           </div>
         </div>
@@ -223,14 +221,12 @@ try {
                 <i data-lucide="mail" style="width:14px;height:14px;flex-shrink:0;"></i>
                 Email
               </a>
-              {p.matterport_url && (
-                <a class="btn-inv btn-inv-tour"
-                  href={p.matterport_url} target="_blank" rel="noopener noreferrer"
-                  title="Recorrido 3D">
-                  <i data-lucide="scan-search" style="width:14px;height:14px;flex-shrink:0;"></i>
-                  3D
-                </a>
-              )}
+              <a class="btn-inv btn-inv-tour"
+                href={p.matterport_url || 'https://my.matterport.com/show/?m=HdzbizKQMrt'} target="_blank" rel="noopener noreferrer"
+                title="Recorrido 3D">
+                <i data-lucide="scan-search" style="width:14px;height:14px;flex-shrink:0;"></i>
+                3D
+              </a>
             </div>
           </div>
         </div>
@@ -287,6 +283,9 @@ try {
         <a id="dmWA" href="#" target="_blank" rel="noopener" class="dm-btn dm-btn-wa"
           onclick="gtag('event','whatsapp_click',{'event_category':'detail_modal'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">
           💬 Consultar por WhatsApp
+        </a>
+        <a id="dmMail" href="#" class="dm-btn dm-btn-mail">
+          ✉ Enviar Email
         </a>
         <a id="dmTour" href="#" target="_blank" rel="noopener" class="dm-btn dm-btn-tour"
           onclick="gtag('event','virtual_tour',{'event_category':'detail_modal'})">
@@ -405,6 +404,8 @@ try {
   }
   .dm-btn-wa   { background: #25d366; color: #000; }
   .dm-btn-wa:hover { filter: brightness(.93); }
+  .dm-btn-mail { background: transparent; color: #111; border: 1.5px solid #ddd; }
+  .dm-btn-mail:hover { background: #111; color: #fff; border-color: #111; }
   .dm-btn-tour { background: #f0ebe0; color: #8a6f2e; border: 1px solid #d4b96a; }
   .dm-btn-tour:hover { background: #e8e0cc; }
 
@@ -589,12 +590,18 @@ try {
     zEl.style.display = card.dataset.zone ? '' : 'none';
     document.getElementById('dmZoneVal').textContent = card.dataset.zone;
 
-    var waMsg = encodeURIComponent('Hola! Me interesa ' + (card.dataset.name || '') + '. Actualmente busco alquiler para...');
+    var name = card.dataset.name || '';
+    var waMsg = encodeURIComponent('Hola! Me interesa ' + name + '. Actualmente busco alquiler para...');
     document.getElementById('dmWA').href = 'https://wa.me/5492972431619?text=' + waMsg;
 
+    var section = card.dataset.section || '';
+    var mailSubject = encodeURIComponent('Alquiler corporativo' + (name ? ' — ' + name : ''));
+    var mailBody = encodeURIComponent('Hola, estuve en su sitio web y me interesa ' + (section === 'edificios' ? 'el edificio ' : 'el complejo ') + name + '. ¿Podrían enviarme más información?');
+    document.getElementById('dmMail').href = 'mailto:grupopampanqn@gmail.com?subject=' + mailSubject + '&body=' + mailBody;
+
     var tourEl = document.getElementById('dmTour');
-    tourEl.style.display = card.dataset.matterport ? '' : 'none';
-    if (card.dataset.matterport) tourEl.href = card.dataset.matterport;
+    var fallbackTour = card.dataset.type === 'edificio' ? 'https://my.matterport.com/show/?m=HdzbizKQMrt' : 'https://my.matterport.com/show/?m=z9F3K5h3gok';
+    tourEl.href = card.dataset.matterport || fallbackTour;
 
     document.getElementById('detailModal').classList.add('open');
     document.body.style.overflow = 'hidden';

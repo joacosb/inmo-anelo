@@ -263,14 +263,12 @@ try {
                 <i data-lucide="mail" style="width:14px;height:14px;flex-shrink:0;"></i>
                 Email
               </a>
-              {p.matterport_url && (
-                <a class="btn-inv btn-inv-tour"
-                  href={p.matterport_url} target="_blank" rel="noopener noreferrer"
-                  title="Recorrido 3D">
-                  <i data-lucide="scan-search" style="width:14px;height:14px;flex-shrink:0;"></i>
-                  3D
-                </a>
-              )}
+              <a class="btn-inv btn-inv-tour"
+                href={p.matterport_url || 'https://my.matterport.com/show/?m=z9F3K5h3gok'} target="_blank" rel="noopener noreferrer"
+                title="Recorrido 3D">
+                <i data-lucide="scan-search" style="width:14px;height:14px;flex-shrink:0;"></i>
+                3D
+              </a>
             </div>
           </div>
         </div>
