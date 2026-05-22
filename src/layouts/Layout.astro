@@ -320,9 +320,13 @@ const navItems = [
 <!-- ── GLOBAL SCRIPTS ───────────────────────────────────────────────────── -->
 <script is:inline>
   // ─── MENU / NAV ────────────────────────────────────────────────────────
-  function toggleMenu() { document.getElementById('navLinks').classList.toggle('open'); }
+  function toggleMenu() {
+    document.getElementById('navLinks').classList.toggle('open');
+    document.querySelector('.hamburger').classList.toggle('open');
+  }
   function closeMenu() {
     document.getElementById('navLinks').classList.remove('open');
+    document.querySelector('.hamburger').classList.remove('open');
     document.querySelectorAll('.has-dropdown.open').forEach(function(el) { el.classList.remove('open'); });
   }
   document.querySelectorAll('.nav-links > li > a').forEach(function(a) {
@@ -357,7 +361,7 @@ const navItems = [
   // En mobile, el link principal de cada sección también abre el dropdown
   document.querySelectorAll('.has-dropdown .nav-item-row > a').forEach(function(a) {
     a.addEventListener('click', function(e) {
-      if (window.innerWidth <= 900) {
+      if (window.innerWidth <= 700) {
         e.preventDefault();
         toggleDropdown(a.closest('.has-dropdown'));
       }
