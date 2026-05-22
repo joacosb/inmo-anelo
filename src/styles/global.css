@@ -178,6 +178,8 @@ p, .section-sub, .hero p, .step p,
 .btn-inv-wa:hover { filter: brightness(.92); }
 .btn-inv-mail { background: transparent; color: var(--black); border: 1.5px solid var(--border); }
 .btn-inv-mail:hover { background: var(--black); color: var(--white); border-color: var(--black); }
+.btn-inv-tour { background: transparent; color: #8a6f2e; border: 1.5px solid #d4b96a; flex: 0 0 auto; padding: .38rem .55rem; }
+.btn-inv-tour:hover { background: #f0ebe0; }
 .btn-icon { width: 13px; height: 13px; flex-shrink: 0; }
 .btn-action--tour { background: var(--black); color: var(--gold); border: 1.5px solid var(--black); }
 .btn-action--tour:hover { background: var(--gold); color: var(--black); border-color: var(--gold); }

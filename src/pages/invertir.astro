@@ -375,6 +375,11 @@ try {
           <i data-lucide="mail" style="width:15px;height:15px;flex-shrink:0;"></i>
           Email
         </a>
+        <a id="dmTour" href="#" target="_blank" rel="noopener" class="btn-inv btn-inv-tour"
+          onclick="gtag('event','virtual_tour',{'event_category':'detail_modal'})">
+          <i data-lucide="scan-search" style="width:14px;height:14px;flex-shrink:0;"></i>
+          3D
+        </a>
       </div>
     </div>
   </div>
@@ -520,6 +525,9 @@ try {
     var waMsg = encodeURIComponent('Hola! Me interesa invertir en ' + name + '.');
     document.getElementById('dmWA').href = 'https://wa.me/5492972431619?text=' + waMsg;
     document.getElementById('dmMail').href = 'mailto:grupopampanqn@gmail.com?subject=' + encodeURIComponent('Invertir en ' + name) + '&body=' + encodeURIComponent('Hola, estuve en el sitio web y me interesa invertir en ' + name + '. ¿Podrían enviarme más información?');
+    var tourEl = document.getElementById('dmTour');
+    tourEl.style.display = card.dataset.matterport ? '' : 'none';
+    if (card.dataset.matterport) tourEl.href = card.dataset.matterport;
     document.getElementById('detailModal').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
