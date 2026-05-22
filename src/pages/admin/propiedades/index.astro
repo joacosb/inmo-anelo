@@ -1,5 +1,6 @@
 ---
 export const prerender = false;
+import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
@@ -20,36 +21,8 @@ const { data: properties = [] } = await sb
 const complejos = (properties ?? []).filter((p: any) => p.type === 'complejo');
 const edificios = (properties ?? []).filter((p: any) => p.type === 'edificio');
 ---
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Propiedades · Admin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<AdminLayout title="Propiedades" section="propiedades">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Montserrat', sans-serif; background: #0d0d0d; color: #fff; min-height: 100vh; }
-
-    /* HEADER */
-    .adm-header {
-      background: #111;
-      border-bottom: 1px solid #222;
-      padding: .9rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .adm-logo { font-size: .7rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #c9a84c; }
-    .adm-header-right { display: flex; align-items: center; gap: 1rem; }
-    .adm-header-right a { color: rgba(255,255,255,.5); font-size: .75rem; text-decoration: none; }
-    .adm-header-right a:hover { color: #fff; }
-    .btn-view { color: #c9a84c !important; border: 1px solid rgba(201,168,76,.4); border-radius: 4px; padding: .3rem .7rem; }
-
     /* MAIN */
     .adm-main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
     .adm-section-title {
@@ -184,15 +157,6 @@ const edificios = (properties ?? []).filter((p: any) => p.type === 'edificio');
     #toast.show { opacity: 1; transform: translateY(0); }
     #toast.error { background: #ef4444; }
   </style>
-</head>
-<body>
-  <header class="adm-header">
-    <span class="adm-logo">Inmobiliaria Añelo · Admin</span>
-    <div class="adm-header-right">
-      <a href="/corporativo/" target="_blank" class="btn-view">Ver sitio →</a>
-      <a href="/admin/logout/">Cerrar sesión</a>
-    </div>
-  </header>
 
   <main class="adm-main">
 
@@ -302,7 +266,6 @@ const edificios = (properties ?? []).filter((p: any) => p.type === 'edificio');
       const id     = card.dataset.id;
       const status = btn.dataset.status;
 
-      // Actualizar UI inmediatamente
       card.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
@@ -319,6 +282,8 @@ const edificios = (properties ?? []).filter((p: any) => p.type === 'edificio');
       const ok = await patch(id, { status_text: text });
       showToast(ok ? '✓ Badge guardado' : 'Error al guardar', !ok);
     }
+
+    window.setStatus = setStatus;
+    window.saveBadge = saveBadge;
   </script>
-</body>
-</html>
+</AdminLayout>

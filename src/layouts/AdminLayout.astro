@@ -1,0 +1,160 @@
+---
+interface Props {
+  title: string;
+  section?: string;
+}
+const { title, section = '' } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} · Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style is:global>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Montserrat', sans-serif; background: #0d0d0d; color: #fff; min-height: 100vh; }
+
+    /* ── LAYOUT ── */
+    .adm-layout { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .adm-sidebar {
+      width: 190px;
+      flex-shrink: 0;
+      background: #080808;
+      border-right: 1px solid #1a1a1a;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .adm-sidebar-brand {
+      padding: 1.3rem 1.2rem 1rem;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .adm-sidebar-logo {
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: #c9a84c;
+      line-height: 1.4;
+    }
+    .adm-sidebar-sub {
+      font-size: .54rem;
+      font-weight: 600;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.22);
+      margin-top: .25rem;
+    }
+
+    /* ── NAV ── */
+    .adm-nav { flex: 1; padding: .6rem 0; }
+    .adm-nav-section {
+      font-size: .52rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.18);
+      padding: .85rem 1.2rem .3rem;
+    }
+    .adm-nav-link {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .52rem 1.2rem;
+      font-size: .72rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.45);
+      text-decoration: none;
+      transition: color .15s, background .15s;
+      border-left: 2px solid transparent;
+    }
+    .adm-nav-link:hover { color: rgba(255,255,255,.8); background: rgba(255,255,255,.03); }
+    .adm-nav-link.active { color: #c9a84c; background: rgba(201,168,76,.07); border-left-color: #c9a84c; }
+
+    /* ── SIDEBAR FOOTER ── */
+    .adm-sidebar-footer {
+      padding: .6rem 0;
+      border-top: 1px solid #1a1a1a;
+    }
+    .adm-sidebar-footer a {
+      display: block;
+      padding: .42rem 1.2rem;
+      font-size: .67rem;
+      color: rgba(255,255,255,.3);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .adm-sidebar-footer a:hover { color: rgba(255,255,255,.65); }
+
+    /* ── CONTENT ── */
+    .adm-content { flex: 1; min-width: 0; overflow-x: hidden; }
+
+    /* ── MOBILE: sidebar → top bar ── */
+    @media (max-width: 700px) {
+      .adm-layout { flex-direction: column; }
+      .adm-sidebar {
+        width: 100%;
+        height: auto;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        flex-direction: row;
+        align-items: stretch;
+        overflow-x: auto;
+        overflow-y: visible;
+        border-right: none;
+        border-bottom: 1px solid #1a1a1a;
+      }
+      .adm-sidebar-brand {
+        border-bottom: none;
+        border-right: 1px solid #1a1a1a;
+        padding: .6rem 1rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+      }
+      .adm-sidebar-sub { display: none; }
+      .adm-nav { flex: none; display: flex; align-items: center; padding: 0; }
+      .adm-nav-section { display: none; }
+      .adm-nav-link { padding: .7rem .85rem; white-space: nowrap; border-left: none; border-bottom: 2px solid transparent; }
+      .adm-nav-link.active { border-left-color: transparent; border-bottom-color: #c9a84c; }
+      .adm-sidebar-footer { display: flex; align-items: center; border-top: none; border-left: 1px solid #1a1a1a; padding: 0; margin-left: auto; flex-shrink: 0; }
+      .adm-sidebar-footer a { padding: .7rem .85rem; white-space: nowrap; }
+    }
+  </style>
+</head>
+<body>
+  <div class="adm-layout">
+    <aside class="adm-sidebar">
+      <div class="adm-sidebar-brand">
+        <div>
+          <div class="adm-sidebar-logo">Inmobiliaria<br/>Añelo</div>
+          <div class="adm-sidebar-sub">Admin Panel</div>
+        </div>
+      </div>
+      <nav class="adm-nav">
+        <a href="/admin/dashboard/" class={`adm-nav-link${section === 'dashboard' ? ' active' : ''}`}>Dashboard</a>
+        <div class="adm-nav-section">Contenido</div>
+        <a href="/admin/propiedades/" class={`adm-nav-link${section === 'propiedades' ? ' active' : ''}`}>Propiedades</a>
+        <a href="/admin/homepage/" class={`adm-nav-link${section === 'homepage' ? ' active' : ''}`}>Homepage</a>
+      </nav>
+      <div class="adm-sidebar-footer">
+        <a href="/" target="_blank">Ver sitio →</a>
+        <a href="/admin/logout/">Cerrar sesión</a>
+      </div>
+    </aside>
+    <div class="adm-content">
+      <slot />
+    </div>
+  </div>
+</body>
+</html>

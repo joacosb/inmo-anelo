@@ -1,5 +1,6 @@
 ---
 export const prerender = false;
+import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
@@ -50,14 +51,7 @@ if (!isNew) {
 }
 const cardId = isNew ? '' : rawId;
 ---
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{isNew ? 'Nueva card' : card.name} · Admin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<AdminLayout title={isNew ? 'Nueva card' : card?.name ?? 'Card'} section="homepage">
   <style is:global>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Montserrat', sans-serif; background: #0d0d0d; color: #fff; min-height: 100vh; }
@@ -129,12 +123,6 @@ const cardId = isNew ? '' : rawId;
     #toast.error { background:#ef4444; }
     @media (max-width:600px) { .form-grid { grid-template-columns:1fr; } .form-grid .full { grid-column:1; } .photos-grid { grid-template-columns:repeat(2,1fr); } .preview-wrap { grid-template-columns:1fr; } }
   </style>
-</head>
-<body>
-  <header class="adm-header">
-    <span class="adm-logo">Inmobiliaria Añelo · Admin</span>
-    <a class="adm-back" href="/admin/homepage/">← Volver</a>
-  </header>
 
   <main class="adm-main">
     <div class="adm-page-title">{isNew ? 'Nueva card' : card.name}</div>
@@ -470,5 +458,4 @@ const cardId = isNew ? '' : rawId;
       window.previewCover = previewCover;
     </script>
   )}
-</body>
-</html>
+</AdminLayout>

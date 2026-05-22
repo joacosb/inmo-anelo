@@ -1,5 +1,6 @@
 ---
 export const prerender = false;
+import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
@@ -34,14 +35,7 @@ if (Astro.request.method === 'POST') {
 const { data: p } = await sb.from('properties').select('*').eq('id', id).single();
 if (!p) return Astro.redirect('/admin/propiedades/');
 ---
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{p.name} · Admin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<AdminLayout title={p.name} section="propiedades">
   <style is:global>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Montserrat', sans-serif; background: #0d0d0d; color: #fff; min-height: 100vh; }
@@ -185,12 +179,6 @@ if (!p) return Astro.redirect('/admin/propiedades/');
       .photos-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
-</head>
-<body>
-  <header class="adm-header">
-    <span class="adm-logo">Inmobiliaria Añelo · Admin</span>
-    <a class="adm-back" href="/admin/propiedades/">← Volver</a>
-  </header>
 
   <main class="adm-main">
     <div class="adm-page-title">{p.name}</div>
@@ -678,5 +666,4 @@ if (!p) return Astro.redirect('/admin/propiedades/');
       else showToast('Error al guardar', true);
     }
   </script>
-</body>
-</html>
+</AdminLayout>

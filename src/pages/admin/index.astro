@@ -12,7 +12,7 @@ const existingToken = Astro.cookies.get('sb_token')?.value;
 if (existingToken) {
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
   const { data: { user } } = await sb.auth.getUser(existingToken);
-  if (user) return Astro.redirect('/admin/propiedades/');
+  if (user) return Astro.redirect('/admin/dashboard/');
 }
 
 if (Astro.request.method === 'POST') {
@@ -33,7 +33,7 @@ if (Astro.request.method === 'POST') {
       secure: true,
       sameSite: 'lax',
     });
-    return Astro.redirect('/admin/propiedades/');
+    return Astro.redirect('/admin/dashboard/');
   }
 }
 ---
