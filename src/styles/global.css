@@ -635,7 +635,8 @@ footer { background: var(--black); color: rgba(255,255,255,.5); padding: 3rem 8%
 }
 
 /* ── WHATSAPP FLOAT ── */
-.wa-float { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
+.wa-float { position: fixed; bottom: 90px; right: 24px; z-index: 9999; cursor: grab; user-select: none; touch-action: none; }
+.wa-float.dragging { cursor: grabbing; }
 .wa-float a {
   display: flex; align-items: center; justify-content: center;
   width: 52px; height: 52px; border-radius: 50%;
@@ -643,11 +644,13 @@ footer { background: var(--black); color: rgba(255,255,255,.5); padding: 3rem 8%
   box-shadow: 0 4px 16px rgba(37,211,102,.45);
   text-decoration: none; font-size: 1.55rem;
   transition: transform .2s, box-shadow .2s;
+  pointer-events: none;
 }
-.wa-float a:hover { transform: scale(1.1); box-shadow: 0 6px 22px rgba(37,211,102,.6); }
 .wa-float a svg { width: 28px; height: 28px; fill: #fff; }
+.wa-float:not(.dragging) a { pointer-events: auto; }
+.wa-float:not(.dragging) a:hover { transform: scale(1.1); box-shadow: 0 6px 22px rgba(37,211,102,.6); }
 @media (max-width: 700px) {
-  .wa-float { bottom: 18px; right: 16px; }
+  .wa-float { bottom: 72px; right: 16px; }
   .wa-float a { width: 46px; height: 46px; font-size: 1.35rem; }
   .wa-float a svg { width: 24px; height: 24px; }
 }
