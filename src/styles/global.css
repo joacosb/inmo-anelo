@@ -168,6 +168,16 @@ p, .section-sub, .hero p, .step p,
 .btn-3d:hover { background: var(--gold); color: var(--black); }
 .prop-actions { display: flex; gap: .5rem; padding-top: .85rem; margin-top: .6rem; border-top: 1px solid var(--border); }
 .btn-action { display: inline-flex; align-items: center; justify-content: center; gap: .3rem; font-family: var(--font-body); font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: .45rem .7rem; border-radius: 4px; text-decoration: none; transition: background .2s, color .2s, border-color .2s; flex: 1; white-space: nowrap; }
+/* ── INVEST CARD VARIANT ── */
+.prop-body--invest { padding: .85rem; }
+.prop-body--invest h3 { font-size: .98rem; margin-bottom: .5rem; }
+.prop-body--invest .prop-meta { padding-top: .55rem; margin-top: .3rem; gap: .6rem; }
+.prop-actions--invest { gap: .4rem; padding-top: .65rem; margin-top: .4rem; }
+.btn-inv { display: inline-flex; align-items: center; justify-content: center; gap: .3rem; font-family: var(--font-body); font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: .38rem .65rem; border-radius: 4px; text-decoration: none; transition: background .15s, filter .15s; flex: 1; white-space: nowrap; }
+.btn-inv-wa { background: #25d366; color: #000; }
+.btn-inv-wa:hover { filter: brightness(.92); }
+.btn-inv-mail { background: transparent; color: var(--black); border: 1.5px solid var(--border); }
+.btn-inv-mail:hover { background: var(--black); color: var(--white); border-color: var(--black); }
 .btn-icon { width: 13px; height: 13px; flex-shrink: 0; }
 .btn-action--tour { background: var(--black); color: var(--gold); border: 1.5px solid var(--black); }
 .btn-action--tour:hover { background: var(--gold); color: var(--black); border-color: var(--gold); }
