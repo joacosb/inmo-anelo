@@ -595,7 +595,8 @@ footer { background: var(--black); color: rgba(255,255,255,.5); padding: 3rem 8%
   /* Prop-cards mobile */
   .prop-body    { padding: 1rem; }
   .prop-body h3 { font-size: 1rem; }
-  .prop-body p  { font-size: .84rem; }
+  .prop-body p  { font-size: .84rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .prop-img-wrap { aspect-ratio: 1/1; }
 
   /* Textos de sección */
   .section-sub {
