@@ -318,10 +318,10 @@ try {
     border-radius: 16px;
     overflow: hidden;
     display: grid;
-    grid-template-columns: 55% 45%;
+    grid-template-columns: 63% 37%;
     width: 100%;
-    max-width: 900px;
-    height: min(580px, 88vh);
+    max-width: 1040px;
+    height: min(600px, 90vh);
     position: relative;
     box-shadow: 0 24px 64px rgba(0,0,0,.45);
   }
@@ -366,9 +366,9 @@ try {
 
   /* ── RIGHT: info ── */
   .dm-info {
-    padding: 2rem 1.75rem 1.75rem;
+    padding: 1.5rem 1.4rem 1.4rem;
     overflow-y: auto;
-    display: flex; flex-direction: column; gap: .9rem;
+    display: flex; flex-direction: column; gap: .75rem;
     font-family: 'Montserrat', sans-serif;
     color: #111;
     background: #fff;
@@ -429,12 +429,12 @@ try {
     .dm-overlay { padding: 0; align-items: flex-end; }
     .dm-inner {
       grid-template-columns: 1fr;
-      grid-template-rows: 45vh 1fr;
-      height: 90vh;
+      grid-template-rows: 55vh 1fr;
+      height: 92vh;
       border-radius: 16px 16px 0 0;
       max-width: 100%;
     }
-    .dm-carousel { min-height: 45vh; }
+    .dm-carousel { min-height: 55vh; }
     .dm-info { padding: 1.25rem 1.1rem 1.5rem; overflow-y: auto; }
     .dm-info h2 { font-size: 1.2rem; }
   }
@@ -574,6 +574,7 @@ try {
     }
     document.querySelector('.dm-prev').style.display = dmImgs.length > 1 ? '' : 'none';
     document.querySelector('.dm-next').style.display = dmImgs.length > 1 ? '' : 'none';
+    dmSwipeInit();
 
     // info
     document.getElementById('dmName').textContent = card.dataset.name || '';
@@ -610,6 +611,21 @@ try {
 
     document.getElementById('detailModal').classList.add('open');
     document.body.style.overflow = 'hidden';
+  }
+
+  var dmTouchStartX = 0;
+  var dmSwipeAttached = false;
+  function dmSwipeInit() {
+    if (dmSwipeAttached) return;
+    dmSwipeAttached = true;
+    var carousel = document.querySelector('.dm-carousel');
+    carousel.addEventListener('touchstart', function(e) {
+      dmTouchStartX = e.touches[0].clientX;
+    }, { passive: true });
+    carousel.addEventListener('touchend', function(e) {
+      var dx = e.changedTouches[0].clientX - dmTouchStartX;
+      if (Math.abs(dx) > 40 && dmImgs.length > 1) dmGo(dx > 0 ? -1 : 1);
+    }, { passive: true });
   }
 
   function closeDM() {
