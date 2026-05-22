@@ -250,7 +250,8 @@ try {
     <!-- LEFT: carrusel fijo -->
     <div class="dm-carousel">
       <div class="dm-img-frame">
-        <img id="dmImg" src="" alt="" />
+        <img id="dmImgA" src="" alt="" class="dm-img dm-img-active" />
+        <img id="dmImgB" src="" alt="" class="dm-img" />
       </div>
       <button class="dm-car-btn dm-prev" onclick="dmGo(-1)">&#8249;</button>
       <button class="dm-car-btn dm-next" onclick="dmGo(1)">&#8250;</button>
@@ -336,12 +337,13 @@ try {
   .dm-img-frame {
     position: absolute; inset: 0;
   }
-  .dm-img-frame img {
+  .dm-img {
+    position: absolute; inset: 0;
     width: 100%; height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: opacity .18s ease;
+    object-fit: cover; display: block;
+    opacity: 0; transition: opacity .35s ease;
   }
+  .dm-img.dm-img-active { opacity: 1; }
   .dm-car-btn {
     position: absolute; top: 50%; transform: translateY(-50%);
     background: rgba(0,0,0,.45); border: none; color: #fff;
@@ -546,6 +548,7 @@ try {
   var dmImgs = [];
   var dmIdx  = 0;
   var dmLastCard = null;
+  var dmActiveLayer = 'A';
 
   function dmPreload(imgs) {
     imgs.forEach(function(src) { (new Image()).src = src; });
@@ -557,9 +560,13 @@ try {
     dmIdx  = 0;
     dmPreload(dmImgs);
 
-    var imgEl = document.getElementById('dmImg');
-    imgEl.style.opacity = '1';
-    imgEl.src = dmImgs[0] || '';
+    dmActiveLayer = 'A';
+    var imgA = document.getElementById('dmImgA');
+    var imgB = document.getElementById('dmImgB');
+    imgA.src = dmImgs[0] || '';
+    imgA.className = 'dm-img dm-img-active';
+    imgB.className = 'dm-img';
+    imgB.src = '';
 
     // dots
     var dotsEl = document.getElementById('dmDots');
@@ -645,18 +652,22 @@ try {
   function dmJump(i) { dmIdx = i; dmUpdate(); }
 
   function dmUpdate() {
-    var imgEl = document.getElementById('dmImg');
-    imgEl.style.opacity = '0';
     var next = dmImgs[dmIdx];
-    // use a temp image to confirm it's loaded (likely from preload cache)
+    var nextLayer = dmActiveLayer === 'A' ? 'B' : 'A';
+    var activeEl  = document.getElementById('dmImg' + dmActiveLayer);
+    var inactiveEl = document.getElementById('dmImg' + nextLayer);
+
+    function swap() {
+      inactiveEl.classList.add('dm-img-active');
+      activeEl.classList.remove('dm-img-active');
+      dmActiveLayer = nextLayer;
+    }
+
+    inactiveEl.src = next;
     var tmp = new Image();
-    tmp.onload = function() {
-      imgEl.src = next;
-      imgEl.style.opacity = '1';
-    };
-    // if already cached onload won't fire in all browsers — handle that
+    tmp.onload = swap;
     tmp.src = next;
-    if (tmp.complete) { imgEl.src = next; imgEl.style.opacity = '1'; }
+    if (tmp.complete) swap();
 
     document.querySelectorAll('.dm-dot').forEach(function(d, i) {
       d.classList.toggle('active', i === dmIdx);
