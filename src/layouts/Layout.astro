@@ -462,7 +462,7 @@ const navItems = [
     if (dest) {
       btn1.href = dest;
       btn1.removeAttribute('target');
-      btn1.querySelector('span').textContent = type === 'edificio' ? 'Ver los edificios' : 'Ver los complejos';
+      btn1.querySelector('span').textContent = type === 'edificio' ? 'Ver los edificios' : type === 'lote' ? 'Ver los lotes' : 'Ver los complejos';
     } else {
       var ownTour = card.querySelector('.btn-3d');
       var fallbackUrl = type === 'edificio'

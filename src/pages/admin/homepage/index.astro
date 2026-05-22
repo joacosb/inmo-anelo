@@ -1,0 +1,165 @@
+---
+export const prerender = false;
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
+
+const token = Astro.cookies.get('sb_token')!.value;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
+  global: { headers: { Authorization: `Bearer ${token}` } },
+});
+
+const { data: cards = [] } = await sb
+  .from('homepage_cards')
+  .select('*')
+  .order('sort_order');
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Homepage cards · Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Montserrat', sans-serif; background: #0d0d0d; color: #fff; min-height: 100vh; }
+    .adm-header { background: #111; border-bottom: 1px solid #222; padding: .9rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .adm-logo { font-size: .7rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #c9a84c; }
+    .adm-header-right { display: flex; align-items: center; gap: 1.5rem; }
+    .adm-header-right a { color: rgba(255,255,255,.5); font-size: .75rem; text-decoration: none; }
+    .adm-header-right a:hover { color: #fff; }
+    .adm-main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .adm-section-title { font-size: .65rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #c9a84c; padding-bottom: .6rem; border-bottom: 1px solid #222; margin-bottom: 1.5rem; display:flex; align-items:center; justify-content:space-between; }
+    .adm-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+    .adm-card { background: #111; border: 1px solid #1e1e1e; border-radius: 10px; overflow: hidden; transition: border-color .2s; }
+    .adm-card:hover { border-color: #333; }
+    .adm-card-img { aspect-ratio: 4/3; background: #1a1a1a; overflow: hidden; position: relative; }
+    .adm-card-img img { width:100%; height:100%; object-fit:cover; display:block; }
+    .adm-card-img-empty { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:.7rem; color:rgba(255,255,255,.2); text-transform:uppercase; letter-spacing:.1em; }
+    .adm-card-body { padding: .9rem 1rem; }
+    .adm-card-tag { font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#c9a84c; margin-bottom:.4rem; }
+    .adm-card-name { font-size:.95rem; font-weight:700; margin-bottom:.5rem; }
+    .adm-card-desc { font-size:.75rem; color:rgba(255,255,255,.4); margin-bottom:.9rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .adm-card-foot { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+    .status-btns { display:flex; gap:.3rem; }
+    .status-btn { border:none; border-radius:4px; font-family:inherit; font-size:.62rem; font-weight:700; padding:.28rem .6rem; cursor:pointer; letter-spacing:.06em; opacity:.45; transition:opacity .15s, background .15s; }
+    .status-btn.active { opacity:1; }
+    .status-btn.disponible  { background:rgba(16,185,129,.25); color:#6ee7b7; }
+    .status-btn.parcial     { background:rgba(234,179,8,.25);   color:#fde68a; }
+    .status-btn.ocupado     { background:rgba(239,68,68,.25);   color:#fca5a5; }
+    .badge-input { flex:1; min-width:90px; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:4px; color:#fff; font-family:inherit; font-size:.72rem; padding:.28rem .55rem; outline:none; }
+    .badge-input:focus { border-color:#c9a84c; }
+    .active-toggle { margin-left:auto; display:flex; align-items:center; gap:.4rem; font-size:.65rem; color:rgba(255,255,255,.4); cursor:pointer; }
+    .active-toggle input { accent-color:#c9a84c; width:14px; height:14px; cursor:pointer; }
+    .edit-link { display:block; text-align:center; padding:.5rem; font-size:.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#c9a84c; text-decoration:none; border-top:1px solid #1e1e1e; margin-top:.75rem; transition:background .15s; }
+    .edit-link:hover { background:rgba(201,168,76,.07); }
+    #toast { position:fixed; bottom:1.5rem; right:1.5rem; background:#10b981; color:#fff; font-size:.8rem; font-weight:600; padding:.7rem 1.2rem; border-radius:6px; opacity:0; transform:translateY(8px); transition:opacity .2s,transform .2s; pointer-events:none; z-index:9999; }
+    #toast.show { opacity:1; transform:translateY(0); }
+    #toast.error { background:#ef4444; }
+    .empty-state { text-align:center; padding:4rem 1rem; color:rgba(255,255,255,.3); }
+    .empty-state p { font-size:.9rem; margin-bottom:1.5rem; }
+    .btn-primary-adm { background:#c9a84c; color:#000; border:none; border-radius:6px; font-family:inherit; font-size:.8rem; font-weight:700; padding:.6rem 1.4rem; cursor:pointer; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <header class="adm-header">
+    <span class="adm-logo">Inmobiliaria Añelo · Admin</span>
+    <div class="adm-header-right">
+      <a href="/admin/propiedades/">Propiedades</a>
+      <a href="/">Ver sitio →</a>
+      <a href="/admin/logout/">Cerrar sesión</a>
+    </div>
+  </header>
+
+  <main class="adm-main">
+    <div class="adm-section-title">
+      Cards del portafolio (homepage)
+      <a href="/admin/homepage/nueva" class="btn-primary-adm">+ Nueva card</a>
+    </div>
+
+    {(!cards || cards.length === 0) ? (
+      <div class="empty-state">
+        <p>Todavía no hay cards cargadas.<br/>Primero ejecutá la migración SQL en Supabase, luego creá las cards.</p>
+        <a class="btn-primary-adm" href="/admin/homepage/nueva">+ Crear primera card</a>
+      </div>
+    ) : (
+      <div class="adm-cards-grid">
+        {(cards as any[]).map((card) => (
+          <div class="adm-card" data-id={card.id}>
+            <div class="adm-card-img">
+              {card.cover_image
+                ? <img src={card.cover_image} alt={card.name} loading="lazy" style={`object-position:${card.cover_position ?? '50% 50%'}`} />
+                : <div class="adm-card-img-empty">sin imagen</div>
+              }
+            </div>
+            <div class="adm-card-body">
+              <div class="adm-card-tag">{card.tag}</div>
+              <div class="adm-card-name">{card.name}</div>
+              <div class="adm-card-desc">{card.description}</div>
+              <div class="adm-card-foot">
+                <div class="status-btns">
+                  <button class={`status-btn disponible ${card.status === 'available' ? 'active' : ''}`} onclick="setStatus(this,'available')">Disponible</button>
+                  <button class={`status-btn parcial ${card.status === 'partial' ? 'active' : ''}`}    onclick="setStatus(this,'partial')">Parcial</button>
+                  <button class={`status-btn ocupado ${card.status === 'occupied' ? 'active' : ''}`}   onclick="setStatus(this,'occupied')">Ocupado</button>
+                </div>
+                <input class="badge-input" type="text" value={card.status_text} placeholder="Badge…"
+                  onblur="saveBadge(this)" onkeydown="if(event.key==='Enter'){this.blur()}" />
+                <label class="active-toggle">
+                  <input type="checkbox" checked={card.active} onchange="toggleActive(this)" />
+                  Activo
+                </label>
+              </div>
+              <a class="edit-link" href={`/admin/homepage/${card.id}`}>Editar todo →</a>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </main>
+
+  <div id="toast"></div>
+
+  <script define:vars={{ SUPABASE_URL, SUPABASE_ANON, token }}>
+    function cardOf(el) { return el.closest('[data-id]'); }
+    function showToast(msg, isError) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.className = isError ? 'error show' : 'show';
+      setTimeout(() => t.classList.remove('show'), isError ? 6000 : 2500);
+    }
+    async function patch(id, data) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/homepage_cards?id=eq.${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':`Bearer ${token}`, 'Prefer':'return=minimal' },
+        body: JSON.stringify(data),
+      });
+      return res.ok;
+    }
+    async function setStatus(btn) {
+      const statusMap = { disponible:'available', parcial:'partial', ocupado:'occupied' };
+      const newStatus = statusMap[btn.classList[1]];
+      const card = cardOf(btn);
+      const id = card.dataset.id;
+      card.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const ok = await patch(id, { status: newStatus });
+      showToast(ok ? '✓ Estado actualizado' : 'Error', !ok);
+    }
+    async function saveBadge(inp) {
+      const card = cardOf(inp);
+      const ok = await patch(card.dataset.id, { status_text: inp.value.trim() });
+      showToast(ok ? '✓ Badge guardado' : 'Error', !ok);
+    }
+    async function toggleActive(chk) {
+      const card = cardOf(chk);
+      const ok = await patch(card.dataset.id, { active: chk.checked });
+      showToast(ok ? (chk.checked ? '✓ Card activada' : '✓ Card desactivada') : 'Error', !ok);
+    }
+    window.setStatus = setStatus;
+    window.saveBadge = saveBadge;
+    window.toggleActive = toggleActive;
+  </script>
+</body>
+</html>

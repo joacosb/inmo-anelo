@@ -1,0 +1,474 @@
+---
+export const prerender = false;
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
+
+const token = Astro.cookies.get('sb_token')!.value;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
+  global: { headers: { Authorization: `Bearer ${token}` } },
+});
+
+const rawId = Astro.params.id as string;
+const isNew = rawId === 'nueva';
+let saved = false, saveError = '';
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const updates: any = {
+    tag:         form.get('tag')?.toString()        ?? '',
+    name:        form.get('name')?.toString()       ?? '',
+    description: form.get('description')?.toString() ?? '',
+    status:      form.get('status')?.toString()     ?? 'available',
+    status_text: form.get('status_text')?.toString() ?? '',
+    dest_url:    form.get('dest_url')?.toString()   ?? '/corporativo/',
+    card_type:   form.get('card_type')?.toString()  ?? 'complejo',
+    meta1:       form.get('meta1')?.toString()      ?? '',
+    meta2:       form.get('meta2')?.toString()      ?? '',
+    sort_order:  Number(form.get('sort_order'))     || 0,
+    active:      form.get('active') === 'on',
+  };
+  if (isNew) {
+    const { data, error } = await sb.from('homepage_cards').insert(updates).select('id').single();
+    if (error) saveError = error.message;
+    else return Astro.redirect(`/admin/homepage/${data.id}?saved=1`);
+  } else {
+    const { error } = await sb.from('homepage_cards').update(updates).eq('id', rawId);
+    if (error) saveError = error.message;
+    else saved = true;
+  }
+}
+
+if (Astro.url.searchParams.get('saved') === '1') saved = true;
+
+let card: any = null;
+if (!isNew) {
+  const { data } = await sb.from('homepage_cards').select('*').eq('id', rawId).single();
+  if (!data) return Astro.redirect('/admin/homepage/');
+  card = data;
+}
+const cardId = isNew ? '' : rawId;
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{isNew ? 'Nueva card' : card.name} · Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style is:global>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Montserrat', sans-serif; background: #0d0d0d; color: #fff; min-height: 100vh; }
+    .adm-header { background: #111; border-bottom: 1px solid #222; padding: .9rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .adm-logo { font-size: .7rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #c9a84c; }
+    .adm-back { color: rgba(255,255,255,.5); font-size: .75rem; text-decoration: none; }
+    .adm-back:hover { color: #fff; }
+    .adm-main { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .adm-page-title { font-size: 1.3rem; font-weight: 700; margin-bottom: .3rem; }
+    .adm-page-sub { font-size: .75rem; color: rgba(255,255,255,.4); margin-bottom: 2rem; }
+    .preview-wrap { display: grid; grid-template-columns: 240px 1fr; gap: 1.5rem; align-items: start; margin-bottom: 1.5rem; }
+    .preview-card { border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,.4); }
+    .preview-img-wrap { position: relative; aspect-ratio: 4/3; overflow: hidden; background: #eee; cursor: move; user-select: none; }
+    .preview-img-wrap img { width:100%; height:100%; object-fit:cover; display:block; transition:opacity .15s; pointer-events:none; }
+    .preview-img-wrap.dragging { cursor: grabbing; }
+    .preview-pos-label { font-size:.62rem; color:rgba(255,255,255,.28); text-align:center; margin-top:.3rem; }
+    .preview-status { position:absolute; top:.6rem; right:.6rem; font-size:.65rem; font-weight:700; padding:.25rem .55rem; border-radius:20px; letter-spacing:.04em; }
+    .preview-status.disponible    { background:rgba(16,185,129,.9); color:#fff; }
+    .preview-status.ocupado       { background:rgba(239,68,68,.9);  color:#fff; }
+    .preview-status.parcialmente-ocupado { background:rgba(245,158,11,.9); color:#111; }
+    .preview-body { padding:.8rem 1rem; background:#fff; }
+    .preview-tag  { font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; background:#111; color:#c9a84c; padding:.2rem .5rem; border-radius:3px; display:inline-block; margin-bottom:.4rem; }
+    .preview-name { font-size:.9rem; font-weight:700; color:#111; }
+    .preview-hint { font-size:.68rem; color:rgba(255,255,255,.35); margin-top:.3rem; }
+    .preview-label { font-size:.6rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#c9a84c; margin-bottom:.6rem; }
+    .section-heading { font-size:.65rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:#c9a84c; padding-bottom:.6rem; border-bottom:1px solid #222; margin-bottom:1.25rem; }
+    .photos-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:.75rem; margin-bottom:1.25rem; }
+    .photo-item { position:relative; border-radius:8px; overflow:hidden; aspect-ratio:4/3; background:#1a1a1a; }
+    .photo-item img { width:100%; height:100%; object-fit:cover; display:block; }
+    .photo-cover-badge { position:absolute; top:6px; left:6px; background:#c9a84c; color:#000; font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:.2rem .5rem; border-radius:4px; }
+    .photo-actions { position:absolute; bottom:0; left:0; right:0; display:flex; gap:.3rem; padding:.4rem; background:linear-gradient(transparent,rgba(0,0,0,.75)); opacity:0; transition:opacity .2s; }
+    .photo-item:hover .photo-actions { opacity:1; }
+    .photo-item[draggable] { cursor:grab; }
+    .photo-item.is-dragging { opacity:.35; cursor:grabbing; }
+    .photo-item.drag-over { outline:2px solid #c9a84c; outline-offset:-2px; }
+    .photo-item.editing { outline:2px solid #c9a84c; outline-offset:-2px; }
+    .photo-drag-handle { position:absolute; top:5px; left:5px; z-index:5; background:rgba(0,0,0,.55); color:rgba(255,255,255,.8); border-radius:3px; padding:2px 5px; font-size:.8rem; line-height:1; pointer-events:none; }
+    .photo-btn { flex:1; border:none; border-radius:4px; font-family:inherit; font-size:.65rem; font-weight:700; padding:.35rem; cursor:pointer; transition:background .15s; }
+    .photo-btn-cover  { background:#c9a84c; color:#000; }
+    .photo-btn-cover:hover  { background:#b8953d; }
+    .photo-btn-delete { background:rgba(239,68,68,.85); color:#fff; }
+    .photo-btn-delete:hover { background:#dc2626; }
+    .upload-area { border:2px dashed #333; border-radius:8px; padding:2rem 1rem; text-align:center; cursor:pointer; transition:border-color .2s,background .2s; margin-bottom:2rem; }
+    .upload-area:hover, .upload-area.drag-over { border-color:#c9a84c; background:rgba(201,168,76,.04); }
+    .upload-area input { display:none; }
+    .upload-icon { font-size:1.8rem; margin-bottom:.5rem; opacity:.4; }
+    .upload-label { font-size:.8rem; color:rgba(255,255,255,.5); }
+    .upload-label strong { color:#c9a84c; }
+    #upload-progress { margin-top:.75rem; font-size:.75rem; color:rgba(255,255,255,.5); min-height:1.2em; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .form-grid .full { grid-column:1/-1; }
+    .field { display:flex; flex-direction:column; gap:.4rem; }
+    label { font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.45); }
+    input[type=text], input[type=number], input[type=url], textarea, select { background:#1a1a1a; border:1px solid #2a2a2a; border-radius:6px; color:#fff; font-family:inherit; font-size:.88rem; padding:.65rem .9rem; outline:none; transition:border-color .2s; width:100%; }
+    input:focus, textarea:focus, select:focus { border-color:#c9a84c; }
+    textarea { min-height:80px; resize:vertical; }
+    select option { background:#1a1a1a; }
+    .divider { border:none; border-top:1px solid #222; margin:1.5rem 0; }
+    .form-actions { display:flex; align-items:center; gap:1rem; margin-top:1.5rem; }
+    .btn-save { background:#c9a84c; border:none; border-radius:6px; color:#000; font-family:inherit; font-size:.85rem; font-weight:700; padding:.8rem 2rem; cursor:pointer; transition:background .2s; }
+    .btn-save:hover { background:#b8953d; }
+    .btn-cancel { color:rgba(255,255,255,.4); font-size:.8rem; text-decoration:none; }
+    .btn-cancel:hover { color:#fff; }
+    .alert { border-radius:6px; font-size:.8rem; padding:.7rem 1rem; margin-bottom:1.5rem; }
+    .alert-ok    { background:rgba(16,185,129,.15); border:1px solid rgba(16,185,129,.4); color:#6ee7b7; }
+    .alert-error { background:rgba(239,68,68,.15);  border:1px solid rgba(239,68,68,.4);  color:#f87171; }
+    #toast { position:fixed; bottom:1.5rem; right:1.5rem; background:#10b981; color:#fff; font-size:.8rem; font-weight:600; padding:.7rem 1.2rem; border-radius:6px; opacity:0; transform:translateY(8px); transition:opacity .2s,transform .2s; pointer-events:none; z-index:9999; }
+    #toast.show { opacity:1; transform:translateY(0); }
+    #toast.error { background:#ef4444; }
+    @media (max-width:600px) { .form-grid { grid-template-columns:1fr; } .form-grid .full { grid-column:1; } .photos-grid { grid-template-columns:repeat(2,1fr); } .preview-wrap { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header class="adm-header">
+    <span class="adm-logo">Inmobiliaria Añelo · Admin</span>
+    <a class="adm-back" href="/admin/homepage/">← Volver</a>
+  </header>
+
+  <main class="adm-main">
+    <div class="adm-page-title">{isNew ? 'Nueva card' : card.name}</div>
+    <div class="adm-page-sub">Card del portafolio en la homepage</div>
+
+    {saved     && <div class="alert alert-ok">✓ Cambios guardados correctamente.</div>}
+    {saveError && <div class="alert alert-error">Error: {saveError}</div>}
+
+    {!isNew && (
+      <>
+        <!-- FOTOS -->
+        <div class="section-heading">Fotos</div>
+        <div class="preview-wrap">
+          <div>
+            <div class="preview-label">Previsualización del card</div>
+            <div class="preview-card">
+              <div class="preview-img-wrap">
+                <img id="preview-img" src={card.cover_image ?? ''} alt={card.name} />
+                <span class={`preview-status ${card.status === 'available' ? 'disponible' : card.status === 'occupied' ? 'ocupado' : 'parcialmente-ocupado'}`}>
+                  ● {card.status_text}
+                </span>
+              </div>
+              <div class="preview-body">
+                <div class="preview-tag">{card.tag}</div>
+                <div class="preview-name">{card.name}</div>
+              </div>
+            </div>
+            <div class="preview-pos-label" id="pos-label">arrastrá para reencuadrar</div>
+            <div class="preview-hint">Hacé <strong style="color:#c9a84c">click</strong> en una foto para fijarla y ajustar su encuadre. Hover para previsualizar.</div>
+          </div>
+          <div class="photos-grid" id="photos-grid" style="margin-bottom:0">
+            {(card.images ?? []).map((url: string) => (
+              <div class="photo-item" data-url={url} draggable="true"
+                onmouseenter="previewCover(this.dataset.url)"
+                onmouseleave="previewCover(null)">
+                <img src={url} alt="" loading="lazy" />
+                <span class="photo-drag-handle">⠿</span>
+                {url === card.cover_image && <span class="photo-cover-badge">Portada</span>}
+                <div class="photo-actions">
+                  {url !== card.cover_image && (
+                    <button class="photo-btn photo-btn-cover" onclick="setCover(this)">Portada</button>
+                  )}
+                  <button class="photo-btn photo-btn-delete" onclick="deletePhoto(this)">Eliminar</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="handleDrop(event)">
+          <input id="file-input" type="file" accept="image/*" multiple onchange="handleFiles(this.files)" />
+          <div class="upload-icon">📷</div>
+          <div class="upload-label"><strong>Hacé click</strong> o arrastrá fotos acá<br/>JPG, PNG o WEBP · Máx. 10MB</div>
+          <div id="upload-progress"></div>
+        </div>
+        <hr class="divider" />
+      </>
+    )}
+
+    <!-- DATOS -->
+    <div class="section-heading" style="margin-top:0">Datos</div>
+    <form method="POST">
+      <div class="form-grid">
+        <div class="field">
+          <label for="tag">Categoría (tag del card)</label>
+          <input id="tag" name="tag" type="text" value={card?.tag ?? ''} placeholder="ej: Lotes" required />
+        </div>
+        <div class="field">
+          <label for="card_type">Tipo (para el modal)</label>
+          <select id="card_type" name="card_type">
+            <option value="uf"       selected={card?.card_type === 'uf'}>Unidad Funcional</option>
+            <option value="complejo" selected={!card || card?.card_type === 'complejo'}>Complejo</option>
+            <option value="edificio" selected={card?.card_type === 'edificio'}>Edificio</option>
+            <option value="lote"     selected={card?.card_type === 'lote'}>Lote</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label for="name">Título del card</label>
+          <input id="name" name="name" type="text" value={card?.name ?? ''} required />
+        </div>
+        <div class="field full">
+          <label for="description">Texto del card</label>
+          <textarea id="description" name="description">{card?.description ?? ''}</textarea>
+        </div>
+        <div class="field">
+          <label for="status">Estado</label>
+          <select id="status" name="status">
+            <option value="available" selected={!card || card?.status === 'available'}>🟢 Disponible</option>
+            <option value="partial"   selected={card?.status === 'partial'}>🟡 Parcialmente ocupado</option>
+            <option value="occupied"  selected={card?.status === 'occupied'}>🔴 Ocupado</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="status_text">Texto del badge</label>
+          <input id="status_text" name="status_text" type="text" value={card?.status_text ?? 'Disponible'} placeholder="ej: ¡Últimos disponibles!" required />
+        </div>
+        <div class="field">
+          <label for="meta1">Dato 1 (ej: 1–4 personas)</label>
+          <input id="meta1" name="meta1" type="text" value={card?.meta1 ?? ''} placeholder="ej: 540 m²" />
+        </div>
+        <div class="field">
+          <label for="meta2">Dato 2 (ej: 8–10% retorno)</label>
+          <input id="meta2" name="meta2" type="text" value={card?.meta2 ?? ''} placeholder="ej: A 5 min del centro" />
+        </div>
+        <div class="field full">
+          <label for="dest_url">URL de destino (al hacer click)</label>
+          <input id="dest_url" name="dest_url" type="text" value={card?.dest_url ?? '/corporativo/'} placeholder="/corporativo/" />
+        </div>
+        <div class="field">
+          <label for="sort_order">Orden de aparición</label>
+          <input id="sort_order" name="sort_order" type="number" min="0" value={card?.sort_order ?? 0} />
+        </div>
+        <div class="field" style="justify-content:flex-end; padding-bottom:.65rem;">
+          <label style="flex-direction:row; align-items:center; gap:.5rem; cursor:pointer;">
+            <input type="checkbox" name="active" checked={card?.active !== false} style="width:auto; accent-color:#c9a84c;" />
+            Card activa (visible en el sitio)
+          </label>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-save" type="submit">{isNew ? 'Crear card' : 'Guardar cambios'}</button>
+        <a class="btn-cancel" href="/admin/homepage/">Cancelar</a>
+      </div>
+    </form>
+  </main>
+
+  <div id="toast"></div>
+
+  {!isNew && (
+    <script define:vars={{ SUPABASE_URL, SUPABASE_ANON, token, cardId, initialCover: card.cover_image ?? '', initialImages: card.images ?? [], initialPosition: card.cover_position ?? '50% 50%', initialImagePositions: card.image_positions ?? [] }}>
+      let currentImages    = [...initialImages];
+      let currentCover     = initialCover;
+      let coverPosition    = initialPosition;
+      let currentPositions = initialImages.map(function(url, i) {
+        return initialImagePositions[i] || (url === initialCover ? initialPosition : '50% 50%');
+      });
+      let previewingUrl  = null;
+      let pinnedPhotoUrl = null;
+      let isDraggingPhoto = false;
+
+      document.getElementById('preview-img').style.objectPosition = coverPosition;
+
+      var previewFrame = document.querySelector('.preview-img-wrap');
+      var isReposDrag  = false;
+
+      previewFrame.addEventListener('mousedown', function(e) {
+        if (e.button !== 0) return; e.preventDefault();
+        isReposDrag = true; previewFrame.classList.add('dragging'); applyDragPos(e.clientX, e.clientY);
+      });
+      document.addEventListener('mousemove', function(e) { if (isReposDrag) applyDragPos(e.clientX, e.clientY); });
+      document.addEventListener('mouseup', async function() {
+        if (!isReposDrag) return; isReposDrag = false; previewFrame.classList.remove('dragging');
+        var patches = { image_positions: currentPositions };
+        if ((previewingUrl || currentCover) === currentCover) patches.cover_position = coverPosition;
+        const ok = await patchCard(patches);
+        showToast(ok ? '✓ Encuadre guardado' : 'Error al guardar', !ok);
+      });
+
+      function applyDragPos(clientX, clientY) {
+        var rect = previewFrame.getBoundingClientRect();
+        var x = Math.round(Math.max(0, Math.min(100, (clientX - rect.left) / rect.width * 100)));
+        var y = Math.round(Math.max(0, Math.min(100, (clientY - rect.top)  / rect.height * 100)));
+        var pos = x + '% ' + y + '%';
+        var targetUrl = previewingUrl || currentCover;
+        var idx = currentImages.indexOf(targetUrl);
+        if (idx >= 0) currentPositions[idx] = pos;
+        if (targetUrl === currentCover) coverPosition = pos;
+        document.getElementById('preview-img').style.objectPosition = pos;
+        document.getElementById('pos-label').textContent = x + '% · ' + y + '%';
+      }
+
+      function previewCover(url) {
+        if (isDraggingPhoto || pinnedPhotoUrl) return;
+        previewingUrl = url;
+        var img = document.getElementById('preview-img');
+        img.style.opacity = '0';
+        setTimeout(function() {
+          img.src = url ?? currentCover ?? '';
+          var idx = url ? currentImages.indexOf(url) : -1;
+          img.style.objectPosition = (idx >= 0 && currentPositions[idx]) ? currentPositions[idx] : coverPosition;
+          img.style.opacity = '1';
+        }, 80);
+      }
+
+      function showToast(msg, isError) {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.className = isError ? 'error show' : 'show';
+        setTimeout(() => t.classList.remove('show'), isError ? 6000 : 2500);
+      }
+
+      async function patchCard(data) {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/homepage_cards?id=eq.${cardId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':`Bearer ${token}`, 'Prefer':'return=minimal' },
+          body: JSON.stringify(data),
+        });
+        return res.ok;
+      }
+
+      async function syncImages() {
+        var patches = { images: currentImages, cover_image: currentCover, image_positions: currentPositions };
+        var ci = currentImages.indexOf(currentCover);
+        if (ci >= 0) { patches.cover_position = currentPositions[ci]; coverPosition = currentPositions[ci]; }
+        return patchCard(patches);
+      }
+
+      var dragSrcUrl = null;
+      function setupDragHandlers(item) {
+        item.setAttribute('draggable', 'true');
+        item.addEventListener('click', function(e) {
+          if (e.target.closest('button')) return;
+          var url = item.dataset.url;
+          if (pinnedPhotoUrl === url) { pinnedPhotoUrl = null; previewingUrl = null; item.classList.remove('editing'); previewCover(null); }
+          else { document.querySelectorAll('.photo-item.editing').forEach(el => el.classList.remove('editing')); pinnedPhotoUrl = url; previewingUrl = url; item.classList.add('editing'); previewCover(url); }
+        });
+        item.addEventListener('dragstart', function(e) { dragSrcUrl = item.dataset.url; isDraggingPhoto = true; e.dataTransfer.effectAllowed = 'move'; setTimeout(() => item.classList.add('is-dragging'), 0); });
+        item.addEventListener('dragend', function() { item.classList.remove('is-dragging'); document.querySelectorAll('.photo-item').forEach(i => i.classList.remove('drag-over')); isDraggingPhoto = false; });
+        item.addEventListener('dragover', function(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; document.querySelectorAll('.photo-item').forEach(i => i.classList.remove('drag-over')); if (item.dataset.url !== dragSrcUrl) item.classList.add('drag-over'); });
+        item.addEventListener('drop', async function(e) {
+          e.preventDefault(); item.classList.remove('drag-over');
+          var targetUrl = item.dataset.url;
+          if (!dragSrcUrl || dragSrcUrl === targetUrl) return;
+          var grid = document.getElementById('photos-grid');
+          var srcEl = grid.querySelector('[data-url="' + CSS.escape(dragSrcUrl) + '"]');
+          if (!srcEl) return;
+          var items = Array.from(grid.querySelectorAll('.photo-item'));
+          var si = items.indexOf(srcEl), ti = items.indexOf(item);
+          si < ti ? grid.insertBefore(srcEl, item.nextSibling) : grid.insertBefore(srcEl, item);
+          var posMap = {}; currentImages.forEach((u,i) => posMap[u] = currentPositions[i] || '50% 50%');
+          currentImages    = Array.from(grid.querySelectorAll('.photo-item')).map(el => el.dataset.url);
+          currentPositions = currentImages.map(u => posMap[u] || '50% 50%');
+          const ok = await syncImages();
+          showToast(ok ? '✓ Orden guardado' : 'Error', !ok);
+        });
+      }
+      document.querySelectorAll('.photo-item').forEach(setupDragHandlers);
+
+      function handleDrop(e) { e.preventDefault(); document.getElementById('upload-area').classList.remove('drag-over'); handleFiles(e.dataTransfer.files); }
+
+      async function handleFiles(files) {
+        const progress = document.getElementById('upload-progress');
+        const arr = Array.from(files);
+        for (let i = 0; i < arr.length; i++) {
+          const file = arr[i];
+          progress.textContent = `Subiendo ${i+1} de ${arr.length}: ${file.name}…`;
+          try {
+            const url = await uploadFile(file);
+            currentImages.push(url); currentPositions.push('50% 50%');
+            if (!currentCover) currentCover = url;
+            appendPhotoCard(url);
+          } catch(e) { showToast(`Error al subir ${file.name}: ${e.message}`, true); }
+        }
+        const ok = await syncImages();
+        progress.textContent = '';
+        showToast(ok ? `✓ ${arr.length} foto${arr.length>1?'s':''} agregada${arr.length>1?'s':''}` : 'Error al guardar', !ok);
+      }
+
+      async function uploadFile(file) {
+        const ext = file.name.split('.').pop();
+        const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const path = `homepage/${cardId}/${filename}`;
+        const res = await fetch(`${SUPABASE_URL}/storage/v1/object/property-images/${path}`, {
+          method: 'POST',
+          headers: { 'apikey':SUPABASE_ANON, 'Authorization':`Bearer ${token}`, 'Content-Type':file.type, 'x-upsert':'false' },
+          body: file,
+        });
+        if (!res.ok) throw new Error(await res.text());
+        return `${SUPABASE_URL}/storage/v1/object/public/property-images/${path}`;
+      }
+
+      function appendPhotoCard(url) {
+        const grid = document.getElementById('photos-grid');
+        const div  = document.createElement('div');
+        div.className = 'photo-item'; div.dataset.url = url; div.setAttribute('draggable','true');
+        div.innerHTML = `<img src="${url}" alt="" loading="lazy" /><span class="photo-drag-handle">⠿</span><div class="photo-actions"><button class="photo-btn photo-btn-cover" onclick="setCover(this)">Portada</button><button class="photo-btn photo-btn-delete" onclick="deletePhoto(this)">Eliminar</button></div>`;
+        div.addEventListener('mouseenter', () => previewCover(url));
+        div.addEventListener('mouseleave', () => previewCover(null));
+        setupDragHandlers(div); grid.appendChild(div);
+        if (currentImages.length === 1) refreshCoverBadges();
+      }
+
+      async function setCover(btn) {
+        const item = btn.closest('.photo-item');
+        currentCover = item.dataset.url;
+        var ci = currentImages.indexOf(currentCover);
+        coverPosition = (ci >= 0 && currentPositions[ci]) ? currentPositions[ci] : '50% 50%';
+        var img = document.getElementById('preview-img'); img.src = currentCover; img.style.objectPosition = coverPosition;
+        document.getElementById('pos-label').textContent = coverPosition === '50% 50%' ? 'arrastrá para reencuadrar' : coverPosition;
+        const ok = await syncImages();
+        if (ok) { refreshCoverBadges(); showToast('✓ Portada actualizada'); } else showToast('Error', true);
+      }
+
+      function refreshCoverBadges() {
+        document.querySelectorAll('.photo-item').forEach(item => {
+          item.querySelector('.photo-cover-badge')?.remove();
+          const actions = item.querySelector('.photo-actions');
+          const coverBtn = actions.querySelector('.photo-btn-cover');
+          if (item.dataset.url === currentCover) {
+            const badge = document.createElement('span'); badge.className = 'photo-cover-badge'; badge.textContent = 'Portada'; item.prepend(badge);
+            coverBtn?.remove();
+          } else if (!coverBtn) {
+            const btn = document.createElement('button'); btn.className = 'photo-btn photo-btn-cover'; btn.textContent = 'Portada'; btn.setAttribute('onclick','setCover(this)'); actions.prepend(btn);
+          }
+          if (item.dataset.url === pinnedPhotoUrl) item.classList.add('editing');
+        });
+      }
+
+      async function deletePhoto(btn) {
+        const item = btn.closest('.photo-item');
+        const url  = item.dataset.url;
+        if (url.includes('/storage/v1/object/public/property-images/')) {
+          const path = url.split('/property-images/')[1];
+          await fetch(`${SUPABASE_URL}/storage/v1/object/property-images/${path}`, {
+            method: 'DELETE', headers: { 'apikey':SUPABASE_ANON, 'Authorization':`Bearer ${token}` }
+          });
+        }
+        currentImages    = currentImages.filter(u => u !== url);
+        currentPositions = currentImages.map((u,i) => currentPositions[i] || '50% 50%');
+        if (currentCover === url) currentCover = currentImages[0] ?? '';
+        item.remove();
+        const ok = await syncImages();
+        if (ok) { if (currentCover) { document.getElementById('preview-img').src = currentCover; refreshCoverBadges(); } showToast('✓ Foto eliminada'); }
+        else showToast('Error al guardar', true);
+      }
+
+      window.handleFiles  = handleFiles;
+      window.handleDrop   = handleDrop;
+      window.setCover     = setCover;
+      window.deletePhoto  = deletePhoto;
+      window.previewCover = previewCover;
+    </script>
+  )}
+</body>
+</html>

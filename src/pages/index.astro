@@ -1,5 +1,31 @@
 ---
+export const prerender = false;
 import Layout from '../layouts/Layout.astro';
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
+
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+const DEFAULT_CARDS = [
+  { id:'1', tag:'Unidades Particulares', name:'UFs en centro y Forestada', description:'Unidades para 1, 2 o 4 personas totalmente equipadas con todos los servicios.', status:'available', status_text:'Disponible', cover_image:'/complejo-donostia1.webp', cover_position:'50% 50%', images:[], dest_url:'/corporativo/', meta1:'1–4 personas', meta2:'8–10% retorno est.', card_type:'uf' },
+  { id:'2', tag:'Complejos Enteros',      name:'Complejos en La Forestada',   description:'Complejos completos para hasta 35 personas. Contrato corporativo Oil & Gas.',              status:'partial',    status_text:'Últimos disponibles', cover_image:'/complejo-maria1.webp',   cover_position:'50% 50%', images:[], dest_url:'/corporativo/', meta1:'4–35 personas', meta2:'10–12% retorno est.', card_type:'complejo' },
+  { id:'3', tag:'Edificios · Downtown',  name:'Edificios Pampa I, II y III', description:'Departamentos de 1 y 2 dormitorios en el microcentro de Añelo.',                            status:'available',   status_text:'Disponible',          cover_image:'/edificio-pampa3.webp',  cover_position:'50% 50%', images:[], dest_url:'/corporativo/#secEdificios', meta1:'20–78 personas', meta2:'9–11% retorno est.', card_type:'edificio' },
+  { id:'4', tag:'Lotes',                 name:'Loteo La Forestada',          description:'Lotes de 540 m² a 5 minutos del centro de Añelo. Ideal para construir o revalorizar.',       status:'available',   status_text:'Disponible',          cover_image:'',                       cover_position:'50% 50%', images:[], dest_url:'/invertir/', meta1:'540 m²', meta2:'A 5 min del centro', card_type:'lote' },
+];
+
+function statusClass(s: string) {
+  if (s === 'available') return 'disponible';
+  if (s === 'occupied')  return 'ocupado';
+  return 'parcialmente-ocupado';
+}
+
+let homepageCards: any[] = DEFAULT_CARDS;
+try {
+  const { data, error } = await sb.from('homepage_cards').select('*').eq('active', true).order('sort_order');
+  if (!error && data && data.length > 0) homepageCards = data;
+} catch(_) {}
 ---
 <Layout
   title="Inmobiliaria Añelo | Alquiler Corporativo Oil & Gas · Inversión en Vaca Muerta"
@@ -115,8 +141,6 @@ import Layout from '../layouts/Layout.astro';
     <div class="why-grid reveal">
       <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);"><div class="icon"><i data-lucide="globe-2"></i></div><h3 style="color:var(--white);">2° reserva mundial</h3><p style="color:rgba(255,255,255,.55);">Vaca Muerta es la segunda reserva de shale del mundo, solo comparable con Permian Basin en Texas.</p></div>
       <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);"><div class="icon"><i data-lucide="trending-up"></i></div><h3 style="color:var(--white);">Crecimiento sostenido</h3><p style="color:rgba(255,255,255,.55);">YPF, Shell, TotalEnergies, Chevron y Pan American Energy operan en la cuenca. La actividad crece año a año.</p></div>
-      <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);"><div class="icon"><i data-lucide="home"></i></div><h3 style="color:var(--white);">Déficit habitacional</h3><p style="color:rgba(255,255,255,.55);">La ciudad no da abasto con la demanda de alojamiento. Cada nueva licitación trae cientos de trabajadores que necesitan dónde vivir.</p></div>
-      <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);"><div class="icon"><i data-lucide="landmark"></i></div><h3 style="color:var(--white);">Pagos empresariales</h3><p style="color:rgba(255,255,255,.55);">Los alquileres los pagan las propias operadoras, no individuos. Esto elimina prácticamente el riesgo de impago.</p></div>
       <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);"><div class="icon"><i data-lucide="bar-chart-2"></i></div><h3 style="color:var(--white);">Rentabilidad elevada</h3><p style="color:rgba(255,255,255,.55);">Retornos de 8 a 12% anual respaldados por contratos corporativos. Una de las rentabilidades inmobiliarias más altas del país.</p></div>
       <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);"><div class="icon"><i data-lucide="key-round"></i></div><h3 style="color:var(--white);">Empezás a cobrar sin esfuerzo</h3><p style="color:rgba(255,255,255,.55);">Nosotros conseguimos el inquilino, firmamos el contrato y te transferimos la renta. Tu propiedad trabaja por vos.</p></div>
     </div>
@@ -125,25 +149,34 @@ import Layout from '../layouts/Layout.astro';
   <!-- PROPIEDADES PREVIEW -->
   <section id="nuestros-complejos" style="background:var(--light); padding-top:4rem; padding-bottom:4rem;">
     <div class="section-label reveal">Portafolio</div>
-    <div class="section-title reveal">Nuestros <em>complejos</em></div>
+    <div class="section-title reveal">Nuestro <em>portafolio</em></div>
     <div class="gold-divider reveal"></div>
-    <p class="section-sub reveal">Tres categorías de inversión para distintos perfiles de capital. Todos con servicios incluidos y gestión profesional.</p>
-    <div class="props-grid reveal">
-      <div class="prop-card" data-name="UFs en centro y Forestada" data-type="uf" data-section="complejos" data-dest="/corporativo/">
-        <img class="prop-img" loading="lazy" decoding="async" src="/complejo-donostia1.webp" alt="Complejo Donostia I" />
-        <span class="prop-status disponible">● Disponible</span>
-        <div class="prop-body"><span class="prop-tag">Unidades Particulares</span><h3>UFs en centro y Forestada</h3><p>Unidades para 1, 2 o 4 personas totalmente equipadas con todos los servicios.</p><div class="prop-meta"><div class="prop-meta-item"><strong>1–4</strong>personas</div><div class="prop-meta-item"><strong>8–10%</strong>retorno est.</div></div></div>
-      </div>
-      <div class="prop-card" data-name="Complejos en La Forestada" data-type="complejo" data-section="complejos" data-dest="/corporativo/">
-        <img class="prop-img" loading="lazy" decoding="async" src="/complejo-maria1.webp" alt="Complejo María I" />
-        <span class="prop-status parcialmente-ocupado">● Últimos disponibles</span>
-        <div class="prop-body"><span class="prop-tag">Complejos Enteros</span><h3>Complejos en La Forestada</h3><p>Complejos completos para hasta 35 personas. Contrato corporativo Oil &amp; Gas.</p><div class="prop-meta"><div class="prop-meta-item"><strong>4-35</strong>personas</div><div class="prop-meta-item"><strong>10–12%</strong>retorno est.</div></div></div>
-      </div>
-      <div class="prop-card" data-name="Edificios Pampa" data-type="edificio" data-section="edificios" data-dest="/corporativo/#secEdificios">
-        <img class="prop-img" loading="lazy" decoding="async" src="/edificio-pampa3.webp" alt="Edificios Pampa I, II y III" />
-        <span class="prop-status disponible">● Disponible</span>
-        <div class="prop-body"><span class="prop-tag">Edificios · Downtown</span><h3>Edificios Pampa I, II y III</h3><p>Departamentos de 1 y 2 dormitorios en el microcentro de Añelo. Además, tenemos locales comerciales.</p><div class="prop-meta"><div class="prop-meta-item"><strong>20-78</strong>personas</div><div class="prop-meta-item"><strong>9–11%</strong>retorno est.</div></div></div>
-      </div>
+    <p class="section-sub reveal">Cuatro categorías de inversión para distintos perfiles de capital. Todos con servicios incluidos y gestión profesional.</p>
+    <div class="props-grid props-grid--home reveal">
+      {homepageCards.map((card: any) => (
+        <div class="prop-card"
+          data-name={card.name}
+          data-type={card.card_type ?? 'complejo'}
+          data-section="complejos"
+          data-dest={card.dest_url}>
+          <div class="prop-img-wrap">
+            {card.cover_image
+              ? <img class="prop-img" loading="lazy" decoding="async" src={card.cover_image} alt={card.name} style={`object-position:${card.cover_position ?? '50% 50%'}`} />
+              : <div class="prop-img-placeholder"><span>{card.tag}</span></div>
+            }
+          </div>
+          <span class={`prop-status ${statusClass(card.status)}`}>● {card.status_text}</span>
+          <div class="prop-body">
+            <span class="prop-tag">{card.tag}</span>
+            <h3>{card.name}</h3>
+            <p>{card.description}</p>
+            <div class="prop-meta">
+              {card.meta1 && <div class="prop-meta-item"><strong>{card.meta1}</strong></div>}
+              {card.meta2 && <div class="prop-meta-item"><strong>{card.meta2}</strong></div>}
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
     <div style="text-align:center; margin-top:2.5rem;">
       <a class="btn-primary" href="/corporativo/">Ver todas las propiedades</a>
