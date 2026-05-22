@@ -333,19 +333,33 @@ const navItems = [
   });
 
   // ─── DROPDOWN CHEVRON (mobile toggle) ──────────────────────────────────
+  function toggleDropdown(li) {
+    var btn = li.querySelector('.nav-chevron-btn');
+    var isOpen = li.classList.contains('open');
+    document.querySelectorAll('.has-dropdown.open').forEach(function(el) {
+      el.classList.remove('open');
+      el.querySelector('.nav-chevron-btn').setAttribute('aria-expanded', 'false');
+    });
+    if (!isOpen) {
+      li.classList.add('open');
+      if (btn) btn.setAttribute('aria-expanded', 'true');
+    }
+  }
+
   document.querySelectorAll('.nav-chevron-btn').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      var li = btn.closest('.has-dropdown');
-      var isOpen = li.classList.contains('open');
-      document.querySelectorAll('.has-dropdown.open').forEach(function(el) {
-        el.classList.remove('open');
-        el.querySelector('.nav-chevron-btn').setAttribute('aria-expanded', 'false');
-      });
-      if (!isOpen) {
-        li.classList.add('open');
-        btn.setAttribute('aria-expanded', 'true');
+      toggleDropdown(btn.closest('.has-dropdown'));
+    });
+  });
+
+  // En mobile, el link principal de cada sección también abre el dropdown
+  document.querySelectorAll('.has-dropdown .nav-item-row > a').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      if (window.innerWidth <= 900) {
+        e.preventDefault();
+        toggleDropdown(a.closest('.has-dropdown'));
       }
     });
   });
