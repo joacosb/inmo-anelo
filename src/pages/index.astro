@@ -36,9 +36,56 @@ try {
 
   <!-- HERO -->
   <div class="hero">
+    <!-- Background animation (desktop only) -->
+    <div id="hero-bg" aria-hidden="true">
+      <div class="hb-scene" id="hb-s0">
+        <div class="hb-kb"><img src="https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/hero/la-forestada.webp" alt="" loading="eager" decoding="async" fetchpriority="low" style="object-position:center 40%"></div>
+        <div class="hb-vig-v"></div><div class="hb-vig-h"></div>
+        <div class="hb-wipe"></div>
+        <div class="hb-label">
+          <div class="hb-eyebrow">Loteo · Desarrollo Urbano</div>
+          <div class="hb-name">La Forestada</div>
+          <div class="hb-meta-row"><div class="hb-line"></div><div class="hb-meta">Añelo · Neuquén</div></div>
+        </div>
+        <div class="hb-corner"><span class="hb-corner-ia">IA</span><div class="hb-corner-div"></div><span class="hb-corner-text">Inmobiliaria<br>Añelo</span></div>
+      </div>
+      <div class="hb-scene" id="hb-s1">
+        <div class="hb-kb"><img src="https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/hero/maria-i.webp" alt="" loading="lazy" decoding="async" fetchpriority="low" style="object-position:center 60%"></div>
+        <div class="hb-vig-v"></div><div class="hb-vig-h"></div>
+        <div class="hb-wipe"></div>
+        <div class="hb-label">
+          <div class="hb-eyebrow">Edificio · Renta</div>
+          <div class="hb-name">María I</div>
+          <div class="hb-meta-row"><div class="hb-line"></div><div class="hb-meta">Departamentos</div></div>
+        </div>
+        <div class="hb-corner"><span class="hb-corner-ia">IA</span><div class="hb-corner-div"></div><span class="hb-corner-text">Inmobiliaria<br>Añelo</span></div>
+      </div>
+      <div class="hb-scene" id="hb-s2">
+        <div class="hb-kb"><img src="https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/hero/pampa-iii.webp" alt="" loading="lazy" decoding="async" fetchpriority="low" style="object-position:center 35%"></div>
+        <div class="hb-vig-v"></div><div class="hb-vig-h"></div>
+        <div class="hb-wipe"></div>
+        <div class="hb-label">
+          <div class="hb-eyebrow">Edificio · Renta</div>
+          <div class="hb-name">Pampa III</div>
+          <div class="hb-meta-row"><div class="hb-line"></div><div class="hb-meta">Departamentos</div></div>
+        </div>
+        <div class="hb-corner"><span class="hb-corner-ia">IA</span><div class="hb-corner-div"></div><span class="hb-corner-text">Inmobiliaria<br>Añelo</span></div>
+      </div>
+      <div class="hb-scene" id="hb-s3">
+        <div class="hb-kb"><img src="https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/hero/aurelia.webp" alt="" loading="lazy" decoding="async" fetchpriority="low" style="object-position:center 55%"></div>
+        <div class="hb-vig-v"></div><div class="hb-vig-h"></div>
+        <div class="hb-wipe"></div>
+        <div class="hb-label">
+          <div class="hb-eyebrow">Vivienda · Renta</div>
+          <div class="hb-name">Aurelia</div>
+          <div class="hb-meta-row"><div class="hb-line"></div><div class="hb-meta">Casas residenciales</div></div>
+        </div>
+        <div class="hb-corner"><span class="hb-corner-ia">IA</span><div class="hb-corner-div"></div><span class="hb-corner-text">Inmobiliaria<br>Añelo</span></div>
+      </div>
+    </div>
     <div class="hero-overlay"></div>
+    <div class="hero-badge-pos"><div class="hero-badge">Vaca Muerta · Añelo · Neuquén</div></div>
     <div class="hero-content">
-      <div class="hero-badge">Vaca Muerta · Añelo · Neuquén</div>
       <h1>Invertí donde el<br/><em>petróleo</em> mueve<br/>la economía</h1>
       <p>Unidades residenciales y corporativas en el corazón del yacimiento más importante de Sudamérica. Rentabilidad en dólares, alta demanda.</p>
       <div class="hero-actions">
@@ -196,4 +243,123 @@ try {
       <div class="step"><div class="step-num" aria-hidden="true">04</div><h4>Tu renta llega</h4><p>Conseguimos el inquilino corporativo, firmamos el contrato y empézas a cobrar desde el primer mes.</p></div>
     </div>
   </section>
+
+<script is:inline>
+(function () {
+  if (window.matchMedia('(max-width:768px)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+
+  var SLOT  = 5.0;
+  var FADE  = 0.9;
+  var TOTAL = SLOT * 4; // 20 s
+
+  var WIPE_DUR        = 1.1;
+  var LABEL_IN_START  = 0.9;
+  var LABEL_IN_DUR    = 0.8;
+  var FADE_OUT_START  = SLOT - FADE; // 4.1 s
+  var LINE_MAX        = Math.min(window.innerWidth / 1920 * 84, 84);
+
+  // Ken Burns + zoom per scene (matched to React design)
+  var CFG = [
+    { panX: -40/1920*100, panY:   8/1080*100, zFrom: 1.08, zTo: 1.20 },
+    { panX:  20/1920*100, panY: -10/1080*100, zFrom: 1.06, zTo: 1.16 },
+    { panX: -18/1920*100, panY:  18/1080*100, zFrom: 1.05, zTo: 1.15 },
+    { panX:  28/1920*100, panY:  -8/1080*100, zFrom: 1.06, zTo: 1.18 },
+  ];
+
+  var scenes = [0,1,2,3].map(function(i) {
+    var el = document.getElementById('hb-s' + i);
+    if (!el) return null;
+    return {
+      el:      el,
+      kb:      el.querySelector('.hb-kb'),
+      wipe:    el.querySelector('.hb-wipe'),
+      label:   el.querySelector('.hb-label'),
+      eyebrow: el.querySelector('.hb-eyebrow'),
+      line:    el.querySelector('.hb-line'),
+    };
+  }).filter(Boolean);
+
+  if (scenes.length < 4) return;
+
+  function easeOutCubic(t)  { return 1 - Math.pow(1 - t, 3); }
+  function easeInCubic(t)   { return t * t * t; }
+  function easeOutQuart(t)  { return 1 - Math.pow(1 - t, 4); }
+  function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+  function lerp(a, b, t)    { return a + (b - a) * t; }
+
+  // Cross-fade opacity: each scene active for SLOT s, fading in/out over FADE s,
+  // seamlessly looping via modular arithmetic.
+  function sceneOpacity(i, T) {
+    var d = ((T - i * SLOT) % TOTAL + TOTAL) % TOTAL;
+    if (d > SLOT + FADE) return 0;
+    if (d < FADE)        return easeOutCubic(d / FADE);
+    if (d >= SLOT)       return 1 - easeInCubic((d - SLOT) / FADE);
+    return 1;
+  }
+
+  var time   = 0;
+  var lastTs = null;
+
+  function tick(ts) {
+    if (lastTs === null) lastTs = ts;
+    var dt = Math.min((ts - lastTs) / 1000, 0.1);
+    lastTs = ts;
+    time = (time + dt) % TOTAL;
+
+    var T = time;
+
+    for (var i = 0; i < 4; i++) {
+      var sc  = scenes[i];
+      var cfg = CFG[i];
+      var op  = sceneOpacity(i, T);
+
+      sc.el.style.opacity = op;
+      if (op < 0.01) continue;
+
+      var d = ((T - i * SLOT) % TOTAL + TOTAL) % TOTAL;
+
+      // Ken Burns
+      var kbProg = clamp(d / (SLOT + FADE), 0, 1);
+      var s  = lerp(cfg.zFrom, cfg.zTo, kbProg);
+      var tx = cfg.panX * kbProg;
+      var ty = cfg.panY * kbProg;
+      sc.kb.style.transform = 'scale(' + s.toFixed(4) + ') translate(' + tx.toFixed(3) + '%, ' + ty.toFixed(3) + '%)';
+
+      // Wipe reveal (cream cover slides off to the right)
+      var wipeT = clamp(d / WIPE_DUR, 0, 1);
+      sc.wipe.style.clipPath = 'inset(0 0 0 ' + (easeOutQuart(wipeT) * 100).toFixed(2) + '%)';
+
+      // Label fade + translate
+      var labelIn = clamp((d - LABEL_IN_START) / LABEL_IN_DUR, 0, 1);
+      var exitT   = clamp((d - FADE_OUT_START) / FADE, 0, 1);
+      var labelOp = easeOutCubic(labelIn) * (1 - easeInCubic(exitT));
+      var labelY  = lerp(22, 0, easeOutCubic(labelIn)) - exitT * 14;
+      sc.label.style.opacity   = labelOp;
+      sc.label.style.transform = 'translateY(' + labelY.toFixed(2) + 'px)';
+
+      // Eyebrow
+      var eyeIn = clamp((d - 0.7) / 0.7, 0, 1);
+      sc.eyebrow.style.opacity = easeOutCubic(eyeIn) * (1 - easeInCubic(exitT));
+
+      // Accent line
+      var lineIn = clamp((d - 1.2) / 0.9, 0, 1);
+      sc.line.style.width = (easeOutQuart(lineIn) * LINE_MAX).toFixed(1) + 'px';
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  // Start once all scene images have loaded
+  var imgs    = document.querySelectorAll('#hero-bg img');
+  var pending = imgs.length;
+  if (pending === 0) { requestAnimationFrame(tick); return; }
+
+  function onDone() { if (--pending <= 0) requestAnimationFrame(tick); }
+  imgs.forEach(function(img) {
+    if (img.complete) { onDone(); }
+    else { img.addEventListener('load', onDone); img.addEventListener('error', onDone); }
+  });
+})();
+</script>
 </Layout>
