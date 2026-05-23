@@ -9,7 +9,7 @@ export interface Props {
   preloadHero?: boolean;
 }
 
-const { title, description, pathname, ogImage = '/complejo-yellowstone.webp', preloadHero = false } = Astro.props;
+const { title, description, pathname, ogImage = 'https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/hero/maria-i.webp', preloadHero = false } = Astro.props;
 const site = 'https://inmobiliariaanelo.com.ar';
 const canonical = site + pathname;
 const fullOg = ogImage.startsWith('http') ? ogImage : site + ogImage;
