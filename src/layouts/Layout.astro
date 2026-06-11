@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { getImageUrl } from '../lib/supabase';
 
 export interface Props {
   title: string;
@@ -7,9 +8,11 @@ export interface Props {
   pathname: string;
   ogImage?: string;
   preloadHero?: boolean;
+  /** Primera imagen visible del hero (LCP) — se precarga optimizada en desktop. */
+  heroImage?: string;
 }
 
-const { title, description, pathname, ogImage = 'https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/hero/maria-i.webp', preloadHero = false } = Astro.props;
+const { title, description, pathname, ogImage = 'https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/hero/maria-i.webp', preloadHero = false, heroImage } = Astro.props;
 const site = 'https://inmobiliariaanelo.com.ar';
 const canonical = site + pathname;
 const fullOg = ogImage.startsWith('http') ? ogImage : site + ogImage;
@@ -144,7 +147,15 @@ const navItems = [
     ]
   })} />
 
-  {preloadHero && <link rel="preload" as="image" href="https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/1ebbf264-8e59-4127-95a0-d49b2df5c546/1779382648915-0clll236b14.png" fetchpriority="high" />}
+  {preloadHero && heroImage && (
+    <link
+      rel="preload"
+      as="image"
+      href={getImageUrl(heroImage, { width: 1920, quality: 65 })}
+      fetchpriority="high"
+      media="(min-width: 769px)"
+    />
+  )}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Montserrat:wght@300;400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'" />

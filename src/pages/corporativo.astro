@@ -2,8 +2,12 @@
 export const prerender = false;
 
 import Layout from '../layouts/Layout.astro';
-import { supabase, statusClass, zoneLabel } from '../lib/supabase';
+import { supabase, statusClass, zoneLabel, getImageUrl, getSrcSet } from '../lib/supabase';
 import type { Property } from '../lib/supabase';
+
+// Anchos de optimización: el carrusel de la card (~display 600px) y el modal (~display 660px).
+const CARD_W  = 900;
+const MODAL_W = 1200;
 
 let complejos: any[] = [];
 let edificios: any[] = [];
@@ -95,7 +99,7 @@ try {
           data-type={p.type}
           data-section="complejos"
           data-no-modal="1"
-          data-images={JSON.stringify(p.images?.length > 0 ? p.images : (p.cover_image ? [p.cover_image] : []))}
+          data-images={JSON.stringify((p.images?.length > 0 ? p.images : (p.cover_image ? [p.cover_image] : [])).map((u: string) => getImageUrl(u, { width: MODAL_W })))}
           data-desc={p.description ?? ''}
           data-guests={p.max_guests ?? ''}
           data-units={p.unit_count ?? ''}
@@ -105,7 +109,7 @@ try {
           data-status-class={statusClass(p.status)}
         >
           <div class="prop-img-wrap"
-            data-images={JSON.stringify(p.images?.length > 1 ? p.images : [p.cover_image])}
+            data-images={JSON.stringify((p.images?.length > 1 ? p.images : [p.cover_image]).map((u: string) => getImageUrl(u, { width: CARD_W })))}
             data-positions={JSON.stringify(
               (p.images?.length > 1 ? p.images : [p.cover_image]).map((url: string, i: number) =>
                 url === p.cover_image
@@ -113,7 +117,11 @@ try {
                   : ((p.image_positions ?? [])[i] ?? '50% 50%')
               )
             )}>
-            <img class="prop-img" loading="lazy" decoding="async" src={p.cover_image} alt={p.name}
+            <img class="prop-img" width="600" height="450" loading="lazy" decoding="async"
+              src={getImageUrl(p.cover_image, { width: 640 })}
+              srcset={getSrcSet(p.cover_image, [384, 640, 828])}
+              sizes="(max-width: 700px) 92vw, (max-width: 1100px) 45vw, 30vw"
+              alt={p.name}
               style={`object-position: ${p.cover_position ?? '50% 50%'}`} />
             {p.images?.length > 1 && (
               <>
@@ -171,7 +179,7 @@ try {
           data-type={p.type}
           data-section="edificios"
           data-no-modal="1"
-          data-images={JSON.stringify(p.images?.length > 0 ? p.images : (p.cover_image ? [p.cover_image] : []))}
+          data-images={JSON.stringify((p.images?.length > 0 ? p.images : (p.cover_image ? [p.cover_image] : [])).map((u: string) => getImageUrl(u, { width: MODAL_W })))}
           data-desc={p.description ?? ''}
           data-guests={p.max_guests ?? ''}
           data-units={p.unit_count ?? ''}
@@ -181,7 +189,7 @@ try {
           data-status-class={statusClass(p.status)}
         >
           <div class="prop-img-wrap"
-            data-images={JSON.stringify(p.images?.length > 1 ? p.images : [p.cover_image])}
+            data-images={JSON.stringify((p.images?.length > 1 ? p.images : [p.cover_image]).map((u: string) => getImageUrl(u, { width: CARD_W })))}
             data-positions={JSON.stringify(
               (p.images?.length > 1 ? p.images : [p.cover_image]).map((url: string, i: number) =>
                 url === p.cover_image
@@ -189,7 +197,11 @@ try {
                   : ((p.image_positions ?? [])[i] ?? '50% 50%')
               )
             )}>
-            <img class="prop-img" loading="lazy" decoding="async" src={p.cover_image} alt={p.name}
+            <img class="prop-img" width="600" height="450" loading="lazy" decoding="async"
+              src={getImageUrl(p.cover_image, { width: 640 })}
+              srcset={getSrcSet(p.cover_image, [384, 640, 828])}
+              sizes="(max-width: 700px) 92vw, (max-width: 1100px) 45vw, 30vw"
+              alt={p.name}
               style={`object-position: ${p.cover_position ?? '50% 50%'}`} />
             {p.images?.length > 1 && (
               <>

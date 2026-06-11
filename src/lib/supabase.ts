@@ -39,3 +39,65 @@ export function zoneLabel(zone: PropertyZone, type: PropertyType): string {
   if (zone === 'forestada') return 'La Forestada';
   return type === 'edificio' ? 'Centro Añelo' : 'Añelo';
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Optimización de imágenes
+ *
+ * Las fotos viven en Supabase Storage y se sirven full-res, lo que pesa mucho.
+ * El plan free de Supabase NO tiene habilitadas las transformaciones de imagen
+ * (/render/image/ devuelve 403 FeatureNotEnabled), así que usamos la
+ * optimización de imágenes de Vercel: /_vercel/image redimensiona y convierte
+ * a webp en runtime, cacheado en el edge. Configurado en astro.config.mjs.
+ *
+ * - Sólo se transforman URLs de Supabase Storage; legacy /public y externas
+ *   pasan sin tocar.
+ * - En `astro dev`/`astro preview` el endpoint /_vercel/image no existe, así que
+ *   devolvemos la URL original (la optimización aplica sólo en deploys de Vercel).
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+const STORAGE_HOST = 'qwhasgdxhvdavnofmisf.supabase.co';
+
+// Debe coincidir con `imagesConfig.sizes` en astro.config.mjs.
+const ALLOWED_WIDTHS = [256, 384, 640, 750, 828, 1080, 1200, 1920];
+
+function isStorageUrl(url: string): boolean {
+  return url.includes(`${STORAGE_HOST}/storage/v1/object/public/`);
+}
+
+/** Ajusta el ancho pedido al valor permitido más chico que lo cubra. */
+function snapWidth(width: number): number {
+  for (const w of ALLOWED_WIDTHS) if (w >= width) return w;
+  return ALLOWED_WIDTHS[ALLOWED_WIDTHS.length - 1];
+}
+
+/**
+ * Devuelve la URL de una imagen redimensionada/optimizada por Vercel.
+ * Para imágenes de Supabase Storage genera una URL /_vercel/image (webp);
+ * para legacy /public u otras URLs las devuelve sin cambios.
+ */
+export function getImageUrl(
+  url: string | null | undefined,
+  opts: { width?: number; quality?: number } = {},
+): string {
+  if (!url) return '';
+  if (!isStorageUrl(url)) return url;            // legacy /public, externas → sin tocar
+  if (import.meta.env.DEV) return url;           // dev: /_vercel/image no existe
+  const w = snapWidth(opts.width ?? 1080);
+  const q = opts.quality ?? 70;
+  return `/_vercel/image?url=${encodeURIComponent(url)}&w=${w}&q=${q}`;
+}
+
+/**
+ * Genera un srcset responsivo (varias anchuras) para una imagen de Storage.
+ * Devuelve `undefined` para legacy/dev, donde el `src` plano alcanza.
+ */
+export function getSrcSet(
+  url: string | null | undefined,
+  widths: number[] = [640, 1080, 1920],
+  quality = 70,
+): string | undefined {
+  if (!url || !isStorageUrl(url) || import.meta.env.DEV) return undefined;
+  return widths
+    .map((w) => `${getImageUrl(url, { width: w, quality })} ${snapWidth(w)}w`)
+    .join(', ');
+}

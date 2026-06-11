@@ -2,6 +2,7 @@
 export const prerender = false;
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { createClient } from '@supabase/supabase-js';
+import { getImageUrl } from '../../../lib/supabase';
 
 const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
@@ -195,7 +196,7 @@ if (!p) return Astro.redirect('/admin/propiedades/');
         <div class="preview-label">Previsualización del card</div>
         <div class="preview-card">
           <div class="preview-img-wrap">
-            <img id="preview-img" src={p.cover_image ?? ''} alt={p.name} />
+            <img id="preview-img" src={getImageUrl(p.cover_image, { width: 520 })} alt={p.name} />
             <span class={`preview-status ${p.status === 'available' ? 'disponible' : p.status === 'occupied' ? 'ocupado' : 'parcialmente-ocupado'}`}>
               ● {p.status_text}
             </span>
@@ -212,7 +213,7 @@ if (!p) return Astro.redirect('/admin/propiedades/');
         <div class="photo-item" data-url={url} draggable="true"
           onmouseenter="previewCover(this.dataset.url)"
           onmouseleave="previewCover(null)">
-          <img src={url} alt="" loading="lazy" />
+          <img src={getImageUrl(url, { width: 384 })} alt="" width="384" height="288" loading="lazy" decoding="async" />
           <span class="photo-drag-handle">⠿</span>
           {url === p.cover_image && <span class="photo-cover-badge">Portada</span>}
           <div class="photo-actions">

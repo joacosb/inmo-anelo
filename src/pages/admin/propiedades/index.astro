@@ -2,6 +2,7 @@
 export const prerender = false;
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { createClient } from '@supabase/supabase-js';
+import { getImageUrl } from '../../../lib/supabase';
 
 const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
@@ -164,7 +165,7 @@ const edificios = (properties ?? []).filter((p: any) => p.type === 'edificio');
     <div class="adm-grid">
       {complejos.map((p: any) => (
         <div class="adm-card" data-id={p.id}>
-          <img class="adm-card-img" src={p.cover_image} alt={p.name} loading="lazy" />
+          <img class="adm-card-img" src={getImageUrl(p.cover_image, { width: 384 })} alt={p.name} width="384" height="140" loading="lazy" decoding="async" />
           <div class="adm-card-body">
             <div class="adm-card-name">{p.name}</div>
 
@@ -199,7 +200,7 @@ const edificios = (properties ?? []).filter((p: any) => p.type === 'edificio');
     <div class="adm-grid">
       {edificios.map((p: any) => (
         <div class="adm-card" data-id={p.id}>
-          <img class="adm-card-img" src={p.cover_image} alt={p.name} loading="lazy" />
+          <img class="adm-card-img" src={getImageUrl(p.cover_image, { width: 384 })} alt={p.name} width="384" height="140" loading="lazy" decoding="async" />
           <div class="adm-card-body">
             <div class="adm-card-name">{p.name}</div>
 

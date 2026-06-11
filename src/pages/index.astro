@@ -2,6 +2,13 @@
 export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 import { createClient } from '@supabase/supabase-js';
+import { getImageUrl, getSrcSet } from '../lib/supabase';
+
+const HERO_BASE = 'https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/hero';
+const heroLaForestada = `${HERO_BASE}/la-forestada.webp`;
+const heroMariaI      = `${HERO_BASE}/maria-i.webp`;
+const heroPampaIII    = `${HERO_BASE}/pampa-iii.webp`;
+const heroAurelia     = `${HERO_BASE}/aurelia.webp`;
 
 const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
@@ -32,6 +39,7 @@ try {
   description="Alquiler corporativo para empresas Oil & Gas en Añelo, Neuquén. Complejos, edificios y departamentos equipados. Retorno 10–12% anual en USD. Cotizá en menos de 24 hs. +25 años en la Patagonia."
   pathname="/"
   preloadHero={true}
+  heroImage={heroLaForestada}
 >
 
   <!-- HERO -->
@@ -39,7 +47,7 @@ try {
     <!-- Background animation (desktop only) -->
     <div id="hero-bg" aria-hidden="true">
       <div class="hb-scene" id="hb-s0">
-        <div class="hb-kb"><img src="https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/hero/la-forestada.webp" alt="" loading="eager" decoding="async" fetchpriority="low" style="object-position:center 40%"></div>
+        <div class="hb-kb"><img src={getImageUrl(heroLaForestada, { width: 1920, quality: 65 })} alt="" width="1920" height="1080" loading="eager" decoding="async" fetchpriority="high" style="object-position:center 40%"></div>
         <div class="hb-vig-v"></div><div class="hb-vig-h"></div>
         <div class="hb-wipe"></div>
         <div class="hb-label">
@@ -50,7 +58,7 @@ try {
         <div class="hb-corner"><span class="hb-corner-ia">IA</span><div class="hb-corner-div"></div><span class="hb-corner-text">Inmobiliaria<br>Añelo</span></div>
       </div>
       <div class="hb-scene" id="hb-s1">
-        <div class="hb-kb"><img src="https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/hero/maria-i.webp" alt="" loading="lazy" decoding="async" fetchpriority="low" style="object-position:center 60%"></div>
+        <div class="hb-kb"><img src={getImageUrl(heroMariaI, { width: 1920, quality: 65 })} alt="" width="1920" height="1080" loading="lazy" decoding="async" style="object-position:center 60%"></div>
         <div class="hb-vig-v"></div><div class="hb-vig-h"></div>
         <div class="hb-wipe"></div>
         <div class="hb-label">
@@ -61,7 +69,7 @@ try {
         <div class="hb-corner"><span class="hb-corner-ia">IA</span><div class="hb-corner-div"></div><span class="hb-corner-text">Inmobiliaria<br>Añelo</span></div>
       </div>
       <div class="hb-scene" id="hb-s2">
-        <div class="hb-kb"><img src="https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/hero/pampa-iii.webp" alt="" loading="lazy" decoding="async" fetchpriority="low" style="object-position:center 35%"></div>
+        <div class="hb-kb"><img src={getImageUrl(heroPampaIII, { width: 1920, quality: 65 })} alt="" width="1920" height="1080" loading="lazy" decoding="async" style="object-position:center 35%"></div>
         <div class="hb-vig-v"></div><div class="hb-vig-h"></div>
         <div class="hb-wipe"></div>
         <div class="hb-label">
@@ -72,7 +80,7 @@ try {
         <div class="hb-corner"><span class="hb-corner-ia">IA</span><div class="hb-corner-div"></div><span class="hb-corner-text">Inmobiliaria<br>Añelo</span></div>
       </div>
       <div class="hb-scene" id="hb-s3">
-        <div class="hb-kb"><img src="https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/hero/aurelia.webp" alt="" loading="lazy" decoding="async" fetchpriority="low" style="object-position:center 55%"></div>
+        <div class="hb-kb"><img src={getImageUrl(heroAurelia, { width: 1920, quality: 65 })} alt="" width="1920" height="1080" loading="lazy" decoding="async" style="object-position:center 55%"></div>
         <div class="hb-vig-v"></div><div class="hb-vig-h"></div>
         <div class="hb-wipe"></div>
         <div class="hb-label">
@@ -157,7 +165,7 @@ try {
     </div>
     <div class="fp-inner">
       <div class="fp-img-col">
-        <img src="/edificio-pampa3.webp" alt="Edificio Pampa III · Centro de Añelo" loading="eager" decoding="async" />
+        <img src="/edificio-pampa3.webp" alt="Edificio Pampa III · Centro de Añelo" width="800" height="600" loading="lazy" decoding="async" />
         <div class="fp-location-tag"><i data-lucide="map-pin"></i>Centro de Añelo</div>
       </div>
       <div class="fp-text-col">
@@ -208,7 +216,11 @@ try {
           data-dest={card.dest_url}>
           <div class="prop-img-wrap">
             {card.cover_image
-              ? <img class="prop-img" loading="lazy" decoding="async" src={card.cover_image} alt={card.name} style={`object-position:${card.cover_position ?? '50% 50%'}`} />
+              ? <img class="prop-img" width="600" height="450" loading="lazy" decoding="async"
+                  src={getImageUrl(card.cover_image, { width: 640 })}
+                  srcset={getSrcSet(card.cover_image, [384, 640, 828])}
+                  sizes="(max-width: 700px) 92vw, (max-width: 1100px) 45vw, 24vw"
+                  alt={card.name} style={`object-position:${card.cover_position ?? '50% 50%'}`} />
               : <div class="prop-img-placeholder"><span>{card.tag}</span></div>
             }
           </div>
