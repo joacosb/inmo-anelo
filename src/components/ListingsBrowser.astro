@@ -1,0 +1,781 @@
+---
+/**
+ * Buscador de propiedades — sirve tanto /venta/ como /alquiler/.
+ *
+ * El listado completo se renderiza en el servidor (son decenas de propiedades,
+ * no miles) y el filtrado ocurre en el cliente mostrando/ocultando cards. Eso
+ * mantiene el contenido indexable por Google y evita un ida y vuelta por cada
+ * cambio de filtro.
+ *
+ * El estado de los filtros se refleja en la query string, así una búsqueda se
+ * puede compartir o volver a abrir.
+ */
+import {
+  getImageUrl, getSrcSet, formatPrice, formatExpenses, specLine, locationLabel,
+  operationStatusLabel, operationStatusClass, propKindLabel, listingUrl,
+  PROP_KINDS, FEATURES, KINDS_WITH_ROOMS,
+} from '../lib/supabase';
+import type { Property, Operation } from '../lib/supabase';
+
+interface Props {
+  op:    Operation;
+  items: Property[];
+}
+const { op, items } = Astro.props;
+
+const isSale = op === 'venta';
+const CARD_W = 800;
+
+// Sólo se ofrecen los filtros que tienen sentido con los datos cargados: si no
+// hay ni un galpón publicado, el chip "Galpón" no aparece.
+const kindsPresent = PROP_KINDS.filter((k) => items.some((p) => p.prop_type === k.value));
+const neighborhoods = [...new Set(items.map((p) => locationLabel(p)).filter(Boolean))].sort();
+const featuresPresent = FEATURES.filter((f) => items.some((p) => (p.features ?? []).includes(f.value)));
+
+// Tipos que habilitan el filtro de ambientes/dormitorios (casa, depto, PH).
+const roomKinds = KINDS_WITH_ROOMS as string[];
+
+// Payload mínimo para el mapa: sólo las que tienen punto cargado.
+const mapPoints = items
+  .filter((p) => p.lat != null && p.lng != null)
+  .map((p) => ({
+    id:    p.id,
+    lat:   p.lat,
+    lng:   p.lng,
+    exact: p.location_exact,
+    name:  p.name,
+    price: formatPrice(p, op),
+    spec:  specLine(p),
+    zone:  locationLabel(p),
+    url:   listingUrl(p, op),
+    img:   getImageUrl(p.cover_image, { width: 384 }),
+  }));
+
+const ANELO_CENTER = { lat: -38.3494, lng: -68.7906 };
+---
+
+<div class="lb" data-op={op}>
+
+  <!-- ── BARRA DE FILTROS ────────────────────────────────────────────── -->
+  <div class="lb-filters" id="lbFilters">
+
+    <div class="lb-filter-group">
+      <span class="lb-filter-label">Tipo</span>
+      <div class="lb-chips">
+        {kindsPresent.map((k) => (
+          <label class="lb-chip">
+            <input type="checkbox" data-filter="kind" value={k.value} />
+            <span>{k.plural}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+
+    <!-- Ambientes y dormitorios sólo aplican a casa / departamento / PH:
+         quedan ocultos hasta que se tilde uno de esos tipos. -->
+    <div class="lb-filter-group" id="lbRoomsGroup" hidden>
+      <span class="lb-filter-label">Ambientes</span>
+      <div class="lb-chips">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <label class="lb-chip lb-chip-num">
+            <input type="checkbox" data-filter="rooms" value={n} />
+            <span>{n === 5 ? '5+' : n}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+
+    <div class="lb-filter-group" id="lbBedsGroup" hidden>
+      <span class="lb-filter-label">Dormitorios</span>
+      <div class="lb-chips">
+        {[1, 2, 3, 4].map((n) => (
+          <label class="lb-chip lb-chip-num">
+            <input type="checkbox" data-filter="bedrooms" value={n} />
+            <span>{n === 4 ? '4+' : n}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+
+    <div class="lb-filter-group">
+      <span class="lb-filter-label">Precio</span>
+      <div class="lb-range">
+        <select data-filter="currency" id="lbCurrency">
+          <option value="USD" selected={isSale}>USD</option>
+          <option value="ARS" selected={!isSale}>ARS</option>
+        </select>
+        <input type="number" min="0" placeholder="Mín." data-filter="priceMin" />
+        <span class="lb-range-sep">–</span>
+        <input type="number" min="0" placeholder="Máx." data-filter="priceMax" />
+      </div>
+    </div>
+
+    <div class="lb-filter-group">
+      <span class="lb-filter-label">Superficie (m²)</span>
+      <div class="lb-range">
+        <input type="number" min="0" placeholder="Mín." data-filter="areaMin" />
+        <span class="lb-range-sep">–</span>
+        <input type="number" min="0" placeholder="Máx." data-filter="areaMax" />
+      </div>
+    </div>
+
+    {neighborhoods.length > 1 && (
+      <div class="lb-filter-group">
+        <span class="lb-filter-label">Zona</span>
+        <div class="lb-chips">
+          {neighborhoods.map((z) => (
+            <label class="lb-chip">
+              <input type="checkbox" data-filter="zone" value={z} />
+              <span>{z}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {featuresPresent.length > 0 && (
+      <div class="lb-filter-group">
+        <span class="lb-filter-label">Características</span>
+        <div class="lb-chips">
+          {featuresPresent.map((f) => (
+            <label class="lb-chip">
+              <input type="checkbox" data-filter="feature" value={f.value} />
+              <span>{f.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+
+  <!-- ── RESUMEN + ORDEN ─────────────────────────────────────────────── -->
+  <div class="lb-toolbar">
+    <div class="lb-count">
+      <strong id="lbCount">{items.length}</strong>
+      <span id="lbCountLabel">{items.length === 1 ? 'propiedad' : 'propiedades'}</span>
+      <button class="lb-clear" id="lbClear" hidden>Limpiar filtros</button>
+    </div>
+    <div class="lb-sort">
+      <label for="lbSort">Ordenar por</label>
+      <select id="lbSort">
+        <option value="default">Destacadas</option>
+        <option value="price-asc">Menor precio</option>
+        <option value="price-desc">Mayor precio</option>
+        <option value="area-desc">Mayor superficie</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ── LISTA + MAPA ────────────────────────────────────────────────── -->
+  <div class="lb-view-toggle">
+    <button class="lb-view-btn active" data-view="list">Lista</button>
+    <button class="lb-view-btn" data-view="map">Mapa</button>
+  </div>
+
+  <div class="lb-split">
+    <div class="lb-results" id="lbResults">
+      {items.map((p) => (
+        <article
+          class="lb-card"
+          data-id={p.id}
+          data-kind={p.prop_type ?? ''}
+          data-rooms={p.rooms ?? ''}
+          data-bedrooms={p.bedrooms ?? ''}
+          data-price={(isSale ? p.sale_price : p.rent_price) ?? ''}
+          data-currency={isSale ? p.sale_currency : p.rent_currency}
+          data-area={p.area_covered ?? p.area_total ?? ''}
+          data-zone={locationLabel(p)}
+          data-features={(p.features ?? []).join(',')}
+          data-lat={p.lat ?? ''}
+          data-lng={p.lng ?? ''}
+        >
+          <a class="lb-card-link" href={listingUrl(p, op)}>
+            <div class="lb-card-img">
+              {p.cover_image ? (
+                <img
+                  src={getImageUrl(p.cover_image, { width: CARD_W })}
+                  srcset={getSrcSet(p.cover_image, [384, 640, 800])}
+                  sizes="(max-width: 900px) 100vw, 420px"
+                  alt={p.name}
+                  width="800" height="600" loading="lazy" decoding="async"
+                  style={`object-position:${p.cover_position ?? '50% 50%'}`}
+                />
+              ) : (
+                <div class="lb-card-noimg">Sin foto</div>
+              )}
+              <span class={`lb-badge ${operationStatusClass(p, op)}`}>
+                {operationStatusLabel(p, op)}
+              </span>
+              {(p.images ?? []).length > 1 && (
+                <span class="lb-photo-count">{p.images.length} fotos</span>
+              )}
+            </div>
+
+            <div class="lb-card-body">
+              <div class="lb-price">{formatPrice(p, op)}</div>
+              {!isSale && formatExpenses(p) && (
+                <div class="lb-expenses">{formatExpenses(p)}</div>
+              )}
+              <h3 class="lb-card-title">{p.name}</h3>
+              {specLine(p) && <div class="lb-spec">{specLine(p)}</div>}
+              <div class="lb-zone">
+                <i data-lucide="map-pin" class="lb-pin"></i>{locationLabel(p)}
+                {p.prop_type && <span class="lb-kind">· {propKindLabel(p.prop_type)}</span>}
+              </div>
+            </div>
+          </a>
+        </article>
+      ))}
+
+      <div class="lb-empty" id="lbEmpty" hidden>
+        <div class="lb-empty-title">No encontramos propiedades con esos filtros</div>
+        <p>Probá ampliando el rango de precio o quitando algún filtro.</p>
+        <button class="lb-empty-btn" id="lbEmptyClear">Limpiar filtros</button>
+      </div>
+    </div>
+
+    <div class="lb-map-col">
+      <div class="lb-map-sticky">
+        <div id="lbMap"></div>
+        <label class="lb-map-bounds">
+          <input type="checkbox" id="lbBounds" />
+          <span>Buscar sólo en el área visible del mapa</span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  /* ── FILTROS ───────────────────────────────────────────────────────── */
+  .lb { max-width: 1400px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+  .lb-filters {
+    display: flex; flex-wrap: wrap; gap: 1.5rem 2rem;
+    padding: 1.5rem; margin-bottom: 1.5rem;
+    background: rgba(255,255,255,.03); border: 1px solid rgba(201,168,76,.18); border-radius: 10px;
+  }
+  .lb-filter-group { display: flex; flex-direction: column; gap: .6rem; }
+  .lb-filter-group[hidden] { display: none; }
+  .lb-filter-label {
+    font-size: .62rem; font-weight: 700; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--gold, #c9a84c);
+  }
+  .lb-chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+  .lb-chip input { position: absolute; opacity: 0; pointer-events: none; }
+  .lb-chip {
+    position: relative; display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,.16); border-radius: 20px;
+    padding: .4rem .9rem; font-size: .78rem; color: rgba(255,255,255,.75);
+    cursor: pointer; transition: border-color .15s, color .15s, background .15s;
+    user-select: none;
+  }
+  .lb-chip:hover { border-color: rgba(201,168,76,.5); }
+  .lb-chip:has(input:checked) {
+    border-color: var(--gold, #c9a84c); color: var(--gold, #c9a84c);
+    background: rgba(201,168,76,.12);
+  }
+  .lb-chip:has(input:focus-visible) { outline: 2px solid var(--gold, #c9a84c); outline-offset: 2px; }
+  .lb-chip-num { min-width: 2.6rem; padding: .4rem .6rem; }
+
+  .lb-range { display: flex; align-items: center; gap: .4rem; }
+  .lb-range input, .lb-range select, .lb-sort select {
+    background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.16); border-radius: 6px;
+    color: #fff; font-family: inherit; font-size: .8rem; padding: .45rem .6rem;
+    outline: none; transition: border-color .15s;
+  }
+  .lb-range input { width: 6.5rem; }
+  .lb-range input:focus, .lb-range select:focus, .lb-sort select:focus { border-color: var(--gold, #c9a84c); }
+  .lb-range-sep { color: rgba(255,255,255,.35); }
+  .lb-range select option, .lb-sort select option { background: #1a1a1a; }
+
+  /* ── TOOLBAR ───────────────────────────────────────────────────────── */
+  .lb-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;
+  }
+  .lb-count { font-size: .9rem; color: rgba(255,255,255,.7); display: flex; align-items: center; gap: .5rem; }
+  .lb-count strong { color: var(--gold, #c9a84c); font-size: 1.05rem; }
+  .lb-clear {
+    background: none; border: none; border-bottom: 1px solid rgba(201,168,76,.4);
+    color: var(--gold, #c9a84c); font-family: inherit; font-size: .75rem;
+    cursor: pointer; padding: 0 0 1px; margin-left: .5rem;
+  }
+  .lb-clear:hover { border-bottom-color: var(--gold, #c9a84c); }
+  .lb-sort { display: flex; align-items: center; gap: .6rem; }
+  .lb-sort label { font-size: .72rem; color: rgba(255,255,255,.45); text-transform: uppercase; letter-spacing: .1em; }
+
+  /* ── SPLIT LISTA / MAPA ────────────────────────────────────────────── */
+  .lb-split { display: grid; grid-template-columns: 1fr 420px; gap: 1.5rem; align-items: start; }
+  .lb-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }
+  .lb-map-col { position: relative; }
+  .lb-map-sticky { position: sticky; top: 90px; }
+  #lbMap { height: calc(100vh - 160px); min-height: 420px; border-radius: 10px; border: 1px solid rgba(201,168,76,.18); }
+  .lb-map-bounds {
+    display: flex; align-items: center; gap: .5rem; margin-top: .7rem;
+    font-size: .75rem; color: rgba(255,255,255,.55); cursor: pointer;
+  }
+  .lb-map-bounds input { accent-color: var(--gold, #c9a84c); }
+
+  /* ── CARD ──────────────────────────────────────────────────────────── */
+  .lb-card {
+    background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px; overflow: hidden; transition: border-color .2s, transform .2s;
+  }
+  .lb-card:hover, .lb-card.is-highlight { border-color: var(--gold, #c9a84c); transform: translateY(-2px); }
+  .lb-card[hidden] { display: none; }
+  .lb-card-link { display: block; color: inherit; text-decoration: none; }
+  .lb-card-img { position: relative; aspect-ratio: 4/3; background: #1a1a1a; overflow: hidden; }
+  .lb-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .lb-card-noimg {
+    display: flex; align-items: center; justify-content: center; height: 100%;
+    color: rgba(255,255,255,.25); font-size: .8rem;
+  }
+  .lb-badge {
+    position: absolute; top: .6rem; left: .6rem;
+    font-size: .62rem; font-weight: 700; letter-spacing: .05em;
+    padding: .25rem .6rem; border-radius: 20px; color: #fff;
+  }
+  .lb-badge.disponible { background: rgba(16,185,129,.92); }
+  .lb-badge.parcialmente-ocupado { background: rgba(245,158,11,.92); color: #000; }
+  .lb-badge.ocupado { background: rgba(239,68,68,.92); }
+  .lb-photo-count {
+    position: absolute; bottom: .6rem; right: .6rem;
+    background: rgba(0,0,0,.6); color: rgba(255,255,255,.85);
+    font-size: .62rem; padding: .2rem .5rem; border-radius: 4px;
+  }
+  .lb-card-body { padding: 1rem; }
+  .lb-price { font-size: 1.15rem; font-weight: 700; color: var(--gold, #c9a84c); letter-spacing: .01em; }
+  .lb-expenses { font-size: .7rem; color: rgba(255,255,255,.4); margin-top: .1rem; }
+  .lb-card-title {
+    font-size: .95rem; font-weight: 600; margin: .5rem 0 .35rem;
+    line-height: 1.35; color: #fff;
+  }
+  .lb-spec { font-size: .78rem; color: rgba(255,255,255,.65); margin-bottom: .4rem; }
+  .lb-zone { font-size: .74rem; color: rgba(255,255,255,.42); display: flex; align-items: center; gap: .3rem; }
+  .lb-pin { width: 13px; height: 13px; }
+  .lb-kind { margin-left: .1rem; }
+
+  /* ── VACÍO ─────────────────────────────────────────────────────────── */
+  .lb-empty { grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: rgba(255,255,255,.5); }
+  .lb-empty[hidden] { display: none; }
+  .lb-empty-title { font-size: 1rem; color: #fff; margin-bottom: .5rem; }
+  .lb-empty p { font-size: .85rem; margin-bottom: 1.25rem; }
+  .lb-empty-btn {
+    background: var(--gold, #c9a84c); border: none; border-radius: 6px; color: #000;
+    font-family: inherit; font-size: .8rem; font-weight: 700; padding: .6rem 1.4rem; cursor: pointer;
+  }
+
+  /* ── MAPA: marcadores y clusters ───────────────────────────────────── */
+  .leaflet-container { background: #1a1a1a; font-family: inherit; }
+  .lb-marker {
+    background: var(--gold, #c9a84c); color: #000;
+    font-size: .7rem; font-weight: 700; white-space: nowrap;
+    padding: .25rem .55rem; border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.5); border: 1px solid rgba(0,0,0,.2);
+  }
+  .lb-cluster {
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(201,168,76,.92); color: #000;
+    font-size: .8rem; font-weight: 700; border-radius: 50%;
+    box-shadow: 0 2px 10px rgba(0,0,0,.5); border: 2px solid rgba(255,255,255,.5);
+  }
+  .lb-popup .leaflet-popup-content-wrapper { background: #111; color: #fff; border-radius: 8px; }
+  .lb-popup .leaflet-popup-tip { background: #111; }
+  .lb-popup .leaflet-popup-content { margin: 0; width: 200px !important; }
+  .lb-popup-card { display: block; color: inherit; text-decoration: none; }
+  .lb-popup-card img { width: 100%; height: 110px; object-fit: cover; display: block; border-radius: 8px 8px 0 0; }
+  .lb-popup-body { padding: .6rem .7rem .7rem; }
+  .lb-popup-price { font-size: .9rem; font-weight: 700; color: var(--gold, #c9a84c); }
+  .lb-popup-name { font-size: .76rem; margin: .2rem 0; line-height: 1.3; }
+  .lb-popup-spec { font-size: .68rem; color: rgba(255,255,255,.5); }
+  .leaflet-control-attribution { background: rgba(0,0,0,.6) !important; color: rgba(255,255,255,.4) !important; font-size: .6rem; }
+  .leaflet-control-attribution a { color: rgba(255,255,255,.6) !important; }
+
+  /* ── RESPONSIVE ────────────────────────────────────────────────────── */
+  .lb-view-toggle { display: none; gap: .4rem; margin-bottom: 1rem; }
+  .lb-view-btn {
+    flex: 1; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
+    border-radius: 6px; color: rgba(255,255,255,.6); font-family: inherit;
+    font-size: .8rem; font-weight: 600; padding: .6rem; cursor: pointer;
+  }
+  .lb-view-btn.active { background: rgba(201,168,76,.15); border-color: var(--gold, #c9a84c); color: var(--gold, #c9a84c); }
+
+  @media (max-width: 1024px) {
+    .lb-split { grid-template-columns: 1fr; }
+    .lb-view-toggle { display: flex; }
+    .lb-map-col { display: none; }
+    .lb-map-sticky { position: static; }
+    #lbMap { height: 60vh; }
+    .lb.view-map .lb-results { display: none; }
+    .lb.view-map .lb-map-col { display: block; }
+  }
+  @media (max-width: 600px) {
+    .lb { padding: 0 1rem 3rem; }
+    .lb-filters { padding: 1rem; gap: 1.25rem; }
+    .lb-results { grid-template-columns: 1fr; }
+  }
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script is:inline src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script is:inline define:vars={{ mapPoints, ANELO_CENTER, roomKinds, op }}>
+(function () {
+  var root = document.querySelector('.lb');
+  if (!root) return;
+
+  var cards      = Array.prototype.slice.call(root.querySelectorAll('.lb-card'));
+  var resultsEl  = document.getElementById('lbResults');
+  var countEl    = document.getElementById('lbCount');
+  var labelEl    = document.getElementById('lbCountLabel');
+  var emptyEl    = document.getElementById('lbEmpty');
+  var clearBtn   = document.getElementById('lbClear');
+  var sortSel    = document.getElementById('lbSort');
+  var boundsChk  = document.getElementById('lbBounds');
+  var roomsGroup = document.getElementById('lbRoomsGroup');
+  var bedsGroup  = document.getElementById('lbBedsGroup');
+
+  var inputs = Array.prototype.slice.call(root.querySelectorAll('[data-filter]'));
+  var originalOrder = cards.slice();
+
+  /* ── Lectura del estado de filtros ──────────────────────────────── */
+  function checkedValues(name) {
+    return inputs
+      .filter(function (i) { return i.dataset.filter === name && i.type === 'checkbox' && i.checked; })
+      .map(function (i) { return i.value; });
+  }
+  function valueOf(name) {
+    var el = inputs.filter(function (i) { return i.dataset.filter === name; })[0];
+    return el ? el.value.trim() : '';
+  }
+
+  function readState() {
+    return {
+      kind:     checkedValues('kind'),
+      rooms:    checkedValues('rooms').map(Number),
+      bedrooms: checkedValues('bedrooms').map(Number),
+      zone:     checkedValues('zone'),
+      feature:  checkedValues('feature'),
+      currency: valueOf('currency'),
+      priceMin: valueOf('priceMin'),
+      priceMax: valueOf('priceMax'),
+      areaMin:  valueOf('areaMin'),
+      areaMax:  valueOf('areaMax'),
+    };
+  }
+
+  function isDirty(s) {
+    return s.kind.length || s.rooms.length || s.bedrooms.length || s.zone.length ||
+      s.feature.length || s.priceMin || s.priceMax || s.areaMin || s.areaMax ||
+      (boundsChk && boundsChk.checked);
+  }
+
+  /* ── Predicado de coincidencia ──────────────────────────────────── */
+  function matches(card, s, bounds) {
+    var d = card.dataset;
+
+    if (s.kind.length && s.kind.indexOf(d.kind) === -1) return false;
+
+    // El chip más alto (5+ ambientes, 4+ dormitorios) actúa como "o más".
+    if (s.rooms.length) {
+      var r = Number(d.rooms);
+      if (!r) return false;
+      var okR = s.rooms.some(function (n) { return n === 5 ? r >= 5 : r === n; });
+      if (!okR) return false;
+    }
+    if (s.bedrooms.length) {
+      var b = Number(d.bedrooms);
+      if (!b) return false;
+      var okB = s.bedrooms.some(function (n) { return n === 4 ? b >= 4 : b === n; });
+      if (!okB) return false;
+    }
+
+    if (s.zone.length && s.zone.indexOf(d.zone) === -1) return false;
+
+    if (s.feature.length) {
+      var have = (d.features || '').split(',');
+      var okF = s.feature.every(function (f) { return have.indexOf(f) !== -1; });
+      if (!okF) return false;
+    }
+
+    // El rango de precio se compara sólo contra propiedades publicadas en la
+    // moneda elegida; mezclar USD y ARS en un mismo rango daría resultados
+    // sin sentido. Sin rango cargado, la moneda no filtra nada.
+    if (s.priceMin || s.priceMax) {
+      if (d.currency !== s.currency) return false;
+      var price = Number(d.price);
+      if (!price) return false;                       // "Consultar precio" queda fuera
+      if (s.priceMin && price < Number(s.priceMin)) return false;
+      if (s.priceMax && price > Number(s.priceMax)) return false;
+    }
+
+    if (s.areaMin || s.areaMax) {
+      var area = Number(d.area);
+      if (!area) return false;
+      if (s.areaMin && area < Number(s.areaMin)) return false;
+      if (s.areaMax && area > Number(s.areaMax)) return false;
+    }
+
+    if (bounds) {
+      if (!d.lat || !d.lng) return false;             // sin punto no entra en una búsqueda por área
+      if (!bounds.contains([Number(d.lat), Number(d.lng)])) return false;
+    }
+
+    return true;
+  }
+
+  /* ── Orden ──────────────────────────────────────────────────────── */
+  function sortCards(mode) {
+    var sorted;
+    if (mode === 'default') {
+      sorted = originalOrder.slice();
+    } else {
+      sorted = originalOrder.slice().sort(function (a, b) {
+        var av, bv;
+        if (mode === 'area-desc') {
+          av = Number(a.dataset.area) || 0; bv = Number(b.dataset.area) || 0;
+          return bv - av;
+        }
+        av = Number(a.dataset.price) || 0;
+        bv = Number(b.dataset.price) || 0;
+        // Las de precio a consultar siempre al final, en cualquier dirección.
+        if (!av && !bv) return 0;
+        if (!av) return 1;
+        if (!bv) return -1;
+        return mode === 'price-asc' ? av - bv : bv - av;
+      });
+    }
+    sorted.forEach(function (c) { resultsEl.appendChild(c); });
+    resultsEl.appendChild(emptyEl);
+  }
+
+  /* ── Aplicación ─────────────────────────────────────────────────── */
+  var visibleIds = {};
+
+  function apply(pushUrl) {
+    var s = readState();
+    var bounds = (boundsChk && boundsChk.checked && map) ? map.getBounds() : null;
+
+    // El filtro de ambientes sólo tiene sentido sobre casa/depto/PH.
+    var showRooms = s.kind.some(function (k) { return roomKinds.indexOf(k) !== -1; });
+    if (roomsGroup) roomsGroup.hidden = !showRooms;
+    if (bedsGroup)  bedsGroup.hidden  = !showRooms;
+    if (!showRooms) {
+      inputs.forEach(function (i) {
+        if ((i.dataset.filter === 'rooms' || i.dataset.filter === 'bedrooms') && i.checked) i.checked = false;
+      });
+      s.rooms = []; s.bedrooms = [];
+    }
+
+    var n = 0;
+    visibleIds = {};
+    cards.forEach(function (c) {
+      var ok = matches(c, s, bounds);
+      c.hidden = !ok;
+      if (ok) { n++; visibleIds[c.dataset.id] = true; }
+    });
+
+    countEl.textContent = n;
+    labelEl.textContent = n === 1 ? 'propiedad' : 'propiedades';
+    emptyEl.hidden = n > 0;
+    clearBtn.hidden = !isDirty(s);
+
+    syncMarkers();
+    if (pushUrl !== false) writeUrl(s);
+  }
+
+  /* ── Query string ───────────────────────────────────────────────── */
+  var URL_KEYS = {
+    kind: 'tipo', rooms: 'amb', bedrooms: 'dorm', zone: 'zona', feature: 'car',
+    priceMin: 'min', priceMax: 'max', areaMin: 'm2min', areaMax: 'm2max', currency: 'moneda',
+  };
+
+  function writeUrl(s) {
+    var q = new URLSearchParams();
+    Object.keys(URL_KEYS).forEach(function (k) {
+      var v = s[k];
+      if (Array.isArray(v)) { if (v.length) q.set(URL_KEYS[k], v.join(',')); }
+      else if (v && k !== 'currency') q.set(URL_KEYS[k], v);
+    });
+    // La moneda sólo se guarda si hay un rango de precio activo.
+    if (s.priceMin || s.priceMax) q.set(URL_KEYS.currency, s.currency);
+    if (sortSel.value !== 'default') q.set('orden', sortSel.value);
+    var qs = q.toString();
+    history.replaceState(null, '', qs ? location.pathname + '?' + qs : location.pathname);
+  }
+
+  function readUrl() {
+    var q = new URLSearchParams(location.search);
+    Object.keys(URL_KEYS).forEach(function (k) {
+      var raw = q.get(URL_KEYS[k]);
+      if (!raw) return;
+      var targets = inputs.filter(function (i) { return i.dataset.filter === k; });
+      if (targets.length && targets[0].type === 'checkbox') {
+        var wanted = raw.split(',');
+        targets.forEach(function (i) { if (wanted.indexOf(i.value) !== -1) i.checked = true; });
+      } else if (targets.length) {
+        targets[0].value = raw;
+      }
+    });
+    var orden = q.get('orden');
+    if (orden) sortSel.value = orden;
+  }
+
+  /* ── Mapa ───────────────────────────────────────────────────────── */
+  var map = null, markerLayer = null, circleLayer = null;
+  var entries = [];   // { point, marker, circle }
+  var CLUSTER_ZOOM = 15;   // por debajo agrupa; por encima muestra el radio real
+
+  function initMap() {
+    if (typeof L === 'undefined') return;
+    var el = document.getElementById('lbMap');
+    if (!el) return;
+
+    map = L.map(el, { scrollWheelZoom: false });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap · © CARTO', maxZoom: 19,
+    }).addTo(map);
+
+    markerLayer = L.layerGroup().addTo(map);
+    circleLayer = L.layerGroup().addTo(map);
+
+    entries = mapPoints.map(function (pt) {
+      var marker = L.marker([pt.lat, pt.lng], {
+        icon: L.divIcon({ className: '', html: '<div class="lb-marker">' + pt.price + '</div>', iconSize: null }),
+      });
+      marker.bindPopup(popupHtml(pt), { className: 'lb-popup', closeButton: false, minWidth: 200 });
+      marker.on('mouseover', function () { highlightCard(pt.id, true); });
+      marker.on('mouseout',  function () { highlightCard(pt.id, false); });
+
+      // Sin ubicación exacta el público ve un radio de 300 m, no la dirección.
+      var circle = pt.exact ? null : L.circle([pt.lat, pt.lng], {
+        radius: 300, color: '#c9a84c', weight: 1.5, fillColor: '#c9a84c', fillOpacity: .12,
+      });
+
+      return { point: pt, marker: marker, circle: circle };
+    });
+
+    if (entries.length) {
+      map.fitBounds(L.latLngBounds(entries.map(function (e) { return [e.point.lat, e.point.lng]; })).pad(0.2));
+      if (map.getZoom() > 16) map.setZoom(16);
+    } else {
+      map.setView([ANELO_CENTER.lat, ANELO_CENTER.lng], 14);
+    }
+
+    map.on('zoomend', syncMarkers);
+    map.on('moveend', function () { if (boundsChk && boundsChk.checked) apply(); });
+    syncMarkers();
+  }
+
+  function popupHtml(pt) {
+    return '<a class="lb-popup-card" href="' + pt.url + '">' +
+      (pt.img ? '<img src="' + pt.img + '" alt="" loading="lazy" />' : '') +
+      '<div class="lb-popup-body">' +
+        '<div class="lb-popup-price">' + pt.price + '</div>' +
+        '<div class="lb-popup-name">' + pt.name + '</div>' +
+        '<div class="lb-popup-spec">' + (pt.spec ? pt.spec + ' · ' : '') + pt.zone + '</div>' +
+      '</div></a>';
+  }
+
+  function highlightCard(id, on) {
+    var card = resultsEl.querySelector('[data-id="' + id + '"]');
+    if (card) card.classList.toggle('is-highlight', on);
+  }
+
+  /**
+   * Agrupa por celda de grilla en pantalla. A zoom bajo las propiedades cercanas
+   * colapsan en un badge con la cantidad; al acercarse se abren en marcadores
+   * individuales con su círculo de 300 m.
+   */
+  function clusterize(visible) {
+    var CELL = 60; // px
+    var buckets = {};
+    visible.forEach(function (e) {
+      var pt = map.latLngToContainerPoint([e.point.lat, e.point.lng]);
+      var key = Math.floor(pt.x / CELL) + ':' + Math.floor(pt.y / CELL);
+      (buckets[key] = buckets[key] || []).push(e);
+    });
+    return Object.keys(buckets).map(function (k) { return buckets[k]; });
+  }
+
+  function syncMarkers() {
+    if (!map) return;
+    markerLayer.clearLayers();
+    circleLayer.clearLayers();
+
+    var visible = entries.filter(function (e) { return visibleIds[e.point.id]; });
+    var zoom = map.getZoom();
+
+    if (zoom >= CLUSTER_ZOOM) {
+      visible.forEach(function (e) {
+        markerLayer.addLayer(e.marker);
+        if (e.circle) circleLayer.addLayer(e.circle);
+      });
+      return;
+    }
+
+    clusterize(visible).forEach(function (group) {
+      if (group.length === 1) { markerLayer.addLayer(group[0].marker); return; }
+      var lat = group.reduce(function (s, e) { return s + e.point.lat; }, 0) / group.length;
+      var lng = group.reduce(function (s, e) { return s + e.point.lng; }, 0) / group.length;
+      var size = group.length > 9 ? 44 : 36;
+      var cluster = L.marker([lat, lng], {
+        icon: L.divIcon({
+          className: '',
+          html: '<div class="lb-cluster" style="width:' + size + 'px;height:' + size + 'px">' + group.length + '</div>',
+          iconSize: [size, size],
+          iconAnchor: [size / 2, size / 2],
+        }),
+      });
+      cluster.on('click', function () { map.setView([lat, lng], Math.max(map.getZoom() + 2, CLUSTER_ZOOM)); });
+      markerLayer.addLayer(cluster);
+    });
+  }
+
+  /* ── Listeners ──────────────────────────────────────────────────── */
+  inputs.forEach(function (i) {
+    i.addEventListener(i.type === 'number' ? 'input' : 'change', function () { apply(); });
+  });
+  sortSel.addEventListener('change', function () { sortCards(sortSel.value); apply(); });
+  if (boundsChk) boundsChk.addEventListener('change', function () { apply(); });
+
+  function clearAll() {
+    inputs.forEach(function (i) {
+      if (i.type === 'checkbox') i.checked = false;
+      else if (i.type === 'number') i.value = '';
+    });
+    if (boundsChk) boundsChk.checked = false;
+    apply();
+  }
+  clearBtn.addEventListener('click', clearAll);
+  document.getElementById('lbEmptyClear').addEventListener('click', clearAll);
+
+  // Hover sobre la card ilumina su marcador correspondiente.
+  cards.forEach(function (c) {
+    c.addEventListener('mouseenter', function () {
+      var e = entries.filter(function (x) { return x.point.id === c.dataset.id; })[0];
+      if (e && map && map.hasLayer(e.marker)) e.marker.openPopup();
+    });
+  });
+
+  // Toggle lista/mapa en mobile.
+  root.querySelectorAll('.lb-view-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      root.querySelectorAll('.lb-view-btn').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      root.classList.toggle('view-map', btn.dataset.view === 'map');
+      if (map) setTimeout(function () { map.invalidateSize(); }, 0);
+    });
+  });
+
+  function boot() {
+    readUrl();
+    initMap();
+    sortCards(sortSel.value);
+    apply(false);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>

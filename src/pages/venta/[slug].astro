@@ -1,0 +1,35 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import ListingDetail from '../../components/ListingDetail.astro';
+import { supabase, PUBLIC_TABLE, formatPrice, specLine, locationLabel, getImageUrl } from '../../lib/supabase';
+import type { Property } from '../../lib/supabase';
+
+const { slug } = Astro.params;
+
+const { data } = await supabase
+  .from(PUBLIC_TABLE)
+  .select('*')
+  .eq('slug', slug)
+  .eq('for_sale', true)
+  .maybeSingle();
+
+// Una propiedad despublicada o inexistente no debe devolver 200 con la ficha vacía.
+if (!data) return Astro.redirect('/venta/', 302);
+const p = data as Property;
+
+const price = formatPrice(p, 'venta');
+const spec  = specLine(p);
+const title = `${p.name} — ${price} | Venta en ${locationLabel(p)}, Añelo`;
+const description = (p.description?.slice(0, 155) ??
+  `${p.name} en venta en ${locationLabel(p)}, Añelo, Neuquén.${spec ? ' ' + spec + '.' : ''} Consultá disponibilidad y coordiná una visita.`);
+---
+<Layout
+  title={title}
+  description={description}
+  pathname={`/venta/${p.slug}/`}
+  ogImage={p.cover_image ? getImageUrl(p.cover_image, { width: 1200 }) : undefined}
+>
+  <ListingDetail p={p} op="venta" />
+</Layout>

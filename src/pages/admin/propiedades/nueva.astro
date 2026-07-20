@@ -1,0 +1,156 @@
+---
+export const prerender = false;
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
+
+const token = Astro.cookies.get('sb_token')!.value;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
+  global: { headers: { Authorization: `Bearer ${token}` } },
+});
+
+let saveError = '';
+
+/** Slug URL-safe a partir del nombre. La unicidad la resuelve el sufijo. */
+function slugify(text: string): string {
+  return text
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')  // saca tildes
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+}
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const name = form.get('name')?.toString().trim() ?? '';
+
+  if (!name) {
+    saveError = 'El nombre es obligatorio.';
+  } else {
+    const base = slugify(name) || 'propiedad';
+
+    // `slug` es UNIQUE: si ya existe, se le agrega un sufijo incremental.
+    const { data: taken } = await sb
+      .from('properties').select('slug').like('slug', `${base}%`);
+    const used = new Set((taken ?? []).map((r: any) => r.slug));
+    let slug = base;
+    for (let i = 2; used.has(slug); i++) slug = `${base}-${i}`;
+
+    const { data, error } = await sb.from('properties').insert({
+      name,
+      slug,
+      type:        form.get('type')?.toString() ?? 'uf',
+      zone:        form.get('zone')?.toString() ?? 'centro',
+      status:      'available',
+      status_text: 'Disponible',
+      cover_image: '',
+      images:      [],
+      sort_order:  999,
+      active:      true,
+      for_corporate: form.get('for_corporate') !== null,
+      for_rent:      form.get('for_rent')      !== null,
+      for_sale:      form.get('for_sale')      !== null,
+    }).select('id').single();
+
+    if (error) saveError = error.message;
+    // Se completa el resto (fotos, precio, ubicación) en el editor.
+    else return Astro.redirect(`/admin/propiedades/${data.id}/`);
+  }
+}
+---
+<AdminLayout title="Nueva propiedad" section="propiedades">
+  <style>
+    .adm-main { max-width: 640px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .adm-page-title { font-size: 1.3rem; font-weight: 700; margin-bottom: .3rem; }
+    .adm-page-sub { font-size: .75rem; color: rgba(255,255,255,.4); margin-bottom: 2rem; }
+    .field { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1.25rem; }
+    label { font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.45); }
+    input[type=text], select {
+      background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; color: #fff;
+      font-family: inherit; font-size: .88rem; padding: .65rem .9rem; outline: none;
+      transition: border-color .2s; width: 100%;
+    }
+    input:focus, select:focus { border-color: #c9a84c; }
+    select option { background: #1a1a1a; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .ops-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; }
+    .op-switch input { position: absolute; opacity: 0; pointer-events: none; }
+    .op-box {
+      display: block; border: 1px solid #2a2a2a; border-radius: 8px;
+      padding: .7rem .8rem; cursor: pointer; font-size: .75rem; font-weight: 700;
+      color: rgba(255,255,255,.5); transition: border-color .15s, background .15s, color .15s;
+    }
+    .op-switch input:checked + .op-box { border-color: #c9a84c; background: rgba(201,168,76,.07); color: #c9a84c; }
+    .btn-save {
+      background: #c9a84c; border: none; border-radius: 6px; color: #000;
+      font-family: inherit; font-size: .85rem; font-weight: 700; padding: .8rem 2rem;
+      cursor: pointer; transition: background .2s;
+    }
+    .btn-save:hover { background: #b8953d; }
+    .btn-cancel { color: rgba(255,255,255,.4); font-size: .8rem; text-decoration: none; margin-left: 1rem; }
+    .btn-cancel:hover { color: #fff; }
+    .alert { border-radius: 6px; font-size: .8rem; padding: .7rem 1rem; margin-bottom: 1.5rem; background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.4); color: #f87171; }
+    .hint { font-size: .68rem; color: rgba(255,255,255,.32); margin-top: -.75rem; margin-bottom: 1.5rem; line-height: 1.5; }
+    @media (max-width: 600px) { .row, .ops-row { grid-template-columns: 1fr; } }
+  </style>
+
+  <main class="adm-main">
+    <div class="adm-page-title">Nueva propiedad</div>
+    <div class="adm-page-sub">Cargá lo básico y seguí con fotos y detalles en el editor</div>
+
+    {saveError && <div class="alert">Error: {saveError}</div>}
+
+    <form method="POST">
+      <div class="field">
+        <label for="name">Nombre de la propiedad</label>
+        <input id="name" name="name" type="text" required autofocus
+          placeholder="ej: Casa 3 ambientes en La Forestada" />
+      </div>
+
+      <div class="field">
+        <label>¿En qué secciones aparece?</label>
+        <div class="ops-row">
+          <label class="op-switch">
+            <input type="checkbox" name="for_corporate" />
+            <span class="op-box">Corporativo</span>
+          </label>
+          <label class="op-switch">
+            <input type="checkbox" name="for_rent" />
+            <span class="op-box">Alquiler</span>
+          </label>
+          <label class="op-switch">
+            <input type="checkbox" name="for_sale" checked />
+            <span class="op-box">Venta</span>
+          </label>
+        </div>
+      </div>
+      <p class="hint">Se pueden tildar varias: la misma propiedad puede publicarse en más de una sección.</p>
+
+      <div class="row">
+        <div class="field">
+          <label for="type">Tipo (corporativo)</label>
+          <select id="type" name="type">
+            <option value="uf">Unidad funcional</option>
+            <option value="complejo">Complejo</option>
+            <option value="edificio">Edificio</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="zone">Zona</label>
+          <select id="zone" name="zone">
+            <option value="centro">Centro / Añelo</option>
+            <option value="forestada">La Forestada</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button class="btn-save" type="submit">Crear y continuar →</button>
+        <a class="btn-cancel" href="/admin/propiedades/">Cancelar</a>
+      </div>
+    </form>
+  </main>
+</AdminLayout>

@@ -200,6 +200,20 @@ const navItems = [
     </li>
     <li class="has-dropdown">
       <div class="nav-item-row">
+        <a href="/venta/" class:list={[{ active: pathname.startsWith('/venta/') }]}>Comprar</a>
+        <button class="nav-chevron-btn" aria-label="Ver secciones" aria-expanded="false">
+          <svg viewBox="0 0 10 6" width="10" height="6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="nav-dropdown">
+        <a href="/venta/?tipo=casa">Casas en venta</a>
+        <a href="/venta/?tipo=departamento">Departamentos en venta</a>
+        <a href="/venta/?tipo=terreno">Terrenos</a>
+        <a href="/alquiler/">Alquiler permanente</a>
+      </div>
+    </li>
+    <li class="has-dropdown">
+      <div class="nav-item-row">
         <a href="/invertir/" class:list={[{ active: pathname === '/invertir/' }]}>Invertir</a>
         <button class="nav-chevron-btn" aria-label="Ver secciones" aria-expanded="false">
           <svg viewBox="0 0 10 6" width="10" height="6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -252,7 +266,9 @@ const navItems = [
       <h4>Navegación</h4>
       <ul>
         <li><a href="/">Inicio</a></li>
-        <li><a href="/corporativo/">Propiedades</a></li>
+        <li><a href="/corporativo/">Alquiler corporativo</a></li>
+        <li><a href="/venta/">Propiedades en venta</a></li>
+        <li><a href="/alquiler/">Alquiler permanente</a></li>
         <li><a href="/invertir/">Invertir</a></li>
         <li><a href="/nosotros/">Nosotros</a></li>
         <li><a href="/contacto/">Contacto</a></li>

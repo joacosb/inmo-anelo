@@ -2,7 +2,7 @@
 export const prerender = false;
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { createClient } from '@supabase/supabase-js';
-import { getImageUrl } from '../../../lib/supabase';
+import AdminPropertyCard from '../../../components/AdminPropertyCard.astro';
 
 const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
@@ -19,11 +19,19 @@ const { data: properties = [] } = await sb
   .eq('active', true)
   .order('sort_order');
 
-const complejos = (properties ?? []).filter((p: any) => p.type === 'complejo');
-const edificios = (properties ?? []).filter((p: any) => p.type === 'edificio');
+const all = properties ?? [];
+
+// El agrupado sigue el criterio corporativo (complejo / edificio), pero una
+// propiedad publicada sólo en venta o alquiler no entra en ninguno de los dos:
+// va al grupo de abajo para que nunca quede fuera del listado.
+const complejos = all.filter((p: any) => p.for_corporate && p.type === 'complejo');
+const edificios = all.filter((p: any) => p.for_corporate && p.type === 'edificio');
+const otras     = all.filter((p: any) => !complejos.includes(p) && !edificios.includes(p));
 ---
 <AdminLayout title="Propiedades" section="propiedades">
-  <style>
+  {/* is:global porque el markup de las cards vive en AdminPropertyCard.astro
+      y los estilos scoped no cruzan el límite del componente. */}
+  <style is:global>
     /* MAIN */
     .adm-main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
     .adm-section-title {
@@ -61,8 +69,40 @@ const edificios = (properties ?? []).filter((p: any) => p.type === 'edificio');
       object-fit: cover;
       display: block;
     }
+    .adm-card-noimg {
+      display: flex; align-items: center; justify-content: center;
+      background: #111; color: rgba(255,255,255,.25); font-size: .75rem;
+    }
     .adm-card-body { padding: 1rem; }
-    .adm-card-name { font-size: .9rem; font-weight: 700; margin-bottom: .75rem; }
+    .adm-card-name { font-size: .9rem; font-weight: 700; margin-bottom: .6rem; }
+
+    /* TOOLBAR */
+    .adm-toolbar { display: flex; justify-content: flex-end; margin-bottom: 1.5rem; }
+    .btn-new {
+      background: #c9a84c; border-radius: 6px; color: #000;
+      font-size: .78rem; font-weight: 700; text-decoration: none;
+      padding: .6rem 1.2rem; transition: background .2s;
+    }
+    .btn-new:hover { background: #b8953d; }
+
+    /* BADGES DE SECCIÓN */
+    .adm-ops { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .75rem; }
+    .adm-op {
+      font-size: .58rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      padding: .2rem .5rem; border-radius: 3px; border: 1px solid;
+    }
+    .adm-op-corp { color: #60a5fa; border-color: rgba(96,165,250,.4);  background: rgba(96,165,250,.1); }
+    .adm-op-rent { color: #34d399; border-color: rgba(52,211,153,.4);  background: rgba(52,211,153,.1); }
+    .adm-op-sale { color: #c9a84c; border-color: rgba(201,168,76,.4);  background: rgba(201,168,76,.1); }
+    .adm-op-none { color: rgba(255,255,255,.3); border-color: #333; }
+
+    /* PRECIOS */
+    .adm-prices {
+      display: flex; flex-direction: column; gap: .2rem;
+      font-size: .7rem; color: rgba(255,255,255,.4); margin-bottom: .85rem;
+    }
+    .adm-prices strong { color: rgba(255,255,255,.75); font-weight: 600; }
+    .adm-warn { color: #f59e0b; }
 
     /* STATUS TOGGLE */
     .status-row { display: flex; gap: .4rem; margin-bottom: .75rem; }
@@ -161,75 +201,28 @@ const edificios = (properties ?? []).filter((p: any) => p.type === 'edificio');
 
   <main class="adm-main">
 
+    <div class="adm-toolbar">
+      <a class="btn-new" href="/admin/propiedades/nueva/">+ Nueva propiedad</a>
+    </div>
+
     <div class="adm-section-title">Complejos Residenciales</div>
     <div class="adm-grid">
-      {complejos.map((p: any) => (
-        <div class="adm-card" data-id={p.id}>
-          <img class="adm-card-img" src={getImageUrl(p.cover_image, { width: 384 })} alt={p.name} width="384" height="140" loading="lazy" decoding="async" />
-          <div class="adm-card-body">
-            <div class="adm-card-name">{p.name}</div>
-
-            <div class="status-row">
-              <button class={`status-btn s-available ${p.status === 'available' ? 'active' : ''}`}
-                data-status="available" onclick="setStatus(this)">Disponible</button>
-              <button class={`status-btn s-partial ${p.status === 'partial' ? 'active' : ''}`}
-                data-status="partial" onclick="setStatus(this)">Parcial</button>
-              <button class={`status-btn s-occupied ${p.status === 'occupied' ? 'active' : ''}`}
-                data-status="occupied" onclick="setStatus(this)">Ocupado</button>
-            </div>
-
-            <div class="badge-row">
-              <input class="badge-input" type="text" value={p.status_text}
-                placeholder="Texto del badge…" data-field="status_text" />
-              <button class="save-badge-btn" onclick="saveBadge(this)">Guardar</button>
-            </div>
-
-            <div class="adm-card-footer">
-              <span class="adm-meta">
-                {p.max_guests ? `Hasta ${p.max_guests} huésp.` : ''}
-                {p.zone === 'forestada' ? ' · La Forestada' : ' · Añelo'}
-              </span>
-              <a class="btn-edit" href={`/admin/propiedades/${p.id}/`}>Editar todo →</a>
-            </div>
-          </div>
-        </div>
-      ))}
+      {complejos.map((p: any) => <AdminPropertyCard p={p} />)}
     </div>
 
     <div class="adm-section-title">Edificios Pampa</div>
     <div class="adm-grid">
-      {edificios.map((p: any) => (
-        <div class="adm-card" data-id={p.id}>
-          <img class="adm-card-img" src={getImageUrl(p.cover_image, { width: 384 })} alt={p.name} width="384" height="140" loading="lazy" decoding="async" />
-          <div class="adm-card-body">
-            <div class="adm-card-name">{p.name}</div>
-
-            <div class="status-row">
-              <button class={`status-btn s-available ${p.status === 'available' ? 'active' : ''}`}
-                data-status="available" onclick="setStatus(this)">Disponible</button>
-              <button class={`status-btn s-partial ${p.status === 'partial' ? 'active' : ''}`}
-                data-status="partial" onclick="setStatus(this)">Parcial</button>
-              <button class={`status-btn s-occupied ${p.status === 'occupied' ? 'active' : ''}`}
-                data-status="occupied" onclick="setStatus(this)">Ocupado</button>
-            </div>
-
-            <div class="badge-row">
-              <input class="badge-input" type="text" value={p.status_text}
-                placeholder="Texto del badge…" data-field="status_text" />
-              <button class="save-badge-btn" onclick="saveBadge(this)">Guardar</button>
-            </div>
-
-            <div class="adm-card-footer">
-              <span class="adm-meta">
-                {p.max_guests ? `Hasta ${p.max_guests} huésp.` : ''}
-                · Centro Añelo
-              </span>
-              <a class="btn-edit" href={`/admin/propiedades/${p.id}/`}>Editar todo →</a>
-            </div>
-          </div>
-        </div>
-      ))}
+      {edificios.map((p: any) => <AdminPropertyCard p={p} />)}
     </div>
+
+    {otras.length > 0 && (
+      <>
+        <div class="adm-section-title">Venta y alquiler permanente</div>
+        <div class="adm-grid">
+          {otras.map((p: any) => <AdminPropertyCard p={p} />)}
+        </div>
+      </>
+    )}
 
   </main>
 

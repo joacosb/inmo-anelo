@@ -1,0 +1,376 @@
+---
+/**
+ * Ficha de detalle de una propiedad, compartida por /venta/[slug] y
+ * /alquiler/[slug].
+ *
+ * A diferencia del modal de /corporativo/, esto es una página propia: es la
+ * que rankea en Google, la que se comparte por WhatsApp y la que lleva el
+ * markup Schema.org.
+ */
+import {
+  getImageUrl, getSrcSet, formatPrice, formatExpenses, specLine, locationLabel,
+  operationStatusLabel, operationStatusClass, propKindLabel, featureLabel,
+} from '../lib/supabase';
+import type { Property, Operation } from '../lib/supabase';
+
+interface Props {
+  p:  Property;
+  op: Operation;
+}
+const { p, op } = Astro.props;
+
+const isSale = op === 'venta';
+const photos = (p.images?.length ? p.images : (p.cover_image ? [p.cover_image] : []));
+const positions = photos.map((url, i) =>
+  (p.image_positions ?? [])[i] ?? (url === p.cover_image ? (p.cover_position ?? '50% 50%') : '50% 50%')
+);
+
+const price = formatPrice(p, op);
+const expenses = formatExpenses(p);
+const hasPoint = p.lat != null && p.lng != null;
+
+const waText = encodeURIComponent(
+  `Hola, me interesa "${p.name}" (${isSale ? 'venta' : 'alquiler'}) que vi en la web. ¿Me pasás más información?`
+);
+const waUrl = `https://wa.me/5492972431619?text=${waText}`;
+
+// Ficha técnica: sólo las filas con dato cargado.
+const specs = [
+  { label: 'Tipo',          value: p.prop_type ? propKindLabel(p.prop_type) : null },
+  { label: 'Ambientes',     value: p.rooms },
+  { label: 'Dormitorios',   value: p.bedrooms },
+  { label: 'Baños',         value: p.bathrooms },
+  { label: 'Cocheras',      value: p.parking },
+  { label: 'm² cubiertos',  value: p.area_covered },
+  { label: 'm² totales',    value: p.area_total },
+  { label: 'Zona',          value: locationLabel(p) },
+].filter((s) => s.value != null && s.value !== '');
+
+// Schema.org — sin precio cuando está oculto, para no declarar algo que la
+// página no muestra.
+const numericPrice = isSale ? p.sale_price : p.rent_price;
+const showPrice = !(isSale && p.sale_price_hidden) && numericPrice != null;
+const jsonLd: Record<string, any> = {
+  '@context': 'https://schema.org',
+  '@type': 'RealEstateListing',
+  name: p.name,
+  description: p.description ?? undefined,
+  url: new URL(`/${op}/${p.slug}/`, Astro.site ?? 'https://inmobiliariaanelo.com.ar').href,
+  image: photos.map((u) => getImageUrl(u, { width: 1200 })),
+  datePosted: undefined,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Añelo',
+    addressRegion: 'Neuquén',
+    addressCountry: 'AR',
+  },
+};
+if (p.area_covered ?? p.area_total) {
+  jsonLd.floorSize = { '@type': 'QuantitativeValue', value: p.area_covered ?? p.area_total, unitCode: 'MTK' };
+}
+if (p.bedrooms) jsonLd.numberOfBedrooms = p.bedrooms;
+if (p.bathrooms) jsonLd.numberOfBathroomsTotal = p.bathrooms;
+if (showPrice) {
+  jsonLd.offers = {
+    '@type': 'Offer',
+    price: numericPrice,
+    priceCurrency: isSale ? p.sale_currency : p.rent_currency,
+    availability: (isSale ? p.sale_status : p.rent_status) === 'available'
+      ? 'https://schema.org/InStock'
+      : 'https://schema.org/SoldOut',
+  };
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+<article class="ld">
+  <nav class="ld-crumbs" aria-label="Migas de pan">
+    <a href="/">Inicio</a>
+    <span>›</span>
+    <a href={`/${op}/`}>{isSale ? 'Venta' : 'Alquiler'}</a>
+    <span>›</span>
+    <span class="ld-crumb-current">{p.name}</span>
+  </nav>
+
+  <div class="ld-grid">
+
+    <!-- ── GALERÍA ──────────────────────────────────────────────────── -->
+    <div class="ld-gallery">
+      {photos.length > 0 ? (
+        <>
+          <div class="ld-stage">
+            <img id="ldMain"
+              src={getImageUrl(photos[0], { width: 1200 })}
+              srcset={getSrcSet(photos[0], [640, 1080, 1200])}
+              sizes="(max-width: 900px) 100vw, 760px"
+              alt={p.name} width="1200" height="800" fetchpriority="high" decoding="async"
+              style={`object-position:${positions[0]}`} />
+            {photos.length > 1 && (
+              <>
+                <button class="ld-nav ld-prev" id="ldPrev" aria-label="Foto anterior">‹</button>
+                <button class="ld-nav ld-next" id="ldNext" aria-label="Foto siguiente">›</button>
+                <span class="ld-counter"><span id="ldIdx">1</span> / {photos.length}</span>
+              </>
+            )}
+          </div>
+          {photos.length > 1 && (
+            <div class="ld-thumbs" id="ldThumbs">
+              {photos.map((url, i) => (
+                <button class={`ld-thumb ${i === 0 ? 'active' : ''}`} data-i={i} aria-label={`Ver foto ${i + 1}`}>
+                  <img src={getImageUrl(url, { width: 256 })} alt="" width="256" height="192"
+                    loading="lazy" decoding="async" style={`object-position:${positions[i]}`} />
+                </button>
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <div class="ld-stage ld-stage-empty">Sin fotos cargadas</div>
+      )}
+    </div>
+
+    <!-- ── INFO ─────────────────────────────────────────────────────── -->
+    <aside class="ld-info">
+      <span class={`ld-badge ${operationStatusClass(p, op)}`}>{operationStatusLabel(p, op)}</span>
+
+      <div class="ld-price">{price}</div>
+      {expenses && <div class="ld-expenses">{expenses}</div>}
+
+      <h1 class="ld-title">{p.name}</h1>
+      {specLine(p) && <div class="ld-specline">{specLine(p)}</div>}
+      <div class="ld-location">
+        <i data-lucide="map-pin"></i>{locationLabel(p)}, Añelo — Neuquén
+      </div>
+
+      <div class="ld-actions">
+        <a class="ld-btn ld-btn-wa" href={waUrl} target="_blank" rel="noopener">
+          <i data-lucide="message-circle"></i>Consultar por WhatsApp
+        </a>
+        {p.matterport_url && (
+          <a class="ld-btn ld-btn-ghost" href={p.matterport_url} target="_blank" rel="noopener">
+            <i data-lucide="box"></i>Recorrido virtual 360°
+          </a>
+        )}
+      </div>
+
+      {specs.length > 0 && (
+        <div class="ld-block">
+          <h2 class="ld-block-title">Ficha técnica</h2>
+          <dl class="ld-specs">
+            {specs.map((s) => (
+              <div class="ld-spec-row">
+                <dt>{s.label}</dt>
+                <dd>{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
+
+      {(p.features ?? []).length > 0 && (
+        <div class="ld-block">
+          <h2 class="ld-block-title">Características</h2>
+          <ul class="ld-features">
+            {(p.features ?? []).map((f) => (
+              <li><i data-lucide="check"></i>{featureLabel(f)}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </aside>
+  </div>
+
+  {p.description && (
+    <section class="ld-block ld-desc">
+      <h2 class="ld-block-title">Descripción</h2>
+      <p>{p.description}</p>
+    </section>
+  )}
+
+  {hasPoint && (
+    <section class="ld-block">
+      <h2 class="ld-block-title">Ubicación</h2>
+      <div id="ldMap"></div>
+      {!p.location_exact && (
+        <p class="ld-map-note">
+          El círculo indica la zona aproximada (radio de 300 m).
+          Coordinamos la dirección exacta al agendar la visita.
+        </p>
+      )}
+    </section>
+  )}
+
+  <section class="ld-cta">
+    <h2>¿Te interesa esta propiedad?</h2>
+    <p>Escribinos y coordinamos una visita.</p>
+    <a class="ld-btn ld-btn-wa" href={waUrl} target="_blank" rel="noopener">
+      <i data-lucide="message-circle"></i>Consultar por WhatsApp
+    </a>
+  </section>
+</article>
+
+<style is:global>
+  .ld { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+
+  .ld-crumbs { display: flex; gap: .5rem; align-items: center; font-size: .72rem; color: rgba(255,255,255,.35); margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .ld-crumbs a { color: rgba(255,255,255,.55); text-decoration: none; }
+  .ld-crumbs a:hover { color: var(--gold, #c9a84c); }
+  .ld-crumb-current { color: rgba(255,255,255,.35); }
+
+  .ld-grid { display: grid; grid-template-columns: 1fr 380px; gap: 2rem; align-items: start; }
+
+  /* ── GALERÍA ───────────────────────────────────────────────────────── */
+  .ld-stage { position: relative; aspect-ratio: 3/2; border-radius: 10px; overflow: hidden; background: #1a1a1a; }
+  .ld-stage img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .18s; }
+  .ld-stage-empty { display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.25); font-size: .85rem; }
+  .ld-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(0,0,0,.5); border: none; color: #fff;
+    font-size: 1.8rem; line-height: 1; width: 44px; height: 44px; border-radius: 50%;
+    cursor: pointer; transition: background .2s;
+  }
+  .ld-nav:hover { background: rgba(201,168,76,.9); color: #000; }
+  .ld-prev { left: .75rem; }
+  .ld-next { right: .75rem; }
+  .ld-counter {
+    position: absolute; bottom: .75rem; right: .75rem;
+    background: rgba(0,0,0,.6); color: #fff; font-size: .7rem;
+    padding: .25rem .6rem; border-radius: 20px;
+  }
+  .ld-thumbs { display: flex; gap: .5rem; overflow-x: auto; padding: .75rem 0 .25rem; scrollbar-width: thin; }
+  .ld-thumb {
+    flex: 0 0 90px; height: 68px; padding: 0; border: 2px solid transparent;
+    border-radius: 6px; overflow: hidden; background: #1a1a1a; cursor: pointer;
+    transition: border-color .15s, opacity .15s; opacity: .55;
+  }
+  .ld-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ld-thumb:hover { opacity: .85; }
+  .ld-thumb.active { border-color: var(--gold, #c9a84c); opacity: 1; }
+
+  /* ── INFO ──────────────────────────────────────────────────────────── */
+  .ld-info {
+    background: rgba(255,255,255,.03); border: 1px solid rgba(201,168,76,.18);
+    border-radius: 10px; padding: 1.5rem; position: sticky; top: 90px;
+  }
+  .ld-badge {
+    display: inline-block; font-size: .62rem; font-weight: 700; letter-spacing: .05em;
+    padding: .25rem .7rem; border-radius: 20px; color: #fff; margin-bottom: .9rem;
+  }
+  .ld-badge.disponible { background: rgba(16,185,129,.92); }
+  .ld-badge.parcialmente-ocupado { background: rgba(245,158,11,.92); color: #000; }
+  .ld-badge.ocupado { background: rgba(239,68,68,.92); }
+  .ld-price { font-size: 1.9rem; font-weight: 700; color: var(--gold, #c9a84c); line-height: 1.1; }
+  .ld-expenses { font-size: .78rem; color: rgba(255,255,255,.45); margin-top: .25rem; }
+  .ld-title { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 600; margin: .75rem 0 .5rem; line-height: 1.25; }
+  .ld-specline { font-size: .88rem; color: rgba(255,255,255,.7); margin-bottom: .5rem; }
+  .ld-location { display: flex; align-items: center; gap: .35rem; font-size: .8rem; color: rgba(255,255,255,.45); }
+  .ld-location i, .ld-features i { width: 15px; height: 15px; flex-shrink: 0; }
+
+  .ld-actions { display: flex; flex-direction: column; gap: .6rem; margin: 1.5rem 0; }
+  .ld-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    font-size: .85rem; font-weight: 700; text-decoration: none;
+    padding: .85rem 1.4rem; border-radius: 6px; transition: background .2s, border-color .2s;
+  }
+  .ld-btn i { width: 17px; height: 17px; }
+  .ld-btn-wa { background: var(--gold, #c9a84c); color: #000; }
+  .ld-btn-wa:hover { background: #b8953d; }
+  .ld-btn-ghost { border: 1px solid rgba(201,168,76,.45); color: var(--gold, #c9a84c); }
+  .ld-btn-ghost:hover { background: rgba(201,168,76,.1); }
+
+  .ld-block { margin-top: 1.75rem; }
+  .ld-block-title {
+    font-size: .65rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--gold, #c9a84c); padding-bottom: .6rem; margin-bottom: .9rem;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .ld-specs { display: grid; gap: .1rem; }
+  .ld-spec-row { display: flex; justify-content: space-between; gap: 1rem; padding: .45rem 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: .82rem; }
+  .ld-spec-row dt { color: rgba(255,255,255,.45); }
+  .ld-spec-row dd { color: #fff; font-weight: 600; text-align: right; }
+  .ld-features { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: .5rem .75rem; }
+  .ld-features li { display: flex; align-items: center; gap: .4rem; font-size: .8rem; color: rgba(255,255,255,.75); }
+  .ld-features i { color: var(--gold, #c9a84c); }
+
+  .ld-desc p { font-size: .92rem; line-height: 1.75; color: rgba(255,255,255,.7); white-space: pre-line; max-width: 70ch; }
+
+  #ldMap { height: 380px; border-radius: 10px; border: 1px solid rgba(201,168,76,.18); }
+  .ld-map-note { font-size: .72rem; color: rgba(255,255,255,.4); margin-top: .6rem; line-height: 1.6; }
+
+  .ld-cta { text-align: center; margin-top: 3.5rem; padding: 2.5rem 1.5rem; background: rgba(201,168,76,.06); border: 1px solid rgba(201,168,76,.18); border-radius: 10px; }
+  .ld-cta h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; margin-bottom: .4rem; }
+  .ld-cta p { font-size: .85rem; color: rgba(255,255,255,.5); margin-bottom: 1.25rem; }
+  .ld-cta .ld-btn { display: inline-flex; }
+
+  @media (max-width: 900px) {
+    .ld-grid { grid-template-columns: 1fr; }
+    .ld-info { position: static; }
+    .ld-price { font-size: 1.6rem; }
+    .ld-features { grid-template-columns: 1fr; }
+  }
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script is:inline src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script is:inline define:vars={{
+  photos: photos.map((u) => getImageUrl(u, { width: 1200 })),
+  positions,
+  lat: p.lat, lng: p.lng, exact: p.location_exact, hasPoint, name: p.name,
+}}>
+(function () {
+  /* ── Carrusel ───────────────────────────────────────────────────── */
+  var main = document.getElementById('ldMain');
+  if (main && photos.length > 1) {
+    var idx = 0;
+    var idxEl = document.getElementById('ldIdx');
+    var thumbs = Array.prototype.slice.call(document.querySelectorAll('.ld-thumb'));
+
+    // Precarga: evita el flash al pasar de foto.
+    photos.forEach(function (src) { var i = new Image(); i.src = src; });
+
+    function show(n) {
+      idx = (n + photos.length) % photos.length;
+      main.style.opacity = '0';
+      setTimeout(function () {
+        main.src = photos[idx];
+        main.srcset = '';
+        main.style.objectPosition = positions[idx] || '50% 50%';
+        main.style.opacity = '1';
+      }, 90);
+      if (idxEl) idxEl.textContent = idx + 1;
+      thumbs.forEach(function (t, i) { t.classList.toggle('active', i === idx); });
+    }
+
+    document.getElementById('ldPrev').addEventListener('click', function () { show(idx - 1); });
+    document.getElementById('ldNext').addEventListener('click', function () { show(idx + 1); });
+    thumbs.forEach(function (t) {
+      t.addEventListener('click', function () { show(Number(t.dataset.i)); });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft')  show(idx - 1);
+      if (e.key === 'ArrowRight') show(idx + 1);
+    });
+  }
+
+  /* ── Mapa ───────────────────────────────────────────────────────── */
+  if (!hasPoint || typeof L === 'undefined') return;
+  var el = document.getElementById('ldMap');
+  if (!el) return;
+
+  var map = L.map(el, { scrollWheelZoom: false }).setView([lat, lng], exact ? 17 : 15);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap · © CARTO', maxZoom: 19,
+  }).addTo(map);
+
+  if (exact) {
+    L.marker([lat, lng]).addTo(map).bindPopup(name);
+  } else {
+    // Zona aproximada: 300 m de radio, sin revelar la dirección.
+    L.circle([lat, lng], {
+      radius: 300, color: '#c9a84c', weight: 2, fillColor: '#c9a84c', fillOpacity: .15,
+    }).addTo(map);
+  }
+})();
+</script>

@@ -1,0 +1,57 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import ListingsBrowser from '../../components/ListingsBrowser.astro';
+import { supabase, PUBLIC_TABLE } from '../../lib/supabase';
+import type { Property } from '../../lib/supabase';
+
+let items: Property[] = [];
+let dbError: string | null = null;
+
+try {
+  const { data, error } = await supabase
+    .from(PUBLIC_TABLE)
+    .select('*')
+    .eq('for_rent', true)
+    .neq('rent_status', 'rented')   // las ya alquiladas salen de la grilla
+    .order('sort_order');
+  if (error) throw error;
+  items = (data ?? []) as Property[];
+} catch (e: any) {
+  dbError = e?.message ?? 'Error desconocido';
+  console.error('[alquiler] Supabase error:', dbError);
+}
+---
+<Layout
+  title="Alquileres Permanentes en Añelo, Neuquén | Casas y Departamentos - Inmobiliaria Añelo"
+  description="Casas y departamentos en alquiler permanente en Añelo, Neuquén. Filtrá por ambientes, precio y zona, y ubicalos en el mapa. Contratos particulares y familiares."
+  pathname="/alquiler/"
+>
+  {dbError && (
+    <div style="background:#c0392b;color:#fff;padding:1rem 2rem;font-family:monospace;font-size:.85rem;">
+      <strong>DB ERROR:</strong> {dbError}
+    </div>
+  )}
+
+  <div class="corporate-hero">
+    <div class="section-label reveal">Alquiler permanente</div>
+    <h1 class="section-title reveal">Propiedades en <em>Alquiler</em></h1>
+    <div class="gold-divider reveal" style="margin:1rem auto 1.5rem;"></div>
+    <p class="section-sub reveal">
+      Casas y departamentos para vivir en Añelo, con contrato particular.
+      ¿Buscás alojamiento para tu empresa? Mirá el <a href="/corporativo/">alquiler corporativo</a>.
+    </p>
+  </div>
+
+  {items.length === 0 && !dbError ? (
+    <div class="lb-none">
+      <p>Por el momento no tenemos propiedades publicadas en alquiler permanente.</p>
+      <a class="lb-none-btn" href="https://wa.me/5492972431619?text=Hola,%20quiero%20consultar%20por%20alquileres%20en%20A%C3%B1elo" target="_blank" rel="noopener">
+        Consultar por WhatsApp
+      </a>
+    </div>
+  ) : (
+    <ListingsBrowser op="alquiler" items={items} />
+  )}
+</Layout>

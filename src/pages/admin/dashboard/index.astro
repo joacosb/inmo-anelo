@@ -14,13 +14,29 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
 let propStats = { available: 0, partial: 0, occupied: 0, total: 0 };
 let homepageStats = { active: 0, total: 0 };
 
-const { data: props } = await sb.from('properties').select('status, active');
+let saleStats = { available: 0, reserved: 0, total: 0 };
+let rentStats = { available: 0, total: 0 };
+
+const { data: props } = await sb
+  .from('properties')
+  .select('status, active, for_corporate, for_rent, for_sale, sale_status, rent_status');
 if (props) {
   const active = props.filter((p: any) => p.active);
-  propStats.total     = active.length;
-  propStats.available = active.filter((p: any) => p.status === 'available').length;
-  propStats.partial   = active.filter((p: any) => p.status === 'partial').length;
-  propStats.occupied  = active.filter((p: any) => p.status === 'occupied').length;
+
+  const corp = active.filter((p: any) => p.for_corporate);
+  propStats.total     = corp.length;
+  propStats.available = corp.filter((p: any) => p.status === 'available').length;
+  propStats.partial   = corp.filter((p: any) => p.status === 'partial').length;
+  propStats.occupied  = corp.filter((p: any) => p.status === 'occupied').length;
+
+  const sale = active.filter((p: any) => p.for_sale);
+  saleStats.total     = sale.length;
+  saleStats.available = sale.filter((p: any) => p.sale_status === 'available').length;
+  saleStats.reserved  = sale.filter((p: any) => p.sale_status === 'reserved').length;
+
+  const rent = active.filter((p: any) => p.for_rent);
+  rentStats.total     = rent.length;
+  rentStats.available = rent.filter((p: any) => p.rent_status === 'available').length;
 }
 
 try {
@@ -119,6 +135,36 @@ try {
           {propStats.partial > 0 && <span class="stat-chip partial">{propStats.partial} parcial{propStats.partial !== 1 ? 'es' : ''}</span>}
           {propStats.occupied > 0 && <span class="stat-chip occupied">{propStats.occupied} ocupada{propStats.occupied !== 1 ? 's' : ''}</span>}
           <span class="stat-chip neutral">{propStats.total} activa{propStats.total !== 1 ? 's' : ''}</span>
+        </div>
+        <div>
+          <a href="/admin/propiedades/" class="dash-card-btn">Gestionar →</a>
+        </div>
+      </div>
+
+      <!-- Venta -->
+      <div class="dash-card">
+        <div class="dash-card-label">Sección · Venta</div>
+        <div class="dash-card-title">Propiedades en venta</div>
+        <div class="dash-card-desc">Casas, departamentos, terrenos y locales publicados en /venta/.</div>
+        <div class="dash-stats">
+          <span class="stat-chip available">{saleStats.available} en venta</span>
+          {saleStats.reserved > 0 && <span class="stat-chip partial">{saleStats.reserved} reservada{saleStats.reserved !== 1 ? 's' : ''}</span>}
+          <span class="stat-chip neutral">{saleStats.total} en total</span>
+        </div>
+        <div>
+          <a href="/admin/propiedades/" class="dash-card-btn">Gestionar →</a>
+          <a href="/admin/propiedades/nueva/" class="dash-card-new">+ Nueva propiedad</a>
+        </div>
+      </div>
+
+      <!-- Alquiler permanente -->
+      <div class="dash-card">
+        <div class="dash-card-label">Sección · Alquiler</div>
+        <div class="dash-card-title">Alquiler permanente</div>
+        <div class="dash-card-desc">Casas y departamentos publicados en /alquiler/ con contrato particular.</div>
+        <div class="dash-stats">
+          <span class="stat-chip available">{rentStats.available} disponible{rentStats.available !== 1 ? 's' : ''}</span>
+          <span class="stat-chip neutral">{rentStats.total} en total</span>
         </div>
         <div>
           <a href="/admin/propiedades/" class="dash-card-btn">Gestionar →</a>

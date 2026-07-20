@@ -1,0 +1,58 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import ListingsBrowser from '../../components/ListingsBrowser.astro';
+import { supabase, PUBLIC_TABLE } from '../../lib/supabase';
+import type { Property } from '../../lib/supabase';
+
+let items: Property[] = [];
+let dbError: string | null = null;
+
+try {
+  const { data, error } = await supabase
+    .from(PUBLIC_TABLE)
+    .select('*')
+    .eq('for_sale', true)
+    .neq('sale_status', 'sold')     // las vendidas salen de la grilla
+    .order('sort_order');
+  if (error) throw error;
+  items = (data ?? []) as Property[];
+} catch (e: any) {
+  dbError = e?.message ?? 'Error desconocido';
+  console.error('[venta] Supabase error:', dbError);
+}
+---
+<Layout
+  title="Propiedades en Venta en Añelo, Neuquén | Casas, Departamentos y Terrenos - Inmobiliaria Añelo"
+  description="Casas, departamentos, terrenos y locales en venta en Añelo, Neuquén. Filtrá por tipo, ambientes, precio y zona, y ubicalos en el mapa. +25 años de trayectoria en Vaca Muerta."
+  pathname="/venta/"
+>
+  {dbError && (
+    <div style="background:#c0392b;color:#fff;padding:1rem 2rem;font-family:monospace;font-size:.85rem;">
+      <strong>DB ERROR:</strong> {dbError}
+    </div>
+  )}
+
+  <div class="corporate-hero">
+    <div class="section-label reveal">Comprá en Añelo</div>
+    <h1 class="section-title reveal">Propiedades en <em>Venta</em></h1>
+    <div class="gold-divider reveal" style="margin:1rem auto 1.5rem;"></div>
+    <p class="section-sub reveal">
+      Casas, departamentos, terrenos y locales en el corazón de Vaca Muerta.
+      Filtrá por lo que buscás y mirá exactamente en qué zona está cada uno.
+    </p>
+  </div>
+
+  {items.length === 0 && !dbError ? (
+    <div class="lb-none">
+      <p>Por el momento no tenemos propiedades publicadas en venta.</p>
+      <a class="lb-none-btn" href="https://wa.me/5492972431619?text=Hola,%20quiero%20consultar%20por%20propiedades%20en%20venta%20en%20A%C3%B1elo" target="_blank" rel="noopener">
+        Consultar por WhatsApp
+      </a>
+    </div>
+  ) : (
+    <ListingsBrowser op="venta" items={items} />
+  )}
+
+</Layout>

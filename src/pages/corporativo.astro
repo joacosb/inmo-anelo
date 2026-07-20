@@ -2,7 +2,7 @@
 export const prerender = false;
 
 import Layout from '../layouts/Layout.astro';
-import { supabase, statusClass, zoneLabel, getImageUrl, getSrcSet } from '../lib/supabase';
+import { supabase, PUBLIC_TABLE, statusClass, zoneLabel, getImageUrl, getSrcSet } from '../lib/supabase';
 import type { Property } from '../lib/supabase';
 
 // Anchos de optimización: el carrusel de la card (~display 600px) y el modal (~display 660px).
@@ -15,8 +15,8 @@ let dbError: string | null = null;
 
 try {
   const [r1, r2] = await Promise.all([
-    supabase.from('properties').select('*').eq('type', 'complejo').eq('active', true).order('sort_order'),
-    supabase.from('properties').select('*').eq('type', 'edificio').eq('active', true).order('sort_order'),
+    supabase.from(PUBLIC_TABLE).select('*').eq('type', 'complejo').eq('for_corporate', true).order('sort_order'),
+    supabase.from(PUBLIC_TABLE).select('*').eq('type', 'edificio').eq('for_corporate', true).order('sort_order'),
   ]);
   if (r1.error) throw r1.error;
   if (r2.error) throw r2.error;

@@ -4,6 +4,18 @@ export type PropertyStatus = 'available' | 'occupied' | 'partial';
 export type PropertyType   = 'complejo' | 'edificio' | 'uf';
 export type PropertyZone   = 'centro' | 'forestada';
 
+/** Tipo de propiedad para las secciones de venta y alquiler permanente. */
+export type PropKind =
+  | 'casa' | 'departamento' | 'ph' | 'terreno'
+  | 'local' | 'galpon' | 'campo' | 'cochera';
+
+export type SaleStatus = 'available' | 'reserved' | 'sold';
+export type RentStatus = 'available' | 'reserved' | 'rented';
+export type Currency   = 'USD' | 'ARS';
+
+/** Secciones del sitio en las que puede aparecer una propiedad. */
+export type Operation = 'venta' | 'alquiler';
+
 export interface Property {
   id:             string;
   name:           string;
@@ -22,6 +34,39 @@ export interface Property {
   matterport_url: string | null;
   sort_order:     number;
   active:         boolean;
+
+  // ── Flags de sección — una propiedad puede estar en varias a la vez ──
+  for_corporate:  boolean;
+  for_rent:       boolean;
+  for_sale:       boolean;
+
+  // ── Clasificación (venta / alquiler permanente) ──
+  prop_type:      PropKind | null;
+  rooms:          number | null;   // ambientes
+  bedrooms:       number | null;
+  bathrooms:      number | null;
+  parking:        number | null;
+  area_covered:   number | null;
+  area_total:     number | null;
+  features:       string[] | null;
+
+  // ── Precio de venta ──
+  sale_price:        number | null;
+  sale_currency:     Currency;
+  sale_price_hidden: boolean;
+  sale_status:       SaleStatus;
+
+  // ── Precio de alquiler permanente ──
+  rent_price:     number | null;
+  rent_currency:  Currency;
+  rent_expenses:  number | null;
+  rent_status:    RentStatus;
+
+  // ── Ubicación (`address` sólo existe en la tabla, no en properties_public) ──
+  neighborhood:   string | null;
+  lat:            number | null;
+  lng:            number | null;
+  location_exact: boolean;
 }
 
 const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
@@ -38,6 +83,122 @@ export function statusClass(status: PropertyStatus): string {
 export function zoneLabel(zone: PropertyZone, type: PropertyType): string {
   if (zone === 'forestada') return 'La Forestada';
   return type === 'edificio' ? 'Centro Añelo' : 'Añelo';
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Venta y alquiler permanente
+ * ──────────────────────────────────────────────────────────────────────── */
+
+/** Vista pública: no expone `address`. Toda página pública lee de acá. */
+export const PUBLIC_TABLE = 'properties_public';
+
+export const PROP_KINDS: { value: PropKind; label: string; plural: string }[] = [
+  { value: 'casa',         label: 'Casa',          plural: 'Casas' },
+  { value: 'departamento', label: 'Departamento',  plural: 'Departamentos' },
+  { value: 'ph',           label: 'PH',            plural: 'PH' },
+  { value: 'terreno',      label: 'Terreno',       plural: 'Terrenos' },
+  { value: 'local',        label: 'Local',         plural: 'Locales' },
+  { value: 'galpon',       label: 'Galpón',        plural: 'Galpones' },
+  { value: 'campo',        label: 'Campo',         plural: 'Campos' },
+  { value: 'cochera',      label: 'Cochera',       plural: 'Cocheras' },
+];
+
+/**
+ * Tipos que se miden en ambientes/dormitorios. El filtro de ambientes sólo
+ * aparece cuando la selección de tipos cae íntegramente acá dentro — no tiene
+ * sentido preguntar "cuántos ambientes" sobre un terreno o una cochera.
+ */
+export const KINDS_WITH_ROOMS: PropKind[] = ['casa', 'departamento', 'ph'];
+
+export function propKindLabel(kind: PropKind | null | undefined): string {
+  return PROP_KINDS.find((k) => k.value === kind)?.label ?? 'Propiedad';
+}
+
+/** Catálogo de características. El admin las tilda; los filtros las ofrecen. */
+export const FEATURES: { value: string; label: string; icon: string }[] = [
+  { value: 'cochera',      label: 'Cochera',            icon: 'car' },
+  { value: 'pileta',       label: 'Pileta',             icon: 'waves' },
+  { value: 'parrilla',     label: 'Parrilla',           icon: 'flame' },
+  { value: 'gas_natural',  label: 'Gas natural',        icon: 'flame' },
+  { value: 'patio',        label: 'Patio / jardín',     icon: 'trees' },
+  { value: 'amoblado',     label: 'Amoblado',           icon: 'sofa' },
+  { value: 'seguridad',    label: 'Seguridad 24hs',     icon: 'shield' },
+  { value: 'apto_credito', label: 'Apto crédito',       icon: 'landmark' },
+  { value: 'a_estrenar',   label: 'A estrenar',         icon: 'sparkles' },
+];
+
+export function featureLabel(value: string): string {
+  return FEATURES.find((f) => f.value === value)?.label ?? value;
+}
+
+const SALE_STATUS_LABELS: Record<SaleStatus, string> = {
+  available: 'En venta',
+  reserved:  'Reservada',
+  sold:      'Vendida',
+};
+
+const RENT_STATUS_LABELS: Record<RentStatus, string> = {
+  available: 'Disponible',
+  reserved:  'Reservada',
+  rented:    'Alquilada',
+};
+
+export function operationStatusLabel(p: Property, op: Operation): string {
+  return op === 'venta'
+    ? SALE_STATUS_LABELS[p.sale_status] ?? 'En venta'
+    : RENT_STATUS_LABELS[p.rent_status] ?? 'Disponible';
+}
+
+/** Clase CSS del badge — reusa la paleta de estados que ya existe. */
+export function operationStatusClass(p: Property, op: Operation): string {
+  const s = op === 'venta' ? p.sale_status : p.rent_status;
+  if (s === 'available') return 'disponible';
+  if (s === 'reserved')  return 'parcialmente-ocupado';
+  return 'ocupado';
+}
+
+/**
+ * Precio formateado para mostrar. Devuelve "Consultar precio" cuando está
+ * oculto o sin cargar, así la card nunca queda con un hueco.
+ */
+export function formatPrice(p: Property, op: Operation): string {
+  const hidden   = op === 'venta' && p.sale_price_hidden;
+  const price    = op === 'venta' ? p.sale_price : p.rent_price;
+  const currency = op === 'venta' ? p.sale_currency : p.rent_currency;
+  if (hidden || price == null) return 'Consultar precio';
+  const n = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(price);
+  const suffix = op === 'alquiler' ? '/mes' : '';
+  return `${currency === 'USD' ? 'USD' : '$'} ${n}${suffix}`;
+}
+
+export function formatExpenses(p: Property): string | null {
+  if (!p.rent_expenses) return null;
+  const n = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(p.rent_expenses);
+  return `+ $ ${n} expensas`;
+}
+
+/**
+ * Línea de ficha técnica de la card: "3 amb · 2 dorm · 1 baño · 120 m²".
+ * Omite lo que no aplica al tipo (un terreno sólo muestra superficie).
+ */
+export function specLine(p: Property): string {
+  const parts: string[] = [];
+  if (p.rooms)     parts.push(`${p.rooms} amb`);
+  if (p.bedrooms)  parts.push(`${p.bedrooms} dorm`);
+  if (p.bathrooms) parts.push(`${p.bathrooms} baño${p.bathrooms > 1 ? 's' : ''}`);
+  const area = p.area_covered ?? p.area_total;
+  if (area)        parts.push(`${area} m²`);
+  return parts.join(' · ');
+}
+
+/** Ubicación pública: barrio si está cargado, si no la zona genérica. */
+export function locationLabel(p: Property): string {
+  return p.neighborhood?.trim() || zoneLabel(p.zone, p.type);
+}
+
+/** Ruta de la ficha de detalle. */
+export function listingUrl(p: Property, op: Operation): string {
+  return `/${op}/${p.slug}/`;
 }
 
 /* ──────────────────────────────────────────────────────────────────────────

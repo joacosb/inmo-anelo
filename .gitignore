@@ -23,3 +23,6 @@ pnpm-debug.log*
 
 # backups
 *.backup
+
+# vercel build output
+.vercel/

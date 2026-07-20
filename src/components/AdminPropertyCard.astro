@@ -1,0 +1,62 @@
+---
+/** Card del listado del admin. Los handlers viven en propiedades/index.astro. */
+import { getImageUrl, zoneLabel, formatPrice } from '../lib/supabase';
+
+interface Props { p: any }
+const { p } = Astro.props;
+---
+<div class="adm-card" data-id={p.id}>
+  {p.cover_image
+    ? <img class="adm-card-img" src={getImageUrl(p.cover_image, { width: 384 })} alt={p.name}
+        width="384" height="140" loading="lazy" decoding="async" />
+    : <div class="adm-card-img adm-card-noimg">Sin foto</div>}
+
+  <div class="adm-card-body">
+    <div class="adm-card-name">{p.name}</div>
+
+    <div class="adm-ops">
+      {p.for_corporate && <span class="adm-op adm-op-corp">Corporativo</span>}
+      {p.for_rent      && <span class="adm-op adm-op-rent">Alquiler</span>}
+      {p.for_sale      && <span class="adm-op adm-op-sale">Venta</span>}
+      {!p.for_corporate && !p.for_rent && !p.for_sale &&
+        <span class="adm-op adm-op-none">Sin publicar</span>}
+    </div>
+
+    {p.for_corporate && (
+      <>
+        <div class="status-row">
+          <button class={`status-btn s-available ${p.status === 'available' ? 'active' : ''}`}
+            data-status="available" onclick="setStatus(this)">Disponible</button>
+          <button class={`status-btn s-partial ${p.status === 'partial' ? 'active' : ''}`}
+            data-status="partial" onclick="setStatus(this)">Parcial</button>
+          <button class={`status-btn s-occupied ${p.status === 'occupied' ? 'active' : ''}`}
+            data-status="occupied" onclick="setStatus(this)">Ocupado</button>
+        </div>
+
+        <div class="badge-row">
+          <input class="badge-input" type="text" value={p.status_text}
+            placeholder="Texto del badge…" data-field="status_text" />
+          <button class="save-badge-btn" onclick="saveBadge(this)">Guardar</button>
+        </div>
+      </>
+    )}
+
+    {(p.for_sale || p.for_rent) && (
+      <div class="adm-prices">
+        {p.for_sale && <span>Venta: <strong>{formatPrice(p, 'venta')}</strong></span>}
+        {p.for_rent && <span>Alquiler: <strong>{formatPrice(p, 'alquiler')}</strong></span>}
+        {(p.for_sale || p.for_rent) && p.lat == null && (
+          <span class="adm-warn">⚠ Sin ubicación en el mapa</span>
+        )}
+      </div>
+    )}
+
+    <div class="adm-card-footer">
+      <span class="adm-meta">
+        {p.max_guests ? `Hasta ${p.max_guests} huésp. · ` : ''}
+        {zoneLabel(p.zone, p.type)}
+      </span>
+      <a class="btn-edit" href={`/admin/propiedades/${p.id}/`}>Editar todo →</a>
+    </div>
+  </div>
+</div>

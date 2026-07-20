@@ -115,6 +115,30 @@ created_at / updated_at timestamptz
 
 ---
 
+### Venta y alquiler permanente (`/venta/`, `/alquiler/`)
+
+Una propiedad puede publicarse en **varias secciones a la vez** mediante flags
+(`for_corporate`, `for_rent`, `for_sale`) sobre la misma fila de `properties` —
+no hay tabla aparte, así las fotos y encuadres se comparten.
+
+- **Vista `properties_public`**: las páginas públicas leen de acá, no de la tabla,
+  porque la vista no expone `address` (dirección interna). Constante `PUBLIC_TABLE`.
+- **`ListingsBrowser.astro`**: filtros + grilla + mapa, parametrizado por `op`
+  (`venta` | `alquiler`). Filtra en el cliente sobre cards renderizadas en el
+  servidor; el estado va en la query string (`?tipo=casa&amb=3&max=120000`).
+  Ambientes/dormitorios sólo aparecen si hay un tipo casa/depto/PH tildado.
+- **`ListingDetail.astro`**: ficha `/venta/[slug]` con carrusel, ficha técnica,
+  mapa y JSON-LD `RealEstateListing`.
+- **Mapa**: Leaflet + tiles CARTO (sin API key). Con `location_exact = false`
+  se dibuja un círculo de 300 m en vez del pin, para no revelar la dirección.
+  Clustering propio por celda de pantalla debajo de zoom 15.
+- **Admin**: switches de sección arriba del form en `propiedades/[id].astro`,
+  con bloques condicionales (`data-when`) y mini-mapa de pin arrastrable.
+  Alta de propiedades nuevas en `propiedades/nueva.astro`.
+- **Migración**: `db/001_venta_alquiler.sql` — correr en el SQL Editor de
+  Supabase **antes** de deployar, porque `properties_public` es requerida por
+  `/corporativo/` e `/invertir/`.
+
 ## Pendiente / próximos pasos
 
 - Migrar imágenes legacy de `public/*.webp` a Supabase Storage y actualizar `cover_image` en la DB

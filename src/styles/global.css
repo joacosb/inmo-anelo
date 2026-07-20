@@ -906,3 +906,12 @@ footer { background: var(--black); color: rgba(255,255,255,.5); padding: 3rem 8%
   .fp-heading { font-size: 1.9rem; }
   .fp-text-col { padding: 1.75rem 1.25rem 2rem; gap: .85rem; }
 }
+
+/* ── Estado vacío de /venta/ y /alquiler/ ─────────────────────────────── */
+.lb-none { text-align: center; padding: 4rem 1.5rem 6rem; color: rgba(255,255,255,.55); }
+.lb-none p { margin-bottom: 1.5rem; }
+.lb-none-btn {
+  display: inline-block; background: var(--gold, #c9a84c); color: #000;
+  font-size: .85rem; font-weight: 700; text-decoration: none;
+  padding: .8rem 1.8rem; border-radius: 6px;
+}

@@ -2,14 +2,14 @@
 export const prerender = false;
 
 import Layout from '../layouts/Layout.astro';
-import { supabase, statusClass, zoneLabel } from '../lib/supabase';
+import { supabase, PUBLIC_TABLE, statusClass, zoneLabel } from '../lib/supabase';
 import type { Property } from '../lib/supabase';
 
 let propiedades: any[] = [];
 
 try {
   const { data, error } = await supabase
-    .from('properties')
+    .from(PUBLIC_TABLE)
     .select('*')
     .or('name.ilike.%Abedules%,name.ilike.%Hondarribia%,name.ilike.%Pampa II%')
     .eq('active', true)

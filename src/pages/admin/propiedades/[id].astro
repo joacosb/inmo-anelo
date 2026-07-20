@@ -2,7 +2,7 @@
 export const prerender = false;
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { createClient } from '@supabase/supabase-js';
-import { getImageUrl } from '../../../lib/supabase';
+import { getImageUrl, PROP_KINDS, FEATURES } from '../../../lib/supabase';
 
 const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
@@ -18,15 +18,59 @@ let saveError = '';
 
 if (Astro.request.method === 'POST') {
   const form = await Astro.request.formData();
+
+  // Los campos numéricos vacíos deben guardarse como null, no como 0.
+  const num = (k: string) => {
+    const v = form.get(k)?.toString().trim();
+    return v ? Number(v) : null;
+  };
+  // Un checkbox sin tildar no viaja en el FormData.
+  const bool = (k: string) => form.get(k) !== null;
+  const str = (k: string) => form.get(k)?.toString().trim() || null;
+
   const updates = {
     name:           form.get('name')?.toString()           ?? '',
     status:         form.get('status')?.toString()         ?? 'available',
     status_text:    form.get('status_text')?.toString()    ?? '',
     description:    form.get('description')?.toString()    ?? '',
     zone:           form.get('zone')?.toString()            ?? 'centro',
-    max_guests:     Number(form.get('max_guests'))          || null,
-    unit_count:     Number(form.get('unit_count'))          || null,
-    matterport_url: form.get('matterport_url')?.toString()  || null,
+    max_guests:     num('max_guests'),
+    unit_count:     num('unit_count'),
+    matterport_url: str('matterport_url'),
+
+    // ── Secciones ──
+    for_corporate:  bool('for_corporate'),
+    for_rent:       bool('for_rent'),
+    for_sale:       bool('for_sale'),
+
+    // ── Clasificación ──
+    prop_type:      str('prop_type'),
+    rooms:          num('rooms'),
+    bedrooms:       num('bedrooms'),
+    bathrooms:      num('bathrooms'),
+    parking:        num('parking'),
+    area_covered:   num('area_covered'),
+    area_total:     num('area_total'),
+    features:       form.getAll('features').map((f) => f.toString()),
+
+    // ── Venta ──
+    sale_price:        num('sale_price'),
+    sale_currency:     form.get('sale_currency')?.toString() ?? 'USD',
+    sale_price_hidden: bool('sale_price_hidden'),
+    sale_status:       form.get('sale_status')?.toString() ?? 'available',
+
+    // ── Alquiler permanente ──
+    rent_price:     num('rent_price'),
+    rent_currency:  form.get('rent_currency')?.toString() ?? 'ARS',
+    rent_expenses:  num('rent_expenses'),
+    rent_status:    form.get('rent_status')?.toString() ?? 'available',
+
+    // ── Ubicación ──
+    neighborhood:   str('neighborhood'),
+    address:        str('address'),
+    lat:            num('lat'),
+    lng:            num('lng'),
+    location_exact: bool('location_exact'),
   };
   const { error } = await sb.from('properties').update(updates).eq('id', id);
   if (error) saveError = error.message;
@@ -35,6 +79,12 @@ if (Astro.request.method === 'POST') {
 
 const { data: p } = await sb.from('properties').select('*').eq('id', id).single();
 if (!p) return Astro.redirect('/admin/propiedades/');
+
+// Centro por defecto del mini-mapa cuando la propiedad todavía no tiene punto.
+const ANELO_CENTER = { lat: -38.3494, lng: -68.7906 };
+const mapLat = p.lat ?? ANELO_CENTER.lat;
+const mapLng = p.lng ?? ANELO_CENTER.lng;
+const hasPoint = p.lat != null && p.lng != null;
 ---
 <AdminLayout title={p.name} section="propiedades">
   <style is:global>
@@ -164,6 +214,48 @@ if (!p) return Astro.redirect('/admin/propiedades/');
     .alert-ok    { background: rgba(16,185,129,.15); border: 1px solid rgba(16,185,129,.4); color: #6ee7b7; }
     .alert-error { background: rgba(239,68,68,.15);  border: 1px solid rgba(239,68,68,.4);  color: #f87171; }
 
+    /* ── SWITCHES DE SECCIÓN ── */
+    .ops-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin-bottom: 1.75rem; }
+    .op-switch input { position: absolute; opacity: 0; pointer-events: none; }
+    .op-box {
+      display: block; border: 1px solid #2a2a2a; border-radius: 8px;
+      padding: .8rem .9rem; cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .op-switch:hover .op-box { border-color: #3a3a3a; }
+    .op-switch input:checked + .op-box { border-color: #c9a84c; background: rgba(201,168,76,.07); }
+    .op-switch input:focus-visible + .op-box { outline: 2px solid #c9a84c; outline-offset: 2px; }
+    .op-name {
+      display: block; font-size: .78rem; font-weight: 700; color: rgba(255,255,255,.5);
+      margin-bottom: .2rem; transition: color .15s;
+    }
+    .op-switch input:checked + .op-box .op-name { color: #c9a84c; }
+    .op-desc { display: block; font-size: .65rem; color: rgba(255,255,255,.3); }
+
+    /* Los bloques ocultos se despliegan según los switches (ver script). */
+    .op-block { margin-top: 2rem; }
+    .op-block[hidden] { display: none; }
+
+    /* ── CHIPS (características) ── */
+    .chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .chip input { position: absolute; opacity: 0; pointer-events: none; }
+    .chip {
+      display: inline-flex; align-items: center; position: relative;
+      border: 1px solid #2a2a2a; border-radius: 20px; padding: .4rem .85rem;
+      font-size: .75rem; color: rgba(255,255,255,.5); cursor: pointer;
+      transition: border-color .15s, color .15s, background .15s;
+    }
+    .chip:hover { border-color: #3a3a3a; }
+    .chip:has(input:checked) { border-color: #c9a84c; color: #c9a84c; background: rgba(201,168,76,.07); }
+    .chip-inline { border-radius: 6px; align-self: flex-start; }
+
+    /* ── MINI-MAPA ── */
+    #minimap { height: 300px; border-radius: 8px; border: 1px solid #2a2a2a; background: #1a1a1a; }
+    .map-hint { font-size: .68rem; color: rgba(255,255,255,.35); margin-top: .5rem; line-height: 1.5; }
+    /* Leaflet imprime sus controles en claro; los bajamos al tema oscuro. */
+    .leaflet-container { background: #1a1a1a; font-family: inherit; }
+    .leaflet-control-attribution { background: rgba(0,0,0,.6) !important; color: rgba(255,255,255,.4) !important; font-size: .6rem; }
+    .leaflet-control-attribution a { color: rgba(255,255,255,.6) !important; }
+
     /* ── TOAST ── */
     #toast {
       position: fixed; bottom: 1.5rem; right: 1.5rem; background: #10b981; color: #fff;
@@ -246,6 +338,34 @@ if (!p) return Astro.redirect('/admin/propiedades/');
     <div class="section-heading" style="margin-top:0">Datos</div>
 
     <form method="POST">
+      <!-- ── SECCIONES ──────────────────────────────────────────────────
+           Definen en qué páginas del sitio aparece esta propiedad. Se pueden
+           tildar varias: una casa puede estar en corporativo, en alquiler
+           permanente y a la venta al mismo tiempo. -->
+      <div class="ops-row">
+        <label class="op-switch">
+          <input type="checkbox" name="for_corporate" checked={p.for_corporate} data-op="corporate" />
+          <span class="op-box">
+            <span class="op-name">Alquiler corporativo</span>
+            <span class="op-desc">Aparece en /corporativo/</span>
+          </span>
+        </label>
+        <label class="op-switch">
+          <input type="checkbox" name="for_rent" checked={p.for_rent} data-op="rent" />
+          <span class="op-box">
+            <span class="op-name">Alquiler permanente</span>
+            <span class="op-desc">Aparece en /alquiler/</span>
+          </span>
+        </label>
+        <label class="op-switch">
+          <input type="checkbox" name="for_sale" checked={p.for_sale} data-op="sale" />
+          <span class="op-box">
+            <span class="op-name">Venta</span>
+            <span class="op-desc">Aparece en /venta/</span>
+          </span>
+        </label>
+      </div>
+
       <div class="form-grid">
 
         <div class="field full">
@@ -276,18 +396,6 @@ if (!p) return Astro.redirect('/admin/propiedades/');
         <hr class="divider full" />
 
         <div class="field">
-          <label for="max_guests">Máx. huéspedes</label>
-          <input id="max_guests" name="max_guests" type="number" min="1"
-            value={p.max_guests ?? ''} placeholder="ej: 24" />
-        </div>
-
-        <div class="field">
-          <label for="unit_count">Cantidad de UFs</label>
-          <input id="unit_count" name="unit_count" type="number" min="1"
-            value={p.unit_count ?? ''} placeholder="ej: 6" />
-        </div>
-
-        <div class="field">
           <label for="zone">Zona</label>
           <select id="zone" name="zone">
             <option value="centro"    selected={p.zone === 'centro'}>Centro / Añelo</option>
@@ -301,6 +409,182 @@ if (!p) return Astro.redirect('/admin/propiedades/');
             value={p.matterport_url ?? ''} placeholder="https://my.matterport.com/…" />
         </div>
 
+      </div>
+
+      <!-- ── CORPORATIVO ─────────────────────────────────────────────── -->
+      <div class="op-block" data-when="corporate">
+        <div class="section-heading">Alquiler corporativo</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="max_guests">Máx. huéspedes</label>
+            <input id="max_guests" name="max_guests" type="number" min="1"
+              value={p.max_guests ?? ''} placeholder="ej: 24" />
+          </div>
+          <div class="field">
+            <label for="unit_count">Cantidad de UFs</label>
+            <input id="unit_count" name="unit_count" type="number" min="1"
+              value={p.unit_count ?? ''} placeholder="ej: 6" />
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CARACTERÍSTICAS ──────────────────────────────────────────
+           Sólo relevante para venta y alquiler permanente: el corporativo se
+           describe por UFs y huéspedes, no por ambientes. -->
+      <div class="op-block" data-when="sale rent">
+        <div class="section-heading">Características</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="prop_type">Tipo de propiedad</label>
+            <select id="prop_type" name="prop_type">
+              <option value="">— Elegir —</option>
+              {PROP_KINDS.map((k) => (
+                <option value={k.value} selected={p.prop_type === k.value}>{k.label}</option>
+              ))}
+            </select>
+          </div>
+          <div class="field">
+            <label for="rooms">Ambientes</label>
+            <input id="rooms" name="rooms" type="number" min="1"
+              value={p.rooms ?? ''} placeholder="ej: 3" />
+          </div>
+          <div class="field">
+            <label for="bedrooms">Dormitorios</label>
+            <input id="bedrooms" name="bedrooms" type="number" min="0"
+              value={p.bedrooms ?? ''} placeholder="ej: 2" />
+          </div>
+          <div class="field">
+            <label for="bathrooms">Baños</label>
+            <input id="bathrooms" name="bathrooms" type="number" min="0"
+              value={p.bathrooms ?? ''} placeholder="ej: 1" />
+          </div>
+          <div class="field">
+            <label for="parking">Cocheras</label>
+            <input id="parking" name="parking" type="number" min="0"
+              value={p.parking ?? ''} placeholder="ej: 1" />
+          </div>
+          <div class="field">
+            <label for="area_covered">m² cubiertos</label>
+            <input id="area_covered" name="area_covered" type="number" min="0" step="0.01"
+              value={p.area_covered ?? ''} placeholder="ej: 95" />
+          </div>
+          <div class="field">
+            <label for="area_total">m² totales / terreno</label>
+            <input id="area_total" name="area_total" type="number" min="0" step="0.01"
+              value={p.area_total ?? ''} placeholder="ej: 300" />
+          </div>
+
+          <div class="field full">
+            <label>Características</label>
+            <div class="chips">
+              {FEATURES.map((f) => (
+                <label class="chip">
+                  <input type="checkbox" name="features" value={f.value}
+                    checked={(p.features ?? []).includes(f.value)} />
+                  <span>{f.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── VENTA ───────────────────────────────────────────────────── -->
+      <div class="op-block" data-when="sale">
+        <div class="section-heading">Venta</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="sale_price">Precio de venta</label>
+            <input id="sale_price" name="sale_price" type="number" min="0" step="1"
+              value={p.sale_price ?? ''} placeholder="ej: 120000" />
+          </div>
+          <div class="field">
+            <label for="sale_currency">Moneda</label>
+            <select id="sale_currency" name="sale_currency">
+              <option value="USD" selected={p.sale_currency !== 'ARS'}>USD</option>
+              <option value="ARS" selected={p.sale_currency === 'ARS'}>ARS</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="sale_status">Estado de la venta</label>
+            <select id="sale_status" name="sale_status">
+              <option value="available" selected={p.sale_status === 'available'}>🟢 En venta</option>
+              <option value="reserved"  selected={p.sale_status === 'reserved'}>🟡 Reservada</option>
+              <option value="sold"      selected={p.sale_status === 'sold'}>🔴 Vendida</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Visibilidad del precio</label>
+            <label class="chip chip-inline">
+              <input type="checkbox" name="sale_price_hidden" checked={p.sale_price_hidden} />
+              <span>Mostrar “Consultar precio”</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ALQUILER PERMANENTE ─────────────────────────────────────── -->
+      <div class="op-block" data-when="rent">
+        <div class="section-heading">Alquiler permanente</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="rent_price">Precio mensual</label>
+            <input id="rent_price" name="rent_price" type="number" min="0" step="1"
+              value={p.rent_price ?? ''} placeholder="ej: 450000" />
+          </div>
+          <div class="field">
+            <label for="rent_currency">Moneda</label>
+            <select id="rent_currency" name="rent_currency">
+              <option value="ARS" selected={p.rent_currency !== 'USD'}>ARS</option>
+              <option value="USD" selected={p.rent_currency === 'USD'}>USD</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="rent_expenses">Expensas mensuales (ARS)</label>
+            <input id="rent_expenses" name="rent_expenses" type="number" min="0" step="1"
+              value={p.rent_expenses ?? ''} placeholder="ej: 60000" />
+          </div>
+          <div class="field">
+            <label for="rent_status">Estado del alquiler</label>
+            <select id="rent_status" name="rent_status">
+              <option value="available" selected={p.rent_status === 'available'}>🟢 Disponible</option>
+              <option value="reserved"  selected={p.rent_status === 'reserved'}>🟡 Reservada</option>
+              <option value="rented"    selected={p.rent_status === 'rented'}>🔴 Alquilada</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── UBICACIÓN ───────────────────────────────────────────────── -->
+      <div class="op-block" data-when="sale rent">
+        <div class="section-heading">Ubicación</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="neighborhood">Barrio / zona (público)</label>
+            <input id="neighborhood" name="neighborhood" type="text"
+              value={p.neighborhood ?? ''} placeholder="ej: La Forestada" />
+          </div>
+          <div class="field">
+            <label for="address">Dirección (privada)</label>
+            <input id="address" name="address" type="text"
+              value={p.address ?? ''} placeholder="ej: Los Álamos 340" />
+          </div>
+
+          <div class="field full">
+            <label>Punto en el mapa</label>
+            <div id="minimap"></div>
+            <div class="map-hint">
+              Arrastrá el pin hasta la ubicación. El círculo dorado es lo que ve
+              el público: un radio de 300 m, sin revelar la dirección exacta.
+            </div>
+            <label class="chip chip-inline" style="margin-top:.6rem">
+              <input type="checkbox" id="location_exact" name="location_exact" checked={p.location_exact} />
+              <span>Mostrar ubicación exacta (pin en vez de círculo)</span>
+            </label>
+            <input type="hidden" id="lat" name="lat" value={hasPoint ? p.lat : ''} />
+            <input type="hidden" id="lng" name="lng" value={hasPoint ? p.lng : ''} />
+          </div>
+        </div>
       </div>
 
       <div class="form-actions">
@@ -665,6 +949,80 @@ if (!p) return Astro.redirect('/admin/propiedades/');
       const ok = await syncImages();
       if (ok) { refreshCoverBadges(); showToast('✓ Foto eliminada'); }
       else showToast('Error al guardar', true);
+    }
+  </script>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script is:inline src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script is:inline define:vars={{ mapLat, mapLng, hasPoint }}>
+    /* ── Visibilidad de los bloques según las secciones tildadas ──────────
+       Cada bloque declara en data-when las secciones que lo justifican;
+       se muestra si al menos una está activa. */
+    var opInputs = Array.prototype.slice.call(document.querySelectorAll('[data-op]'));
+    var opBlocks = Array.prototype.slice.call(document.querySelectorAll('.op-block'));
+
+    function syncOpBlocks() {
+      var active = {};
+      opInputs.forEach(function (i) { active[i.dataset.op] = i.checked; });
+      opBlocks.forEach(function (b) {
+        var wanted = b.dataset.when.split(' ');
+        var show = wanted.some(function (w) { return active[w]; });
+        b.hidden = !show;
+      });
+      // El mapa mide mal si se inicializó dentro de un contenedor oculto.
+      if (map) setTimeout(function () { map.invalidateSize(); }, 0);
+    }
+
+    opInputs.forEach(function (i) { i.addEventListener('change', syncOpBlocks); });
+
+    /* ── Mini-mapa de ubicación ──────────────────────────────────────── */
+    var map = null;
+
+    function initMap() {
+      if (typeof L === 'undefined' || map) return;
+      var el = document.getElementById('minimap');
+      if (!el) return;
+
+      map = L.map(el, { scrollWheelZoom: false }).setView([mapLat, mapLng], hasPoint ? 16 : 14);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap · © CARTO',
+        maxZoom: 19,
+      }).addTo(map);
+
+      var marker = L.marker([mapLat, mapLng], { draggable: true }).addTo(map);
+      // Espejo de lo que verá el público mientras location_exact esté apagado.
+      var radius = L.circle([mapLat, mapLng], {
+        radius: 300, color: '#c9a84c', weight: 2, fillColor: '#c9a84c', fillOpacity: .15,
+      }).addTo(map);
+
+      var latInput   = document.getElementById('lat');
+      var lngInput   = document.getElementById('lng');
+      var exactInput = document.getElementById('location_exact');
+
+      function commit(latlng) {
+        latInput.value = latlng.lat.toFixed(6);
+        lngInput.value = latlng.lng.toFixed(6);
+        radius.setLatLng(latlng);
+      }
+
+      marker.on('drag',    function (e) { commit(e.target.getLatLng()); });
+      map.on('click',      function (e) { marker.setLatLng(e.latlng); commit(e.latlng); });
+
+      function syncRadius() { radius.setStyle({ opacity: exactInput.checked ? 0 : 1, fillOpacity: exactInput.checked ? 0 : .15 }); }
+      exactInput.addEventListener('change', syncRadius);
+      syncRadius();
+
+      // Si la propiedad todavía no tenía punto, el pin arranca en el centro de
+      // Añelo pero los inputs quedan vacíos hasta que el usuario lo confirme.
+      if (hasPoint) commit(marker.getLatLng());
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () { initMap(); syncOpBlocks(); });
+    } else {
+      initMap();
+      syncOpBlocks();
     }
   </script>
 </AdminLayout>
