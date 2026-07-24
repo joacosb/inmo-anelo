@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+import Button from '../components/ui/Button.astro';
 ---
 <Layout
   title="Nosotros | +25 Años en la Patagonia - Inmobiliaria Añelo"
@@ -8,35 +10,82 @@ import Layout from '../layouts/Layout.astro';
   ogImage="/complejo-maria1.webp"
 >
 
-  <section style="padding-top:4rem;">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center;" class="about-grid">
-      <div class="about-img-stack">
-        <img class="about-img-main" loading="lazy" decoding="async" src="/complejo-maria1.webp" alt="Complejo María I – Inmobiliaria Añelo" />
-        <div class="about-img-badge"><strong>+25</strong><span>años en<br/>la Patagonia</span></div>
-      </div>
-      <div class="about-text">
-        <div class="section-label reveal">Quiénes somos</div>
-        <h2 class="section-title reveal">La inmobiliaria<br/>de <em>Vaca Muerta</em></h2>
-        <div class="gold-divider reveal"></div>
-        <p style="color:var(--gray); margin-bottom:1rem;">Inmobiliaria Añelo nació de la mano del crecimiento de la ciudad. Con más de 25 años de trayectoria en el mercado inmobiliario de la Patagonia, somos la referencia en alquiler corporativo y ventas de inversión en Añelo, Neuquén.</p>
-        <p style="color:var(--gray); margin-bottom:1rem;">Conocemos el mercado como nadie: sabemos qué empresas necesitan alojamiento, cuánto pagan, qué exigen y cómo negociar. Eso le da a nuestros inversores una ventaja real y medible frente a otras alternativas.</p>
-        <p style="color:var(--gray); margin-bottom:1rem;">Nuestro equipo gestiona íntegramente cada propiedad: desde la búsqueda del inquilino corporativo hasta el mantenimiento y la renovación de contratos. El inversor solo tiene que cobrar.</p>
-        <div class="about-values">
-          <div class="about-value"><div class="av-dot"></div><p>Transparencia total en cada operación</p></div>
-          <div class="about-value"><div class="av-dot"></div><p>Contratos en pesos ajustados por inflación</p></div>
-          <div class="about-value"><div class="av-dot"></div><p>Gestión integral sin costos ocultos</p></div>
-          <div class="about-value"><div class="av-dot"></div><p>Clientes corporativos verificados</p></div>
-          <div class="about-value"><div class="av-dot"></div><p>Soporte post-venta permanente</p></div>
-          <div class="about-value"><div class="av-dot"></div><p>+25 años de trayectoria regional</p></div>
+  <section class="py-20 bg-brand-black text-white min-h-[calc(100vh-72px)] relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <!-- Image Stack -->
+        <div class="relative rounded-2xl overflow-hidden border border-stone-800 shadow-2xl group">
+          <img
+            src="/complejo-maria1.webp"
+            alt="Complejo María I – Inmobiliaria Añelo"
+            class="w-full h-[450px] object-cover transition-transform duration-700 group-hover:scale-105"
+            loading="lazy"
+            decoding="async"
+          />
+          <div class="absolute bottom-6 right-6 p-4 bg-black/85 backdrop-blur-md border border-brand-gold/30 rounded-xl text-center shadow-xl">
+            <strong class="block text-3xl font-display font-bold text-brand-gold">+25</strong>
+            <span class="text-[10px] uppercase tracking-wider font-semibold text-stone-300">Años en la Patagonia</span>
+          </div>
+        </div>
+
+        <!-- Text Content -->
+        <div class="space-y-6">
+          <SectionHeader
+            subtitle="Quiénes Somos"
+            title="La inmobiliaria referente en Vaca Muerta"
+            align="left"
+          />
+
+          <div class="space-y-4 text-stone-300 text-sm sm:text-base font-light leading-relaxed">
+            <p>
+              Inmobiliaria Añelo nació de la mano del crecimiento exponencial de la ciudad. Con más de 25 años de trayectoria en el mercado inmobiliario de la Patagonia, somos la referencia en alquiler corporativo e inversión estratégica en Vaca Muerta.
+            </p>
+            <p>
+              Conocemos el mercado como nadie: sabemos qué empresas necesitan alojamiento, cuánto pagan, qué exigencias requieren y cómo garantizar contratos seguros en USD. Esto le brinda a nuestros inversores una ventaja competitiva real y medible.
+            </p>
+            <p>
+              Nuestro equipo gestiona íntegramente cada propiedad: desde la búsqueda y selección del inquilino corporativo hasta el mantenimiento preventivo y renovación periódica. El inversor solo cobra su renta.
+            </p>
+          </div>
+
+          <!-- Value Props Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4">
+            <div class="flex items-center gap-2.5 p-3 bg-stone-900/60 border border-stone-800 rounded-lg text-xs font-medium text-stone-200">
+              <span class="w-2 h-2 rounded-full bg-brand-gold shrink-0"></span>
+              Transparencia total en cada operación
+            </div>
+            <div class="flex items-center gap-2.5 p-3 bg-stone-900/60 border border-stone-800 rounded-lg text-xs font-medium text-stone-200">
+              <span class="w-2 h-2 rounded-full bg-brand-gold shrink-0"></span>
+              Contratos garantizados en USD / ARS
+            </div>
+            <div class="flex items-center gap-2.5 p-3 bg-stone-900/60 border border-stone-800 rounded-lg text-xs font-medium text-stone-200">
+              <span class="w-2 h-2 rounded-full bg-brand-gold shrink-0"></span>
+              Gestión integral sin costos ocultos
+            </div>
+            <div class="flex items-center gap-2.5 p-3 bg-stone-900/60 border border-stone-800 rounded-lg text-xs font-medium text-stone-200">
+              <span class="w-2 h-2 rounded-full bg-brand-gold shrink-0"></span>
+              Inquilinos corporativos verificados
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- CTA Bottom Banner -->
+      <div class="p-10 bg-stone-900/80 border border-brand-gold/30 rounded-2xl text-center max-w-4xl mx-auto space-y-6 shadow-2xl">
+        <SectionHeader
+          subtitle="¿Querés saber más?"
+          title="Hablemos de tu inversión"
+          description="Sin compromiso, sin presión. Te explicamos todo el proceso y te mostramos las opciones disponibles según tu presupuesto."
+          align="center"
+        />
+        <div class="pt-2">
+          <Button variant="primary" size="lg" href="/contacto/">
+            Contactar un Asesor
+          </Button>
+        </div>
+      </div>
+
     </div>
-  </section>
-  <section style="text-align:center;">
-    <div class="section-label">¿Querés saber más?</div>
-    <h2 class="section-title">Hablemos de tu inversión</h2>
-    <div class="gold-divider" style="margin:1rem auto 1.5rem;"></div>
-    <p style="color:var(--gray); max-width:500px; margin:0 auto 2.5rem;">Sin compromiso, sin presión. Te explicamos todo el proceso y te mostramos las opciones disponibles según tu presupuesto.</p>
-    <a class="btn-primary" href="/contacto/">Contactar un asesor</a>
   </section>
 </Layout>

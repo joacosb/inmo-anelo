@@ -9,9 +9,9 @@
 | Base de datos | Supabase (PostgreSQL) |
 | Auth admin | Supabase Auth (email/password) |
 | Storage imágenes | Supabase Storage — bucket `property-images` (público) |
-| Estilos | CSS vanilla con variables (`var(--gold)`, `var(--black)`, etc.) en `src/styles/global.css` |
+| Estilos | **Tailwind CSS v4** (`@import "tailwindcss"`) en `src/styles/global.css` con variables centralizadas en `@theme` |
 | Iconos | Lucide (CDN) |
-| Fuentes | Google Fonts — Cormorant Garamond (títulos) + Montserrat (cuerpo) |
+| Fuentes | Google Fonts — Cormorant Garamond (títulos display) + Montserrat (cuerpo) |
 | Analytics | Google Tag Manager + Google Ads conversion tracking |
 
 ## Estructura de archivos clave
@@ -22,24 +22,70 @@ src/
     supabase.ts          — cliente Supabase, tipos (Property, etc.), helpers statusClass/zoneLabel
   middleware.ts          — protege /admin/* con cookie sb_token
   pages/
-    index.astro          — homepage estática (hero, Pampa III featured, portafolio, pasos)
-    corporativo.astro    — SSR, lee propiedades de Supabase
+    index.astro          — homepage estática (hero, portafolio directo sin modal, pasos)
+    corporativo.astro    — SSR, lee propiedades de Supabase (modal de detalle propio)
+    alquiler/            — grilla + mapa de alquiler permanente en bg-brand-black
+      index.astro
+      [slug].astro       — ficha pública con ListingDetail.astro en dark luxury
+    venta/               — grilla + mapa de propiedades en venta en bg-brand-black
+      index.astro
+      [slug].astro       — ficha pública con ListingDetail.astro en dark luxury
     invertir.astro       — estática
     nosotros.astro       — estática
     contacto.astro       — estática
     admin/
       index.astro        — login (POST → set cookie sb_token)
       logout.astro       — borra cookie, redirige
+      dashboard/         — métricas rápidas con tarjetas dark luxury (#242420)
       propiedades/
-        index.astro      — lista de propiedades con toggle de estado 1-click (JS + Supabase REST API)
+        index.astro      — lista de propiedades con toggle de estado 1-click
         [id].astro       — formulario de edición completa + gestión de fotos + preview de portada
+        nueva.astro      — alta de nueva propiedad
+      homepage/          — gestión del portafolio destacado
+  components/
+    Navbar.astro         — navbar principal fijo (selector nav#navbar), breakpoint md:flex para menú
+    Footer.astro         — pie de página unificado (sin mención de marcas secundarias)
+    PropertyCard.astro   — tarjeta modular dark luxury (#242420). Soporta enlaces directos y hideStatus
+    ListingsBrowser.astro— buscador de /venta/ y /alquiler/ con filtros oscuros y Leaflet
+    ListingDetail.astro  — vista de detalle pública en contenedor oscuro con ficha técnica y mapa
   layouts/
-    Layout.astro         — navbar, footer, modal de propiedades (homepage), popup de servicios, WhatsApp float
+    Layout.astro         — layout público (navbar, footer, WhatsApp float)
+    AdminLayout.astro    — layout admin dark luxury (#1B1B18 / #242420) con marca oficial
   styles/
-    global.css           — todos los estilos del sitio
-public/
-  *.webp                 — imágenes legacy (las nuevas van a Supabase Storage)
+    global.css           — Tailwind v4, tokens @theme centralizados y reseteos globales
 ```
+
+## Convenciones del Sistema de Diseño y CSS (Tailwind CSS v4)
+
+- **Fuente de Verdad**: `@theme` en `src/styles/global.css` define la paleta oficial:
+  - `--color-brand-black: #1B1B18`
+  - `--color-brand-gold: #c9a84c`
+  - `--color-brand-gold-light: #e8c97a`
+  - `--font-display: 'Cormorant Garamond'`
+  - `--font-body: 'Montserrat'`
+- **Modularidad por Componente**: Los componentes Astro deben mantenerse aislados en sus archivos usando clases de Tailwind (ej. `bg-[#242420]`, `text-brand-gold`, `font-display`, `border-stone-800`, `rounded-2xl`) o bloques `<style>` específicos del archivo.
+- **Sin Colisiones Globales**: En `global.css` NUNCA deben ponerse reglas genéricas a etiquetas HTML (ej. `nav { ... }` o `.prop-card { background: white }`) que puedan colisionar con componentes específicos. El navbar usa la regla estricta `nav#navbar`.
+
+## Portafolio y Navegación Directa (Homepage `index.astro`)
+
+- Las tarjetas del portafolio en `index.astro` no muestran badges de ocupación (`hideStatus={true}`).
+- Cada tarjeta navega directamente a la sección correspondiente mediante hipervínculos nativos (`<a>`), sin abrir modales genéricos intermedios (`noModal={true}`):
+  - **Unidades Funcionales**: `/corporativo/#secComplejos`
+  - **Complejos Residenciales**: `/corporativo/#secComplejos`
+  - **Edificios de Departamentos**: `/corporativo/#secEdificios`
+  - **Lotes e Inversión**: `/venta/?tipo=terreno`
+
+## Venta y Alquiler Permanente (`/venta/`, `/alquiler/`)
+
+- Ambas páginas están envueltas en el contenedor oscuro `bg-brand-black` para continuidad visual con el hero y la navbar.
+- **`ListingsBrowser.astro`**: Filtros en panel elevado `#242420` con bordes dorados y tarjetas dark luxury.
+- **`ListingDetail.astro`**: Ficha `/venta/[slug]` y `/alquiler/[slug]` sobre fondo oscuro `bg-brand-black`, panel de ficha técnica `#242420` en blanco/dorado de alto contraste y breadcrumbs con links claros.
+
+## Panel Administrador (`/admin/`)
+
+- Toda la interfaz administrativa (`AdminLayout.astro`, `dashboard`, `propiedades`, `homepage`) está unificada bajo la misma línea estética **dark luxury** (`#1B1B18` / `#242420`), marcas en dorado y fuentes `Cormorant Garamond` / `Montserrat`.
+
+---
 
 ## Modelo de datos — tabla `properties` en Supabase
 
@@ -62,84 +108,3 @@ sort_order     int
 active         bool
 created_at / updated_at timestamptz
 ```
-
-### Supabase Storage — bucket `property-images`
-
-- **Bucket**: `property-images` (público)
-- **Path por propiedad**: `{propertyId}/{timestamp}-{random}.{ext}`
-- **URL pública**: `https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/{path}`
-- **Políticas**: lectura pública para `anon`; upload/delete solo para `authenticated`
-- Las llamadas directas a la Storage API REST requieren **ambos** headers: `apikey` (anon key) + `Authorization: Bearer {token}`
-
-## Convenciones importantes
-
-- El campo `status_text` siempre va sin el "● " — el frontend lo agrega
-- Mapeo de status a clases CSS: `available` → `disponible` | `occupied` → `ocupado` | `partial` → `parcialmente-ocupado`
-- Mapeo de zona: `forestada` → "La Forestada" | `centro` + tipo `edificio` → "Centro Añelo" | `centro` + tipo `complejo` → "Añelo"
-- Las credenciales de Supabase están hardcodeadas en `src/lib/supabase.ts` (la anon key es pública por diseño)
-- La cookie de sesión admin se llama `sb_token` (httpOnly)
-- Los `<script define:vars>` en Astro quedan en scope local — las funciones llamadas desde handlers inline (`onclick`, `onchange`) deben exponerse con `window.fnName = fnName`
-- Los `<style>` en Astro son scoped por defecto — usar `<style is:global>` para estilos que aplican a elementos creados dinámicamente con JS
-
----
-
-## Features implementadas
-
-### Gestión de fotos en el admin (`[id].astro`)
-
-- **Subida**: drag & drop o click, múltiples archivos, hasta 10MB. Se suben directo a Supabase Storage y se sincronizan en `images[]` y `cover_image` via PATCH REST.
-- **Portada**: click en "Portada" sobre cualquier foto la marca como cover y sincroniza la DB.
-- **Eliminar**: borra del Storage y del array `images[]`.
-- **Preview de card**: panel lateral que muestra en tiempo real cómo quedará el card público con la portada actual. Hacer hover sobre otra foto la previsualiza temporalmente.
-- **Encuadre de portada**: el panel de preview es **arrastrable** — el drag actualiza `object-position` en tiempo real y guarda `cover_position` en la DB al soltar. Al cambiar de portada se resetea a `50% 50%`.
-
-### Cards en `/corporativo/`
-
-- Carrusel de fotos con flechas prev/next y dots. Las imágenes se precargan al cargar la página para transiciones fluidas sin flash.
-- `object-position` se aplica desde `cover_position` de la DB para respetar el encuadre configurado en el admin.
-- Al hacer click en un card (no en botones/links) se abre el **modal de detalle**.
-
-### Modal de detalle (`corporativo.astro`)
-
-- Layout fijo split 55/45: carrusel a la izquierda, info a la derecha. El tamaño del modal no cambia con las fotos.
-- Carrusel precarga todas las imágenes al abrir para transiciones instantáneas.
-- Info: nombre, estado, descripción, huéspedes, UFs, zona, botones WhatsApp y Matterport.
-- Teclado: ← → navegan, Escape cierra.
-- Mobile: sheet desde abajo, imagen arriba, info con scroll.
-
-### Modal de homepage (`Layout.astro`)
-
-- Los cards de la sección "Nuestros complejos" en `index.astro` tienen `data-dest` con la URL de destino.
-- Al hacer click: modal con "Ver los complejos/edificios" (navega a `/corporativo/` o `/corporativo/#secEdificios`) + "Consultar por WhatsApp".
-- Los cards de `corporativo.astro` tienen `data-no-modal` para saltear este modal genérico y usar el modal de detalle propio.
-
----
-
-### Venta y alquiler permanente (`/venta/`, `/alquiler/`)
-
-Una propiedad puede publicarse en **varias secciones a la vez** mediante flags
-(`for_corporate`, `for_rent`, `for_sale`) sobre la misma fila de `properties` —
-no hay tabla aparte, así las fotos y encuadres se comparten.
-
-- **Vista `properties_public`**: las páginas públicas leen de acá, no de la tabla,
-  porque la vista no expone `address` (dirección interna). Constante `PUBLIC_TABLE`.
-- **`ListingsBrowser.astro`**: filtros + grilla + mapa, parametrizado por `op`
-  (`venta` | `alquiler`). Filtra en el cliente sobre cards renderizadas en el
-  servidor; el estado va en la query string (`?tipo=casa&amb=3&max=120000`).
-  Ambientes/dormitorios sólo aparecen si hay un tipo casa/depto/PH tildado.
-- **`ListingDetail.astro`**: ficha `/venta/[slug]` con carrusel, ficha técnica,
-  mapa y JSON-LD `RealEstateListing`.
-- **Mapa**: Leaflet + tiles CARTO (sin API key). Con `location_exact = false`
-  se dibuja un círculo de 300 m en vez del pin, para no revelar la dirección.
-  Clustering propio por celda de pantalla debajo de zoom 15.
-- **Admin**: switches de sección arriba del form en `propiedades/[id].astro`,
-  con bloques condicionales (`data-when`) y mini-mapa de pin arrastrable.
-  Alta de propiedades nuevas en `propiedades/nueva.astro`.
-- **Migración**: `db/001_venta_alquiler.sql` — correr en el SQL Editor de
-  Supabase **antes** de deployar, porque `properties_public` es requerida por
-  `/corporativo/` e `/invertir/`.
-
-## Pendiente / próximos pasos
-
-- Migrar imágenes legacy de `public/*.webp` a Supabase Storage y actualizar `cover_image` en la DB
-- Carrusel de fotos también en la homepage (featured Pampa III)

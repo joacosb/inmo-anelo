@@ -49,74 +49,79 @@ try {
 ---
 <AdminLayout title="Dashboard" section="dashboard">
   <style>
-    .dash-main { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
-    .dash-heading { font-size: 1.4rem; font-weight: 700; margin-bottom: .35rem; }
-    .dash-sub { font-size: .8rem; color: rgba(255,255,255,.38); margin-bottom: 2.5rem; }
-    .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+    .dash-main { max-width: 980px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+    .dash-heading { font-family: var(--font-display); font-size: 2.5rem; font-weight: 600; color: #ffffff; margin-bottom: .4rem; }
+    .dash-sub { font-size: .95rem; color: rgba(255,255,255,.6); font-weight: 300; margin-bottom: 3rem; }
+    .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.75rem; }
 
     .dash-card {
-      background: #111;
-      border: 1px solid #1e1e1e;
-      border-radius: 12px;
-      padding: 1.5rem 1.4rem 1.3rem;
+      background: #242420;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
+      padding: 1.8rem 1.6rem 1.5rem;
       display: flex;
       flex-direction: column;
-      gap: .6rem;
-      transition: border-color .2s;
+      gap: .75rem;
+      transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+      box-shadow: 0 4px 24px rgba(0,0,0,.4);
     }
-    .dash-card:hover { border-color: #2a2a2a; }
+    .dash-card:hover { border-color: rgba(201,168,76,.5); transform: translateY(-3px); box-shadow: 0 10px 32px rgba(201,168,76,.12); }
     .dash-card-label {
-      font-size: .58rem;
+      font-size: .62rem;
       font-weight: 700;
-      letter-spacing: .16em;
+      letter-spacing: .18em;
       text-transform: uppercase;
       color: #c9a84c;
     }
-    .dash-card-title { font-size: 1.05rem; font-weight: 700; margin-bottom: .1rem; }
-    .dash-card-desc { font-size: .74rem; color: rgba(255,255,255,.38); line-height: 1.55; }
+    .dash-card-title { font-family: var(--font-display); font-size: 1.45rem; font-weight: 600; color: #ffffff; margin-bottom: .1rem; }
+    .dash-card-desc { font-size: .82rem; color: rgba(255,255,255,.55); line-height: 1.6; font-weight: 300; }
 
-    .dash-stats { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .2rem; }
+    .dash-stats { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .3rem; }
     .stat-chip {
-      font-size: .62rem;
+      font-size: .68rem;
       font-weight: 700;
-      padding: .22rem .6rem;
+      padding: .28rem .7rem;
       border-radius: 20px;
       letter-spacing: .04em;
     }
-    .stat-chip.available { background: rgba(16,185,129,.18); color: #6ee7b7; }
-    .stat-chip.partial   { background: rgba(234,179,8,.18);  color: #fde68a; }
-    .stat-chip.occupied  { background: rgba(239,68,68,.18);  color: #fca5a5; }
-    .stat-chip.neutral   { background: rgba(255,255,255,.08); color: rgba(255,255,255,.5); }
+    .stat-chip.available { background: rgba(16,185,129,.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,.3); }
+    .stat-chip.partial   { background: rgba(234,179,8,.2);  color: #fde68a; border: 1px solid rgba(234,179,8,.3); }
+    .stat-chip.occupied  { background: rgba(239,68,68,.2);  color: #fca5a5; border: 1px solid rgba(239,68,68,.3); }
+    .stat-chip.neutral   { background: rgba(255,255,255,.1); color: rgba(255,255,255,.7); border: 1px solid rgba(255,255,255,.15); }
 
     .dash-card-btn {
-      display: inline-block;
-      margin-top: .5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      margin-top: .6rem;
       background: #c9a84c;
-      color: #000;
-      font-family: inherit;
-      font-size: .75rem;
+      color: #000000;
+      font-family: var(--font-body);
+      font-size: .78rem;
       font-weight: 700;
       letter-spacing: .06em;
       text-transform: uppercase;
-      padding: .55rem 1.2rem;
-      border-radius: 6px;
+      padding: .6rem 1.4rem;
+      border-radius: 8px;
       text-decoration: none;
-      transition: background .15s;
+      transition: background .15s, transform .15s;
       align-self: flex-start;
+      box-shadow: 0 4px 14px rgba(201,168,76,.3);
     }
-    .dash-card-btn:hover { background: #b8953d; }
+    .dash-card-btn:hover { background: #e8c97a; transform: translateY(-1px); }
 
     .dash-card-new {
-      display: inline-block;
-      margin-top: .2rem;
-      margin-left: .75rem;
-      color: rgba(201,168,76,.7);
-      font-size: .72rem;
+      display: inline-flex;
+      align-items: center;
+      margin-top: .4rem;
+      margin-left: .85rem;
+      color: #c9a84c;
+      font-size: .78rem;
       font-weight: 600;
       text-decoration: none;
       transition: color .15s;
     }
-    .dash-card-new:hover { color: #c9a84c; }
+    .dash-card-new:hover { color: #e8c97a; text-decoration: underline; }
   </style>
 
   <main class="dash-main">

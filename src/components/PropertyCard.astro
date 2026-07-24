@@ -1,0 +1,127 @@
+---
+import Badge from './ui/Badge.astro';
+
+export interface Props {
+  id?: string;
+  name: string;
+  type?: string;
+  zone?: string;
+  status?: 'available' | 'occupied' | 'partial';
+  statusText?: string;
+  coverImage: string;
+  coverPosition?: string;
+  unitCount?: number;
+  maxGuests?: number;
+  dest?: string;
+  matterportUrl?: string;
+  noModal?: boolean;
+  hideStatus?: boolean;
+  class?: string;
+}
+
+const {
+  id,
+  name,
+  type = 'Complejo',
+  zone = 'Añelo',
+  status = 'available',
+  statusText = 'Disponible',
+  coverImage,
+  coverPosition = '50% 50%',
+  unitCount,
+  maxGuests,
+  dest,
+  matterportUrl,
+  noModal = false,
+  hideStatus = false,
+  class: className = '',
+} = Astro.props;
+
+const Element = dest ? 'a' : 'article';
+---
+
+<Element
+  href={dest}
+  class={`prop-card group relative bg-[#242420] border border-stone-800/90 hover:border-brand-gold/50 rounded-2xl overflow-hidden shadow-2xl hover:shadow-brand-gold/15 transition-all duration-300 flex flex-col cursor-pointer text-left no-underline ${className}`}
+  data-name={name}
+  data-type={type}
+  data-dest={dest}
+  data-no-modal={dest || noModal ? 'true' : undefined}
+>
+  <!-- Image Container with Overlays -->
+  <div class="relative h-64 w-full overflow-hidden bg-stone-950">
+    <img
+      src={coverImage}
+      alt={name}
+      class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+      style={`object-position: ${coverPosition}`}
+      loading="lazy"
+      decoding="async"
+    />
+    
+    <div class="absolute inset-0 bg-gradient-to-t from-[#242420] via-stone-950/30 to-transparent"></div>
+
+    <!-- Status Badge (Top-Right) - Optional -->
+    {!hideStatus && (
+      <div class="absolute top-3 right-3 z-10">
+        <Badge variant={status} size="sm">
+          {statusText}
+        </Badge>
+      </div>
+    )}
+
+    <!-- Type Tag (Top-Left) -->
+    <div class="absolute top-3.5 left-3.5 z-10">
+      <span class="px-3 py-1.5 bg-black/80 backdrop-blur-md text-[11px] font-bold tracking-widest uppercase text-brand-gold rounded-lg border border-brand-gold/40 shadow-lg">
+        {type}
+      </span>
+    </div>
+
+    <!-- Zone Tag -->
+    <div class="absolute bottom-3 left-3.5 z-10 flex items-center gap-1.5 px-3 py-1 bg-black/85 backdrop-blur-md rounded-lg border border-stone-700 text-xs text-stone-200 font-medium">
+      <svg class="w-3.5 h-3.5 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+      </svg>
+      {zone}
+    </div>
+  </div>
+
+  <!-- Content Container -->
+  <div class="p-6 flex-1 flex flex-col justify-between space-y-6 bg-[#242420]">
+    <div>
+      <h3 class="font-display text-2xl font-semibold text-white group-hover:text-brand-gold transition-colors leading-snug">
+        {name}
+      </h3>
+    </div>
+
+    <!-- Features Specs Row (if available) -->
+    {(unitCount || maxGuests) && (
+      <div class="grid grid-cols-2 gap-2 pt-4 border-t border-stone-800/80 text-xs text-stone-300 font-medium">
+        {unitCount && (
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+            <span>{unitCount} Unidades</span>
+          </div>
+        )}
+        {maxGuests && (
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            <span>Hasta {maxGuests} Huéspedes</span>
+          </div>
+        )}
+      </div>
+    )}
+
+    <!-- Action Bar -->
+    <div class="pt-4 border-t border-stone-800 flex items-center justify-between text-xs font-bold uppercase tracking-widest text-brand-gold group-hover:text-brand-gold-light">
+      <span>Explorar Categoría</span>
+      <svg class="w-4 h-4 transform group-hover:translate-x-1.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+      </svg>
+    </div>
+  </div>
+</Element>

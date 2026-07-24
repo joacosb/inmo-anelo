@@ -1,0 +1,108 @@
+---
+---
+
+<div
+  id="servicesPopup"
+  class="services-popup-overlay fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-300 [&.open]:opacity-100 [&.open]:pointer-events-auto"
+  onclick="if(event.target===this)closeServicesPopup()"
+>
+  <div class="services-popup relative w-full max-w-xl bg-stone-900 border border-brand-gold/40 rounded-2xl p-6 sm:p-10 shadow-2xl shadow-black transform scale-95 transition-transform duration-300 [div.open_&]:scale-100 space-y-6">
+    
+    <!-- Close Button -->
+    <button
+      onclick="closeServicesPopup()"
+      class="absolute top-5 right-5 p-2 text-stone-400 hover:text-white hover:bg-stone-800 rounded-full transition-colors"
+      aria-label="Cerrar modal"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <!-- Top Badge & Header -->
+    <div class="space-y-3">
+      <span class="inline-flex items-center gap-2 px-3 py-1 bg-brand-gold/15 border border-brand-gold/40 rounded-full text-xs font-bold uppercase tracking-widest text-brand-gold">
+        <span class="w-2 h-2 rounded-full bg-brand-gold animate-pulse"></span>
+        Servicios Llave en Mano
+      </span>
+
+      <h3 class="font-display text-3xl sm:text-4xl font-semibold text-white leading-tight">
+        Propiedades Equipadas,<br/><em class="italic font-normal text-brand-gold">Sin Gestiones Adicionales</em>
+      </h3>
+
+      <p class="text-stone-300 text-sm sm:text-base font-light leading-relaxed">
+        Cada alquiler corporativo incluye gestión integral y servicios activos desde el primer día para la comodidad de tu empresa e inquilinos.
+      </p>
+    </div>
+
+    <!-- Service Bullet Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+      <div class="p-3.5 bg-stone-950/80 border border-stone-800 rounded-xl flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-brand-gold/15 text-brand-gold flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        </div>
+        <span class="text-xs sm:text-sm font-medium text-stone-200">Luz, Agua y Gas</span>
+      </div>
+
+      <div class="p-3.5 bg-stone-950/80 border border-stone-800 rounded-xl flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-brand-gold/15 text-brand-gold flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path></svg>
+        </div>
+        <span class="text-xs sm:text-sm font-medium text-stone-200">WiFi de Alta Velocidad</span>
+      </div>
+
+      <div class="p-3.5 bg-stone-950/80 border border-stone-800 rounded-xl flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-brand-gold/15 text-brand-gold flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path></svg>
+        </div>
+        <span class="text-xs sm:text-sm font-medium text-stone-200">Mantenimiento 24/7</span>
+      </div>
+
+      <div class="p-3.5 bg-stone-950/80 border border-stone-800 rounded-xl flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-brand-gold/15 text-brand-gold flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+        </div>
+        <span class="text-xs sm:text-sm font-medium text-stone-200">Amoblado Completo</span>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="pt-4 flex flex-col sm:flex-row items-center gap-3">
+      <a
+        href="/corporativo/"
+        class="w-full sm:flex-1 py-3.5 px-5 text-center bg-brand-gold hover:bg-brand-gold-light text-brand-black font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-brand-gold/20"
+        onclick="closeServicesPopup()"
+      >
+        Ver Complejos
+      </a>
+      <a
+        href="https://wa.me/5492972431619?text=Hola,%20quisiera%20consultar%20por%20alquiler%20corporativo%20llave%20en%20mano..."
+        target="_blank"
+        rel="noopener"
+        class="w-full sm:flex-1 py-3.5 px-5 text-center bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-emerald-600/30"
+        onclick="closeServicesPopup()"
+      >
+        Consultar por WhatsApp
+      </a>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  function closeServicesPopup() {
+    var popup = document.getElementById('servicesPopup');
+    if (popup) popup.classList.remove('open');
+    document.body.style.overflow = '';
+    sessionStorage.setItem('sp_seen', '1');
+  }
+
+  if (!sessionStorage.getItem('sp_seen')) {
+    setTimeout(function() {
+      var popup = document.getElementById('servicesPopup');
+      if (popup) {
+        popup.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+    }, 12000);
+  }
+</script>

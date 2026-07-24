@@ -1,6 +1,10 @@
 ---
 export const prerender = false;
 import Layout from '../layouts/Layout.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+import PropertyCard from '../components/PropertyCard.astro';
+import Button from '../components/ui/Button.astro';
+import Badge from '../components/ui/Badge.astro';
 import { createClient } from '@supabase/supabase-js';
 import { getImageUrl, getSrcSet } from '../lib/supabase';
 
@@ -16,10 +20,10 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
 const DEFAULT_CARDS = [
-  { id:'1', tag:'Unidades Particulares', name:'UFs en centro y Forestada', description:'Unidades para 1, 2 o 4 personas totalmente equipadas con todos los servicios.', status:'available', status_text:'Disponible', cover_image:'/complejo-donostia1.webp', cover_position:'50% 50%', images:[], dest_url:'/corporativo/', meta1:'1–4 personas', meta2:'8–10% retorno est.', card_type:'uf' },
-  { id:'2', tag:'Complejos Enteros',      name:'Complejos en La Forestada',   description:'Complejos completos para hasta 35 personas. Contrato corporativo Oil & Gas.',              status:'partial',    status_text:'Últimos disponibles', cover_image:'/complejo-maria1.webp',   cover_position:'50% 50%', images:[], dest_url:'/corporativo/', meta1:'4–35 personas', meta2:'10–12% retorno est.', card_type:'complejo' },
-  { id:'3', tag:'Edificios · Downtown',  name:'Edificios Pampa I, II y III', description:'Departamentos de 1 y 2 dormitorios en el microcentro de Añelo.',                            status:'available',   status_text:'Disponible',          cover_image:'/edificio-pampa3.webp',  cover_position:'50% 50%', images:[], dest_url:'/corporativo/#secEdificios', meta1:'20–78 personas', meta2:'9–11% retorno est.', card_type:'edificio' },
-  { id:'4', tag:'Lotes',                 name:'Loteo La Forestada',          description:'Lotes de 540 m² a 5 minutos del centro de Añelo. Ideal para construir o revalorizar.',       status:'available',   status_text:'Disponible',          cover_image:'',                       cover_position:'50% 50%', images:[], dest_url:'/invertir/', meta1:'540 m²', meta2:'A 5 min del centro', card_type:'lote' },
+  { id:'1', tag:'Unidades Funcionales', name:'Unidades Funcionales', description:'Unidades totalmente equipadas para personal corporativo en Añelo.', cover_image:'/complejo-donostia1.webp', cover_position:'50% 50%', dest_url:'/corporativo/#secComplejos', card_type:'Unidades Funcionales' },
+  { id:'2', tag:'Complejos',            name:'Complejos Residenciales', description:'Complejos residenciales cerrados con todos los servicios incluidos.', cover_image:'/complejo-maria1.webp', cover_position:'50% 50%', dest_url:'/corporativo/#secComplejos', card_type:'Complejos' },
+  { id:'3', tag:'Edificios',            name:'Edificios de Departamentos', description:'Departamentos corporativos en el microcentro de Añelo.', cover_image:'/edificio-pampa3.webp', cover_position:'50% 50%', dest_url:'/corporativo/#secEdificios', card_type:'Edificios' },
+  { id:'4', tag:'Lotes',                name:'Lotes e Inversión', description:'Terrenos urbanizados para desarrollo en Vaca Muerta.', cover_image:'/complejo-yellowstone.webp', cover_position:'50% 50%', dest_url:'/venta/?tipo=terreno', card_type:'Lotes' },
 ];
 
 function statusClass(s: string) {
@@ -158,101 +162,194 @@ try {
   </div>
 
   <!-- PAMPA III DESTACADO -->
-  <section class="featured-pampa" id="pampa-iii">
-    <div class="fp-top-strip">
-      <span class="fp-strip-label"><i data-lucide="star"></i>Oportunidad Destacada</span>
-      <span class="fp-avail-pill"><span class="fp-pulse"></span>Disponibilidad inmediata</span>
-    </div>
-    <div class="fp-inner">
-      <div class="fp-img-col">
-        <img src="/edificio-pampa3.webp" alt="Edificio Pampa III · Centro de Añelo" width="800" height="600" loading="lazy" decoding="async" />
-        <div class="fp-location-tag"><i data-lucide="map-pin"></i>Centro de Añelo</div>
+  <section class="py-16 bg-brand-black text-white border-y border-brand-gold/20 relative overflow-hidden" id="pampa-iii">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex items-center justify-between mb-8 pb-4 border-b border-stone-800">
+        <span class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brand-gold">
+          <i data-lucide="star" class="w-4 h-4"></i> Oportunidad Destacada
+        </span>
+        <Badge variant="available">Disponibilidad Inmediata</Badge>
       </div>
-      <div class="fp-text-col">
-        <span class="fp-eyebrow">Edificio Corporativo · Downtown</span>
-        <h2 class="fp-heading">Edificio <em>Pampa III</em></h2>
-        <p class="fp-desc">En el corazón de Añelo — a pasos de todo, sin perder tiempo en traslados. Ideal para equipos Oil &amp; Gas que necesitan comodidad, practicidad y servicios completos desde el primer día.</p>
-        <div class="fp-chips">
-          <span class="fp-chip"><i data-lucide="users"></i>Hasta 78 personas</span>
-          <span class="fp-chip"><i data-lucide="bed-double"></i>1 dormitorio y monoambientes</span>
-          <span class="fp-chip"><i data-lucide="layers"></i>Alquilá por piso o edificio completo</span>
-          <span class="fp-chip"><i data-lucide="wifi"></i>Todos los servicios incluidos</span>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <!-- Image Column -->
+        <div class="relative rounded-2xl overflow-hidden border border-stone-800 shadow-2xl group">
+          <img
+            src="/edificio-pampa3.webp"
+            alt="Edificio Pampa III · Centro de Añelo"
+            class="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-105"
+            width="800"
+            height="600"
+            loading="lazy"
+            decoding="async"
+          />
+          <div class="absolute bottom-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-black/80 backdrop-blur-md rounded-md text-xs text-stone-200 border border-stone-700 font-medium">
+            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-brand-gold"></i>
+            Centro de Añelo
+          </div>
         </div>
-        <div class="fp-actions">
-          <a class="btn-primary" href="/corporativo/#edificios" onclick="gtag('event','cta_pampa3_featured',{'event_category':'destacado'});">Ver disponibilidad</a>
-          <a class="fp-wa-btn" href="https://wa.me/5492972431619?text=Hola%2C%20me%20interesa%20el%20Edificio%20Pampa%20III.%20%C2%BFPueden%20darme%20m%C3%A1s%20informaci%C3%B3n%3F" target="_blank" rel="noopener" onclick="gtag('event','whatsapp_click',{'event_category':'destacado'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})"><i data-lucide="message-circle"></i>Consultar por WhatsApp</a>
-          <a class="fp-tour-btn" href="https://my.matterport.com/show/?m=HdzbizKQMrt" target="_blank" rel="noopener" onclick="gtag('event','virtual_tour_pampa3',{'event_category':'destacado'});"><i data-lucide="play-circle"></i>Recorrido virtual</a>
+
+        <!-- Content Column -->
+        <div class="space-y-6">
+          <div class="space-y-2">
+            <span class="text-xs uppercase tracking-[0.2em] font-semibold text-brand-gold">Edificio Corporativo · Downtown</span>
+            <h2 class="font-display text-4xl sm:text-5xl font-semibold text-white leading-tight">
+              Edificio <em class="italic font-normal text-brand-gold">Pampa III</em>
+            </h2>
+          </div>
+
+          <p class="text-stone-300 text-base leading-relaxed font-light">
+            En el corazón de Añelo — a pasos de todo, sin perder tiempo en traslados. Ideal para equipos Oil & Gas que necesitan comodidad, practicidad y servicios completos desde el primer día.
+          </p>
+
+          <!-- Chips Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            <div class="flex items-center gap-2.5 p-3 bg-stone-900/80 border border-stone-800 rounded-lg text-xs font-medium text-stone-200">
+              <i data-lucide="users" class="w-4 h-4 text-brand-gold"></i>
+              Hasta 78 personas
+            </div>
+            <div class="flex items-center gap-2.5 p-3 bg-stone-900/80 border border-stone-800 rounded-lg text-xs font-medium text-stone-200">
+              <i data-lucide="bed-double" class="w-4 h-4 text-brand-gold"></i>
+              1 dormitorio y monoambientes
+            </div>
+            <div class="flex items-center gap-2.5 p-3 bg-stone-900/80 border border-stone-800 rounded-lg text-xs font-medium text-stone-200">
+              <i data-lucide="layers" class="w-4 h-4 text-brand-gold"></i>
+              Por piso o edificio completo
+            </div>
+            <div class="flex items-center gap-2.5 p-3 bg-stone-900/80 border border-stone-800 rounded-lg text-xs font-medium text-stone-200">
+              <i data-lucide="wifi" class="w-4 h-4 text-brand-gold"></i>
+              Todos los servicios incluidos
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-wrap items-center gap-3 pt-4">
+            <Button variant="primary" href="/corporativo/#edificios">
+              Ver Disponibilidad
+            </Button>
+            <Button variant="whatsapp" href="https://wa.me/5492972431619?text=Hola%2C%20me%20interesa%20el%20Edificio%20Pampa%20III.%20%C2%BFPueden%20darme%20m%C3%A1s%20informaci%C3%B3n%3F" target="_blank" rel="noopener">
+              WhatsApp
+            </Button>
+            <Button variant="outline" href="https://my.matterport.com/show/?m=HdzbizKQMrt" target="_blank" rel="noopener">
+              Tour Virtual
+            </Button>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- POR QUE ANELO -->
-  <section id="por-que-anelo" style="background:var(--black); color:var(--white);">
-    <div class="section-label reveal">La oportunidad</div>
-    <div class="section-title reveal" style="color:var(--white);"><em>Vaca Muerta:</em><br/>la oportunidad del siglo</div>
-    <div class="gold-divider reveal"></div>
-    <p class="section-sub reveal" style="color:rgba(255,255,255,.6);">Vaca Muerta es la segunda reserva de shale gas y la cuarta de shale oil del planeta. Las inversiones proyectadas superan los USD 100.000 millones en la próxima década. Añelo es la puerta de entrada a todo ese movimiento.</p>
-    <div class="why-grid reveal">
-      <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);"><div class="icon"><i data-lucide="globe-2"></i></div><h3 style="color:var(--white);">2° reserva mundial</h3><p style="color:rgba(255,255,255,.55);">Vaca Muerta es la segunda reserva de shale del mundo, solo comparable con Permian Basin en Texas.</p></div>
-      <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);"><div class="icon"><i data-lucide="trending-up"></i></div><h3 style="color:var(--white);">Crecimiento sostenido</h3><p style="color:rgba(255,255,255,.55);">YPF, Shell, TotalEnergies, Chevron y Pan American Energy operan en la cuenca. La actividad crece año a año.</p></div>
-      <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);"><div class="icon"><i data-lucide="bar-chart-2"></i></div><h3 style="color:var(--white);">Rentabilidad elevada</h3><p style="color:rgba(255,255,255,.55);">Retornos de 8 a 12% anual respaldados por contratos corporativos. Una de las rentabilidades inmobiliarias más altas del país.</p></div>
-      <div class="why-card" style="background:rgba(255,255,255,.05); border-color:var(--gold);"><div class="icon"><i data-lucide="key-round"></i></div><h3 style="color:var(--white);">Empezás a cobrar sin esfuerzo</h3><p style="color:rgba(255,255,255,.55);">Nosotros conseguimos el inquilino, firmamos el contrato y te transferimos la renta. Tu propiedad trabaja por vos.</p></div>
+  <section id="por-que-anelo" class="py-28 sm:py-36 bg-brand-black text-white relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <SectionHeader
+        subtitle="La Oportunidad"
+        title="Vaca Muerta: la oportunidad del siglo"
+        description="Vaca Muerta es la segunda reserva de shale gas y la cuarta de shale oil del planeta. Las inversiones proyectadas superan los USD 100.000 millones en la próxima década. Añelo es la puerta de entrada a todo ese movimiento."
+        align="center"
+      />
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="p-8 bg-stone-900/60 border border-stone-800 hover:border-brand-gold/40 rounded-2xl space-y-4 transition-all duration-300 hover:-translate-y-1 shadow-xl">
+          <div class="w-14 h-14 rounded-xl bg-brand-gold/15 text-brand-gold flex items-center justify-center border border-brand-gold/30">
+            <i data-lucide="globe-2" class="w-7 h-7"></i>
+          </div>
+          <h3 class="font-display text-2xl font-semibold text-white">2° reserva mundial</h3>
+          <p class="text-sm text-stone-300 leading-relaxed font-light">Vaca Muerta es la segunda reserva de shale del mundo, solo comparable con Permian Basin en Texas.</p>
+        </div>
+
+        <div class="p-8 bg-stone-900/60 border border-stone-800 hover:border-brand-gold/40 rounded-2xl space-y-4 transition-all duration-300 hover:-translate-y-1 shadow-xl">
+          <div class="w-14 h-14 rounded-xl bg-brand-gold/15 text-brand-gold flex items-center justify-center border border-brand-gold/30">
+            <i data-lucide="trending-up" class="w-7 h-7"></i>
+          </div>
+          <h3 class="font-display text-2xl font-semibold text-white">Crecimiento sostenido</h3>
+          <p class="text-sm text-stone-300 leading-relaxed font-light">YPF, Shell, TotalEnergies, Chevron y Pan American Energy operan en la cuenca. La actividad crece año a año.</p>
+        </div>
+
+        <div class="p-8 bg-stone-900/60 border border-stone-800 hover:border-brand-gold/40 rounded-2xl space-y-4 transition-all duration-300 hover:-translate-y-1 shadow-xl">
+          <div class="w-14 h-14 rounded-xl bg-brand-gold/15 text-brand-gold flex items-center justify-center border border-brand-gold/30">
+            <i data-lucide="bar-chart-2" class="w-7 h-7"></i>
+          </div>
+          <h3 class="font-display text-2xl font-semibold text-white">Rentabilidad elevada</h3>
+          <p class="text-sm text-stone-300 leading-relaxed font-light">Retornos de 8 a 12% anual respaldados por contratos corporativos. Una de las rentabilidades inmobiliarias más altas del país.</p>
+        </div>
+
+        <div class="p-8 bg-stone-900/60 border border-stone-800 hover:border-brand-gold/40 rounded-xl space-y-4 transition-all duration-300 hover:-translate-y-1 shadow-xl">
+          <div class="w-14 h-14 rounded-xl bg-brand-gold/15 text-brand-gold flex items-center justify-center border border-brand-gold/30">
+            <i data-lucide="key-round" class="w-7 h-7"></i>
+          </div>
+          <h3 class="font-display text-2xl font-semibold text-white">Gestión sin esfuerzo</h3>
+          <p class="text-sm text-stone-300 leading-relaxed font-light">Nosotros conseguimos el inquilino, firmamos el contrato y te transferimos la renta. Tu propiedad trabaja por vos.</p>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- PROPIEDADES PREVIEW -->
-  <section id="nuestros-complejos" style="background:var(--light); padding-top:4rem; padding-bottom:4rem;">
-    <div class="section-label reveal">Portafolio</div>
-    <div class="section-title reveal">Nuestro <em>portafolio</em></div>
-    <div class="gold-divider reveal"></div>
-    <p class="section-sub reveal">Cuatro categorías de inversión para distintos perfiles de capital. Todos con servicios incluidos y gestión profesional.</p>
-    <div class="props-grid props-grid--home reveal">
-      {homepageCards.map((card: any) => (
-        <div class="prop-card"
-          data-name={card.name}
-          data-type={card.card_type ?? 'complejo'}
-          data-section="complejos"
-          data-dest={card.dest_url}>
-          <div class="prop-img-wrap">
-            {card.cover_image
-              ? <img class="prop-img" width="600" height="450" loading="lazy" decoding="async"
-                  src={getImageUrl(card.cover_image, { width: 640 })}
-                  srcset={getSrcSet(card.cover_image, [384, 640, 828])}
-                  sizes="(max-width: 700px) 92vw, (max-width: 1100px) 45vw, 24vw"
-                  alt={card.name} style={`object-position:${card.cover_position ?? '50% 50%'}`} />
-              : <div class="prop-img-placeholder"><span>{card.tag}</span></div>
-            }
-          </div>
-          <span class={`prop-status ${statusClass(card.status)}`}>● {card.status_text}</span>
-          <div class="prop-body">
-            <span class="prop-tag">{card.tag}</span>
-            <h3>{card.name}</h3>
-            <p>{card.description}</p>
-            <div class="prop-meta">
-              {card.meta1 && <div class="prop-meta-item"><strong>{card.meta1}</strong></div>}
-              {card.meta2 && <div class="prop-meta-item"><strong>{card.meta2}</strong></div>}
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-    <div style="text-align:center; margin-top:2.5rem;">
-      <a class="btn-primary" href="/corporativo/">Ver todas las propiedades</a>
+  <section id="nuestros-complejos" class="py-28 sm:py-36 bg-stone-950 text-white relative border-y border-stone-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <SectionHeader
+        subtitle="Portafolio"
+        title="Nuestro portafolio destacado"
+        description="Categorías de inversión para distintos perfiles de capital. Todos con servicios incluidos y gestión profesional."
+        align="center"
+      />
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {homepageCards.map((card: any) => (
+          <PropertyCard
+            name={card.name}
+            type={card.card_type ?? 'Categoría'}
+            coverImage={card.cover_image ? getImageUrl(card.cover_image, { width: 640 }) : '/complejo-maria1.webp'}
+            coverPosition={card.cover_position ?? '50% 50%'}
+            dest={card.dest_url || (card.card_type === 'Edificios' ? '/corporativo/#secEdificios' : card.card_type === 'Lotes' ? '/venta/?tipo=terreno' : '/corporativo/#secComplejos')}
+            hideStatus={true}
+            noModal={true}
+          />
+        ))}
+      </div>
+
+      <div class="text-center mt-16">
+        <Button variant="primary" size="lg" href="/corporativo/">
+          Ver todas las propiedades
+        </Button>
+      </div>
     </div>
   </section>
 
   <!-- PASOS -->
-  <section id="como-invierto">
-    <div class="section-label reveal">Proceso</div>
-    <div class="section-title reveal">Invertir es <em>simple</em></div>
-    <div class="gold-divider reveal"></div>
-    <p class="section-sub reveal">Te acompañamos en cada etapa. Sin burocracia innecesaria, con total transparencia.</p>
-    <div class="steps reveal">
-      <div class="step"><div class="step-num" aria-hidden="true">01</div><h4>Consulta inicial</h4><p>Analizamos tu perfil de inversión y te presentamos las opciones que mejor se adaptan a tu capital disponible.</p></div>
-      <div class="step"><div class="step-num" aria-hidden="true">02</div><h4>Visita o tour virtual</h4><p>Conocés la propiedad presencialmente o mediante recorrida virtual HD. Sin presión, a tu ritmo.</p></div>
-      <div class="step"><div class="step-num" aria-hidden="true">03</div><h4>Escritura y financiación</h4><p>Gestionamos el proceso legal completo y te asesoramos sobre opciones de pago y financiación disponibles.</p></div>
-      <div class="step"><div class="step-num" aria-hidden="true">04</div><h4>Tu renta llega</h4><p>Conseguimos el inquilino corporativo, firmamos el contrato y empézas a cobrar desde el primer mes.</p></div>
+  <section id="como-invierto" class="py-28 sm:py-36 bg-brand-black text-white relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <SectionHeader
+        subtitle="Proceso"
+        title="Invertir es simple"
+        description="Te acompañamos en cada etapa. Sin burocracia innecesaria, con total transparencia."
+        align="center"
+      />
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="p-8 bg-stone-900/60 border border-stone-800 rounded-2xl relative space-y-5 shadow-xl">
+          <span class="block text-5xl font-display font-bold text-brand-gold/60">01</span>
+          <h4 class="text-xl font-semibold text-white">Consulta inicial</h4>
+          <p class="text-sm text-stone-300 font-light leading-relaxed">Analizamos tu perfil de inversión y te presentamos las opciones que mejor se adaptan a tu capital disponible.</p>
+        </div>
+        <div class="p-8 bg-stone-900/60 border border-stone-800 rounded-2xl relative space-y-5 shadow-xl">
+          <span class="block text-5xl font-display font-bold text-brand-gold/60">02</span>
+          <h4 class="text-xl font-semibold text-white">Visita o tour virtual</h4>
+          <p class="text-sm text-stone-300 font-light leading-relaxed">Conocés la propiedad presencialmente o mediante recorrida virtual HD. Sin presión, a tu ritmo.</p>
+        </div>
+        <div class="p-8 bg-stone-900/60 border border-stone-800 rounded-2xl relative space-y-5 shadow-xl">
+          <span class="block text-5xl font-display font-bold text-brand-gold/60">03</span>
+          <h4 class="text-xl font-semibold text-white">Escritura y contrato</h4>
+          <p class="text-sm text-stone-300 font-light leading-relaxed">Gestionamos el proceso legal completo y te asesoramos sobre opciones de pago y financiación disponibles.</p>
+        </div>
+        <div class="p-8 bg-stone-900/60 border border-stone-800 rounded-2xl relative space-y-5 shadow-xl">
+          <span class="block text-5xl font-display font-bold text-brand-gold/60">04</span>
+          <h4 class="text-xl font-semibold text-white">Tu renta llega</h4>
+          <p class="text-sm text-stone-300 font-light leading-relaxed">Conseguimos el inquilino corporativo, firmamos el contrato y empezás a cobrar desde el primer mes.</p>
+        </div>
+      </div>
     </div>
   </section>
 

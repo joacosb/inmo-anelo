@@ -1,6 +1,11 @@
 ---
 import '../styles/global.css';
 import { getImageUrl } from '../lib/supabase';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import WhatsAppFloat from '../components/WhatsAppFloat.astro';
+import PropertyModal from '../components/PropertyModal.astro';
+import ServicesModal from '../components/ServicesModal.astro';
 
 export interface Props {
   title: string;
@@ -163,376 +168,20 @@ const navItems = [
 </head>
 <body>
 
-<!-- NAVBAR -->
-<nav id="navbar">
-  <a class="nav-logo" href="/">
-    <img class="nav-logo-img" src="/favicon.svg" alt="Inmobiliaria Añelo" width="44" height="44" />
-    <div class="nav-logo-text">
-      <span>Inmobiliaria</span>
-      <span>AÑELO</span>
-    </div>
-  </a>
-  <ul class="nav-links" id="navLinks">
-    <li class="has-dropdown">
-      <div class="nav-item-row">
-        <a href="/" class:list={[{ active: pathname === '/' }]}>Inicio</a>
-        <button class="nav-chevron-btn" aria-label="Ver secciones" aria-expanded="false">
-          <svg viewBox="0 0 10 6" width="10" height="6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-      <div class="nav-dropdown">
-        <a href="/#por-que-anelo">Vaca Muerta</a>
-        <a href="/#nuestros-complejos">Nuestros complejos</a>
-        <a href="/#como-invierto">¿Cómo invierto?</a>
-      </div>
-    </li>
-    <li class="has-dropdown">
-      <div class="nav-item-row">
-        <a href="/corporativo/" class:list={[{ active: pathname === '/corporativo/' }]}>Alquiler Corporativo</a>
-        <button class="nav-chevron-btn" aria-label="Ver secciones" aria-expanded="false">
-          <svg viewBox="0 0 10 6" width="10" height="6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-      <div class="nav-dropdown">
-        <a href="/corporativo/#secComplejos">Complejos residenciales</a>
-        <a href="/corporativo/#secEdificios">Edificios y locales comerciales</a>
-      </div>
-    </li>
-    <li class="has-dropdown">
-      <div class="nav-item-row">
-        <a href="/venta/" class:list={[{ active: pathname.startsWith('/venta/') }]}>Comprar</a>
-        <button class="nav-chevron-btn" aria-label="Ver secciones" aria-expanded="false">
-          <svg viewBox="0 0 10 6" width="10" height="6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-      <div class="nav-dropdown">
-        <a href="/venta/?tipo=casa">Casas en venta</a>
-        <a href="/venta/?tipo=departamento">Departamentos en venta</a>
-        <a href="/venta/?tipo=terreno">Terrenos</a>
-        <a href="/alquiler/">Alquiler permanente</a>
-      </div>
-    </li>
-    <li class="has-dropdown">
-      <div class="nav-item-row">
-        <a href="/invertir/" class:list={[{ active: pathname === '/invertir/' }]}>Invertir</a>
-        <button class="nav-chevron-btn" aria-label="Ver secciones" aria-expanded="false">
-          <svg viewBox="0 0 10 6" width="10" height="6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-      <div class="nav-dropdown">
-        <a href="/invertir/#retornos">Rentabilidad en dólares</a>
-        <a href="/invertir/#retornos">Calculá tu retorno</a>
-        <a href="/invertir/#propiedades">Propiedades disponibles</a>
-        <a href="/invertir/#faq">Preguntas frecuentes</a>
-      </div>
-    </li>
-    <li>
-      <a href="/nosotros/" class:list={[{ active: pathname === '/nosotros/' }]}>Nosotros</a>
-    </li>
-    <li class="has-dropdown">
-      <div class="nav-item-row">
-        <a href="/contacto/" class="nav-cta">Contacto</a>
-        <button class="nav-chevron-btn" aria-label="Ver opciones de contacto" aria-expanded="false" style="color:var(--black);">
-          <svg viewBox="0 0 10 6" width="10" height="6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-      <div class="nav-dropdown" style="left:auto; right:0; transform:translateY(-4px);">
-        <a href="https://wa.me/5492972431619" target="_blank" rel="noopener" onclick="gtag('event','whatsapp_click',{'event_category':'nav'});">WhatsApp</a>
-        <a href="mailto:grupopampanqn@gmail.com">Mail</a>
-        <a href="https://www.instagram.com/inmobiliaria.anelo" target="_blank" rel="noopener">Instagram</a>
-      </div>
-    </li>
-  </ul>
-  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
+<Navbar pathname={pathname} />
 
-<div class="page">
+<div class="pt-[88px]">
   <slot />
 </div>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-top">
-    <div class="footer-brand">
-      <div class="nav-logo" style="cursor:default; pointer-events:none;">
-        <img class="nav-logo-img" src="/favicon.svg" alt="Inmobiliaria Añelo" width="44" height="44" loading="lazy" />
-        <div class="nav-logo-text"><span>Inmobiliaria</span><span>AÑELO</span></div>
-      </div>
-      <p>+25 años de experiencia inmobiliaria en la Patagonia. Especialistas en alquiler corporativo e inversiones en Vaca Muerta, Añelo, Neuquén.</p>
-    </div>
-    <div class="footer-col">
-      <h4>Navegación</h4>
-      <ul>
-        <li><a href="/">Inicio</a></li>
-        <li><a href="/corporativo/">Alquiler corporativo</a></li>
-        <li><a href="/venta/">Propiedades en venta</a></li>
-        <li><a href="/alquiler/">Alquiler permanente</a></li>
-        <li><a href="/invertir/">Invertir</a></li>
-        <li><a href="/nosotros/">Nosotros</a></li>
-        <li><a href="/contacto/">Contacto</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Contacto</h4>
-      <ul>
-        <li><a href="tel:+5492972431619">+54 9 2972 431619</a></li>
-        <li><a href="mailto:grupopampanqn@gmail.com">grupopampanqn@gmail.com</a></li>
-        <li><a href="https://wa.me/5492972431619" target="_blank" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">WhatsApp</a></li>
-        <li><a href="https://www.instagram.com/inmobiliaria.anelo" target="_blank">@inmobiliaria.anelo</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span>&copy; 2026 Inmobiliaria Añelo · Todos los derechos reservados</span>
-    <div class="social-links">
-      <a class="social-link" href="https://wa.me/5492972431619" target="_blank" title="WhatsApp" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">WA</a>
-      <a class="social-link" href="https://www.instagram.com/inmobiliaria.anelo" target="_blank" title="Instagram">IG</a>
-      <a class="social-link" href="mailto:grupopampanqn@gmail.com" title="Email">Mail</a>
-    </div>
-  </div>
-</footer>
+<Footer />
 
-<!-- PROPERTY MODAL -->
-<div id="propModal" class="prop-modal-overlay" onclick="if(event.target===this)closePropModal()">
-  <div class="prop-modal">
-    <button class="prop-modal-close" onclick="closePropModal()" aria-label="Cerrar">&times;</button>
-    <h3 id="modalPropName"></h3>
-    <p class="prop-modal-sub">¿Qué querés hacer?</p>
-    <div class="prop-modal-actions">
-      <a id="modalVirtual" href="#" target="_blank" rel="noopener" class="prop-modal-btn">
-        <span>Ver recorrido virtual</span>
-      </a>
-      <a id="modalWA" href="#" target="_blank" rel="noopener" class="prop-modal-btn prop-modal-btn-wa" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">
-        <span>Consultar por WhatsApp</span>
-      </a>
-    </div>
-  </div>
-</div>
+<PropertyModal />
+<ServicesModal />
+<WhatsAppFloat />
 
-<!-- SERVICES POPUP -->
-<div id="servicesPopup" class="services-popup-overlay" onclick="if(event.target===this)closeServicesPopup()">
-  <div class="services-popup">
-    <button class="services-popup-x" onclick="closeServicesPopup()" aria-label="Cerrar">&times;</button>
-    <div class="services-popup-badge">Todo incluido</div>
-    <h3>Llave en mano,<br/>sin sorpresas</h3>
-    <p class="sp-sub">Cada propiedad incluye servicios completos desde el primer día. Sin gestiones adicionales para el inquilino ni el inversor.</p>
-    <div class="sp-grid">
-      <div class="sp-item"><i data-lucide="zap"></i><span>Electricidad y gas</span></div>
-      <div class="sp-item"><i data-lucide="droplets"></i><span>Agua y cloacas</span></div>
-      <div class="sp-item"><i data-lucide="wifi"></i><span>WiFi de alta velocidad</span></div>
-      <div class="sp-item"><i data-lucide="sparkles"></i><span>Limpieza periódica</span></div>
-      <div class="sp-item"><i data-lucide="wrench"></i><span>Mantenimiento 24/7</span></div>
-      <div class="sp-item"><i data-lucide="sofa"></i><span>Totalmente amoblado</span></div>
-      <div class="sp-item"><i data-lucide="building-2"></i><span>Administración integral</span></div>
-    </div>
-    <div class="sp-highlight">
-      <strong>+25 años</strong> gestionando propiedades en Añelo &mdash; el inversor solo cobra, nosotros nos ocupamos de todo.
-    </div>
-    <div class="sp-actions">
-      <a href="https://wa.me/5492972431619?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20las%20propiedades%20con%20servicios%20incluidos." target="_blank" rel="noopener" class="sp-btn-wa" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">💬 Consultar por WhatsApp</a>
-      <button class="sp-btn-close" onclick="closeServicesPopup()">Seguir viendo</button>
-    </div>
-  </div>
-</div>
-
-<!-- WHATSAPP FLOAT -->
-<div class="wa-float" id="waFloat">
-  <a href="https://wa.me/5492972431619" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp" onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-  </a>
-</div>
+<!-- GLOBAL SCRIPTS -->
 <script is:inline>
-(function() {
-  var el = document.getElementById('waFloat');
-  if (!el) return;
-  var MARGIN = 12;
-  var dragging = false, moved = false;
-  var startCX, startCY, startElL, startElT;
-
-  function getSize() { return el.querySelector('a').offsetWidth || 52; }
-
-  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
-
-  function toLeftTop() {
-    var r = el.getBoundingClientRect();
-    el.style.left = r.left + 'px'; el.style.top = r.top + 'px';
-    el.style.right = 'auto'; el.style.bottom = 'auto';
-  }
-
-  function snapToEdge(cx, cy) {
-    var W = window.innerWidth, H = window.innerHeight, S = getSize();
-    var dR = W - cx, dL = cx, dB = H - cy, dT = cy;
-    var mn = Math.min(dR, dL, dB, dT);
-    var x, y;
-    if (mn === dR)       { x = W - S - MARGIN; y = clamp(cy - S/2, MARGIN, H - S - MARGIN); }
-    else if (mn === dL)  { x = MARGIN;          y = clamp(cy - S/2, MARGIN, H - S - MARGIN); }
-    else if (mn === dB)  { x = clamp(cx - S/2, MARGIN, W - S - MARGIN); y = H - S - MARGIN; }
-    else                 { x = clamp(cx - S/2, MARGIN, W - S - MARGIN); y = MARGIN; }
-    el.style.left = x + 'px'; el.style.top = y + 'px';
-    try { localStorage.setItem('wa_float_pos', JSON.stringify({l: x, t: y})); } catch(e) {}
-  }
-
-  try {
-    var sv = JSON.parse(localStorage.getItem('wa_float_pos'));
-    if (sv && typeof sv.l === 'number') {
-      el.style.left = sv.l + 'px'; el.style.top = sv.t + 'px';
-      el.style.right = 'auto'; el.style.bottom = 'auto';
-    }
-  } catch(e) {}
-
-  function onDown(e) {
-    if (e.button && e.button !== 0) return;
-    dragging = true; moved = false;
-    var pt = e.touches ? e.touches[0] : e;
-    startCX = pt.clientX; startCY = pt.clientY;
-    toLeftTop();
-    startElL = parseFloat(el.style.left); startElT = parseFloat(el.style.top);
-    el.classList.add('dragging'); el.style.transition = 'none';
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('touchmove', onMove, { passive: false });
-    document.addEventListener('mouseup', onUp);
-    document.addEventListener('touchend', onUp);
-  }
-  function onMove(e) {
-    if (!dragging) return;
-    if (e.cancelable) e.preventDefault();
-    var pt = e.touches ? e.touches[0] : e;
-    var dx = pt.clientX - startCX, dy = pt.clientY - startCY;
-    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
-    el.style.left = (startElL + dx) + 'px'; el.style.top = (startElT + dy) + 'px';
-  }
-  function onUp() {
-    if (!dragging) return; dragging = false;
-    el.classList.remove('dragging'); el.style.transition = '';
-    document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('touchmove', onMove);
-    document.removeEventListener('mouseup', onUp);
-    document.removeEventListener('touchend', onUp);
-    if (!moved) return;
-    var r = el.getBoundingClientRect();
-    snapToEdge(r.left + r.width / 2, r.top + r.height / 2);
-  }
-
-  el.addEventListener('mousedown', onDown);
-  el.addEventListener('touchstart', onDown, { passive: true });
-})();
-</script>
-
-<!-- ── GLOBAL SCRIPTS ───────────────────────────────────────────────────── -->
-<script is:inline>
-  // ─── MENU / NAV ────────────────────────────────────────────────────────
-  function toggleMenu() {
-    document.getElementById('navLinks').classList.toggle('open');
-    document.querySelector('.hamburger').classList.toggle('open');
-  }
-  function closeMenu() {
-    document.getElementById('navLinks').classList.remove('open');
-    document.querySelector('.hamburger').classList.remove('open');
-    document.querySelectorAll('.has-dropdown.open').forEach(function(el) { el.classList.remove('open'); });
-  }
-  document.querySelectorAll('.nav-links > li > a').forEach(function(a) {
-    a.addEventListener('click', closeMenu);
-  });
-  document.querySelectorAll('.nav-dropdown a').forEach(function(a) {
-    a.addEventListener('click', closeMenu);
-  });
-
-  // ─── DROPDOWN CHEVRON (mobile toggle) ──────────────────────────────────
-  function toggleDropdown(li) {
-    var btn = li.querySelector('.nav-chevron-btn');
-    var isOpen = li.classList.contains('open');
-    document.querySelectorAll('.has-dropdown.open').forEach(function(el) {
-      el.classList.remove('open');
-      el.querySelector('.nav-chevron-btn').setAttribute('aria-expanded', 'false');
-    });
-    if (!isOpen) {
-      li.classList.add('open');
-      if (btn) btn.setAttribute('aria-expanded', 'true');
-    }
-  }
-
-  document.querySelectorAll('.nav-chevron-btn').forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      toggleDropdown(btn.closest('.has-dropdown'));
-    });
-  });
-
-  // En mobile, el link principal de cada sección también abre el dropdown
-  document.querySelectorAll('.has-dropdown .nav-item-row > a').forEach(function(a) {
-    a.addEventListener('click', function(e) {
-      if (window.innerWidth <= 700) {
-        e.preventDefault();
-        toggleDropdown(a.closest('.has-dropdown'));
-      }
-    });
-  });
-
-  // close dropdowns on outside click (desktop)
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('.has-dropdown')) {
-      document.querySelectorAll('.has-dropdown.open').forEach(function(el) { el.classList.remove('open'); });
-    }
-  });
-
-  // ─── PROPERTY MODAL ────────────────────────────────────────────────────
-  function openPropModal(card) {
-    var name = card.dataset.name;
-    var type = card.dataset.type;
-    var dest = card.dataset.dest;
-    var btn1 = document.getElementById('modalVirtual');
-    var waMsg = encodeURIComponent('Hola! Me interesa ' + name + '. Actualmente busco alquiler para...');
-
-    if (dest) {
-      btn1.href = dest;
-      btn1.removeAttribute('target');
-      btn1.querySelector('span').textContent = type === 'edificio' ? 'Ver los edificios' : type === 'lote' ? 'Ver los lotes' : 'Ver los complejos';
-    } else {
-      var ownTour = card.querySelector('.btn-3d');
-      var fallbackUrl = type === 'edificio'
-        ? 'https://my.matterport.com/show/?m=HdzbizKQMrt'
-        : 'https://my.matterport.com/show/?m=z9F3K5h3gok';
-      btn1.href = ownTour ? ownTour.href : fallbackUrl;
-      btn1.setAttribute('target', '_blank');
-      btn1.querySelector('span').textContent = 'Ver recorrido virtual';
-    }
-
-    document.getElementById('modalPropName').textContent = name;
-    document.getElementById('modalWA').href = 'https://wa.me/5492972431619?text=' + waMsg;
-    document.getElementById('propModal').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closePropModal() {
-    document.getElementById('propModal').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-  document.querySelectorAll('.prop-card').forEach(function(card) {
-    card.addEventListener('click', function(e) {
-      if (e.target.closest('a, button')) return;
-      if (card.dataset.noModal) return;
-      openPropModal(card);
-    });
-  });
-
-  // ─── SERVICES POPUP ────────────────────────────────────────────────────
-  function closeServicesPopup() {
-    document.getElementById('servicesPopup').classList.remove('open');
-    document.body.style.overflow = '';
-    sessionStorage.setItem('sp_seen', '1');
-  }
-  if (!sessionStorage.getItem('sp_seen')) {
-    setTimeout(function() {
-      var popup = document.getElementById('servicesPopup');
-      if (popup) {
-        popup.classList.add('open');
-        document.body.style.overflow = 'hidden';
-      }
-    }, 12000);
-  }
-
   // ─── TICKER: pausar animación cuando no está en pantalla ──────────────────
   (function() {
     if (!('IntersectionObserver' in window)) return;
@@ -560,11 +209,10 @@ const navItems = [
   })();
 </script>
 
-
 <script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js" is:inline></script>
 <script is:inline>
   document.addEventListener('DOMContentLoaded', function() {
-    lucide.createIcons();
+    if (window.lucide) lucide.createIcons();
   });
 </script>
 </body>

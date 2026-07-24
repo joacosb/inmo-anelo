@@ -270,14 +270,17 @@ try {
       <div id="dmDots" class="dm-dots"></div>
     </div>
 
-    <!-- RIGHT: info -->
+    <!-- RIGHT: info — improved hierarchy -->
     <div class="dm-info">
+      <!-- 1. Status badge (above title, no overlap) -->
+      <span id="dmStatus" class="prop-status dm-status-badge"></span>
+
+      <!-- 2. Property name -->
       <div class="dm-header">
         <h2 id="dmName"></h2>
-        <span id="dmStatus" class="prop-status dm-status-badge"></span>
       </div>
-      <p id="dmDesc"></p>
-      <div class="dm-divider"></div>
+
+      <!-- 3. Spec boxes FIRST -->
       <div class="dm-meta">
         <div id="dmGuests" class="dm-meta-item">
           <span class="dm-meta-label">Huéspedes</span>
@@ -292,20 +295,37 @@ try {
           <span id="dmZoneVal" class="dm-meta-val"></span>
         </div>
       </div>
+
+      <div class="dm-divider"></div>
+
+      <!-- 4. Description BELOW specs -->
+      <div class="dm-desc-block">
+        <span class="dm-desc-label">Descripción</span>
+        <p id="dmDesc"></p>
+      </div>
+
+      <!-- 5. Included amenities -->
+      <div class="dm-amenities">
+        <span class="dm-amenities-label">Incluye sin costo adicional</span>
+        <div class="dm-amenities-grid">
+          <span class="dm-amenity-item">✓ Todos los servicios</span>
+          <span class="dm-amenity-item">✓ WiFi de alta velocidad</span>
+          <span class="dm-amenity-item">✓ Equipamiento completo</span>
+          <span class="dm-amenity-item">✓ Mantenimiento 24/7</span>
+        </div>
+      </div>
+
+      <!-- 6. Action buttons -->
       <div class="dm-actions">
         <a id="dmWA" href="#" target="_blank" rel="noopener" class="dm-btn dm-btn-wa"
           onclick="gtag('event','whatsapp_click',{'event_category':'detail_modal'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
           WhatsApp
         </a>
         <a id="dmMail" href="#" class="dm-btn dm-btn-mail">
-          <i data-lucide="mail" style="width:13px;height:13px;flex-shrink:0;"></i>
           Email
         </a>
-        <a id="dmTour" href="#" target="_blank" rel="noopener" class="dm-btn dm-btn-tour"
-          onclick="gtag('event','virtual_tour',{'event_category':'detail_modal'})">
-          <i data-lucide="scan-search" style="width:13px;height:13px;flex-shrink:0;"></i>
-          3D
+        <a id="dmTour" href="#" target="_blank" rel="noopener" class="dm-btn dm-btn-tour">
+          Tour 3D
         </a>
       </div>
     </div>
@@ -316,27 +336,28 @@ try {
   /* ── DETAIL MODAL ── */
   .dm-overlay {
     position: fixed; inset: 0;
-    background: rgba(0,0,0,.75);
-    backdrop-filter: blur(4px);
+    background: rgba(0,0,0,.82);
+    backdrop-filter: blur(8px);
     z-index: 9100;
     display: flex; align-items: center; justify-content: center;
     padding: 1.5rem;
     opacity: 0; pointer-events: none;
-    transition: opacity .2s;
+    transition: opacity .25s;
   }
   .dm-overlay.open { opacity: 1; pointer-events: all; }
 
   .dm-inner {
-    background: #fff;
+    background: #1c1c1a;
+    border: 1px solid rgba(201,168,76,.2);
     border-radius: 16px;
     overflow: hidden;
     display: grid;
-    grid-template-columns: 63% 37%;
+    grid-template-columns: 58% 42%;
     width: 100%;
-    max-width: 1040px;
-    height: min(600px, 90vh);
+    max-width: 1080px;
+    height: min(640px, 90vh);
     position: relative;
-    box-shadow: 0 24px 64px rgba(0,0,0,.45);
+    box-shadow: 0 24px 80px rgba(0,0,0,.6);
   }
 
   /* ── LEFT: carrusel ── */
@@ -345,7 +366,6 @@ try {
     background: #111;
     overflow: hidden;
   }
-  /* frame fijo — la imagen siempre llena esto sin mover nada */
   .dm-img-frame {
     position: absolute; inset: 0;
   }
@@ -378,55 +398,103 @@ try {
   }
   .dm-dot.active { background: #c9a84c; }
 
-  /* ── RIGHT: info ── */
+  /* ── RIGHT: info panel (dark luxury) ── */
   .dm-info {
-    padding: 1.5rem 1.4rem 1.4rem;
+    padding: 2rem 1.8rem 1.6rem;
     overflow-y: auto;
-    display: flex; flex-direction: column; gap: .75rem;
+    display: flex; flex-direction: column; gap: .85rem;
     font-family: 'Montserrat', sans-serif;
-    color: #111;
-    background: #fff;
+    color: #eee;
+    background: #1c1c1a;
   }
-  .dm-header { display: flex; flex-direction: column; gap: .4rem; }
+
+  /* Status badge — sits above title, styled as small pill */
+  .dm-status-badge {
+    position: static !important;
+    display: inline-block;
+    width: fit-content;
+    font-size: .7rem !important;
+    padding: .25rem .75rem !important;
+    border-radius: 20px;
+    letter-spacing: .08em;
+  }
+
+  .dm-header { display: flex; flex-direction: column; gap: .25rem; }
   .dm-info h2 {
-    font-size: 1.45rem; font-weight: 700; margin: 0; line-height: 1.2; color: #111;
+    font-family: var(--font-display);
+    font-size: 1.6rem; font-weight: 600; margin: 0; line-height: 1.15;
+    color: #fff;
   }
-  .dm-status-badge { font-size: .72rem !important; }
-  .dm-info p {
-    font-size: .84rem; color: #555; line-height: 1.65; margin: 0;
-  }
+
   .dm-divider {
-    border: none; border-top: 1px solid #eee; margin: .1rem 0;
+    border: none; border-top: 1px solid rgba(255,255,255,.1); margin: .15rem 0;
   }
+
+  /* Spec boxes */
   .dm-meta {
     display: flex; flex-wrap: wrap; gap: .6rem;
   }
   .dm-meta-item {
-    background: #f5f4f1; border-radius: 8px;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+    border-radius: 10px;
     padding: .6rem .9rem; font-size: .8rem;
     display: flex; flex-direction: column; gap: .15rem;
-    min-width: 80px;
+    min-width: 80px; flex: 1;
   }
-  .dm-meta-label { color: #888; font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
-  .dm-meta-val   { color: #111; font-weight: 700; font-size: .95rem; }
+  .dm-meta-label {
+    color: rgba(255,255,255,.5); font-size: .66rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .06em;
+  }
+  .dm-meta-val { color: #fff; font-weight: 700; font-size: .95rem; }
+
+  /* Description block */
+  .dm-desc-block {
+    display: flex; flex-direction: column; gap: .35rem;
+  }
+  .dm-desc-label {
+    font-size: .66rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .1em; color: #c9a84c;
+  }
+  .dm-info p {
+    font-size: .84rem; color: rgba(255,255,255,.65); line-height: 1.65; margin: 0;
+  }
+
+  /* Amenities grid */
+  .dm-amenities {
+    border-top: 1px solid rgba(255,255,255,.08);
+    padding-top: .6rem;
+    display: flex; flex-direction: column; gap: .45rem;
+  }
+  .dm-amenities-label {
+    font-size: .64rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .08em; color: rgba(255,255,255,.4);
+  }
+  .dm-amenities-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: .3rem .8rem;
+  }
+  .dm-amenity-item {
+    font-size: .75rem; color: rgba(255,255,255,.6); font-weight: 500;
+  }
+
+  /* Action buttons */
   .dm-actions {
     display: flex; flex-direction: row; gap: .4rem; margin-top: auto; flex-wrap: nowrap;
   }
   .dm-btn {
     display: inline-flex; align-items: center; justify-content: center; gap: .3rem;
-    flex: 1; text-align: center; border-radius: 6px;
-    padding: .42rem .5rem; font-size: .68rem; font-weight: 700; letter-spacing: .05em;
+    flex: 1; text-align: center; border-radius: 8px;
+    padding: .5rem .5rem; font-size: .7rem; font-weight: 700; letter-spacing: .05em;
     text-transform: uppercase; white-space: nowrap;
     font-family: 'Montserrat', sans-serif;
     text-decoration: none; transition: background .15s, filter .15s;
     cursor: pointer; border: none;
   }
-  .dm-btn-wa   { background: #25d366; color: #000; }
-  .dm-btn-wa:hover { filter: brightness(.93); }
-  .dm-btn-mail { background: transparent; color: #111; border: 1.5px solid #ddd; }
-  .dm-btn-mail:hover { background: #111; color: #fff; border-color: #111; }
-  .dm-btn-tour { background: transparent; color: #8a6f2e; border: 1.5px solid #d4b96a; }
-  .dm-btn-tour:hover { background: #f0ebe0; }
+  .dm-btn-wa   { background: #25d366; color: #fff; }
+  .dm-btn-wa:hover { filter: brightness(.9); }
+  .dm-btn-mail { background: transparent; color: #ddd; border: 1.5px solid rgba(255,255,255,.2); }
+  .dm-btn-mail:hover { background: rgba(255,255,255,.1); color: #fff; }
+  .dm-btn-tour { background: transparent; color: #c9a84c; border: 1.5px solid rgba(201,168,76,.4); }
+  .dm-btn-tour:hover { background: rgba(201,168,76,.12); }
 
   /* ── CLOSE ── */
   .dm-close {
@@ -443,12 +511,12 @@ try {
     .dm-overlay { padding: 0; align-items: flex-end; }
     .dm-inner {
       grid-template-columns: 1fr;
-      grid-template-rows: 55vh 1fr;
+      grid-template-rows: 50vh 1fr;
       height: 92vh;
       border-radius: 16px 16px 0 0;
       max-width: 100%;
     }
-    .dm-carousel { min-height: 55vh; }
+    .dm-carousel { min-height: 50vh; }
     .dm-info { padding: 1.25rem 1.1rem 1.5rem; overflow-y: auto; }
     .dm-info h2 { font-size: 1.2rem; }
   }

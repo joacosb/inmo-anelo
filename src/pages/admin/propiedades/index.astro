@@ -33,75 +33,78 @@ const otras     = all.filter((p: any) => !complejos.includes(p) && !edificios.in
       y los estilos scoped no cruzan el límite del componente. */}
   <style is:global>
     /* MAIN */
-    .adm-main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .adm-main { max-width: 1240px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
     .adm-section-title {
-      font-size: .65rem;
+      font-size: .72rem;
       font-weight: 700;
-      letter-spacing: .18em;
+      letter-spacing: .2em;
       text-transform: uppercase;
       color: #c9a84c;
-      margin-bottom: 1rem;
-      margin-top: 2.5rem;
-      padding-bottom: .5rem;
-      border-bottom: 1px solid #222;
+      margin-bottom: 1.25rem;
+      margin-top: 3rem;
+      padding-bottom: .6rem;
+      border-bottom: 1px solid rgba(201,168,76,.25);
     }
     .adm-section-title:first-child { margin-top: 0; }
 
     /* GRID */
     .adm-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.75rem;
     }
 
     /* CARD */
     .adm-card {
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 10px;
+      background: #242420;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
       overflow: hidden;
-      transition: border-color .2s;
+      transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
     }
-    .adm-card:hover { border-color: #3a3a3a; }
+    .adm-card:hover { border-color: rgba(201,168,76,.5); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(201,168,76,.12); }
     .adm-card-img {
       width: 100%;
-      height: 140px;
+      height: 170px;
       object-fit: cover;
       display: block;
     }
     .adm-card-noimg {
       display: flex; align-items: center; justify-content: center;
-      background: #111; color: rgba(255,255,255,.25); font-size: .75rem;
+      background: #141412; color: rgba(255,255,255,.3); font-size: .8rem; font-weight: 500;
     }
-    .adm-card-body { padding: 1rem; }
-    .adm-card-name { font-size: .9rem; font-weight: 700; margin-bottom: .6rem; }
+    .adm-card-body { padding: 1.25rem 1.35rem; }
+    .adm-card-name { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; color: #ffffff; margin-bottom: .7rem; }
 
     /* TOOLBAR */
-    .adm-toolbar { display: flex; justify-content: flex-end; margin-bottom: 1.5rem; }
+    .adm-toolbar { display: flex; justify-content: flex-end; margin-bottom: 2rem; }
     .btn-new {
-      background: #c9a84c; border-radius: 6px; color: #000;
-      font-size: .78rem; font-weight: 700; text-decoration: none;
-      padding: .6rem 1.2rem; transition: background .2s;
+      background: #c9a84c; border-radius: 8px; color: #000000;
+      font-family: var(--font-body); font-size: .8rem; font-weight: 700; text-decoration: none;
+      padding: .65rem 1.4rem; transition: background .15s, transform .15s;
+      letter-spacing: .06em; text-transform: uppercase;
+      box-shadow: 0 4px 14px rgba(201,168,76,.3);
     }
-    .btn-new:hover { background: #b8953d; }
+    .btn-new:hover { background: #e8c97a; transform: translateY(-1px); }
 
     /* BADGES DE SECCIÓN */
-    .adm-ops { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .75rem; }
+    .adm-ops { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .85rem; }
     .adm-op {
-      font-size: .58rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-      padding: .2rem .5rem; border-radius: 3px; border: 1px solid;
+      font-size: .62rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      padding: .25rem .6rem; border-radius: 6px; border: 1px solid;
     }
-    .adm-op-corp { color: #60a5fa; border-color: rgba(96,165,250,.4);  background: rgba(96,165,250,.1); }
-    .adm-op-rent { color: #34d399; border-color: rgba(52,211,153,.4);  background: rgba(52,211,153,.1); }
-    .adm-op-sale { color: #c9a84c; border-color: rgba(201,168,76,.4);  background: rgba(201,168,76,.1); }
-    .adm-op-none { color: rgba(255,255,255,.3); border-color: #333; }
+    .adm-op-corp { color: #60a5fa; border-color: rgba(96,165,250,.4);  background: rgba(96,165,250,.15); }
+    .adm-op-rent { color: #34d399; border-color: rgba(52,211,153,.4);  background: rgba(52,211,153,.15); }
+    .adm-op-sale { color: #c9a84c; border-color: rgba(201,168,76,.4);  background: rgba(201,168,76,.15); }
+    .adm-op-none { color: rgba(255,255,255,.4); border-color: rgba(255,255,255,.15); background: rgba(255,255,255,.05); }
 
     /* PRECIOS */
     .adm-prices {
-      display: flex; flex-direction: column; gap: .2rem;
-      font-size: .7rem; color: rgba(255,255,255,.4); margin-bottom: .85rem;
+      display: flex; flex-direction: column; gap: .25rem;
+      font-size: .78rem; color: rgba(255,255,255,.55); margin-bottom: 1rem;
     }
-    .adm-prices strong { color: rgba(255,255,255,.75); font-weight: 600; }
+    .adm-prices strong { color: rgba(255,255,255,.85); font-weight: 600; }
     .adm-warn { color: #f59e0b; }
 
     /* STATUS TOGGLE */

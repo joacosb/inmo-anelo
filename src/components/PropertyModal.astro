@@ -1,0 +1,100 @@
+---
+---
+
+<div
+  id="propModal"
+  class="prop-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 [&.open]:opacity-100 [&.open]:pointer-events-auto"
+  onclick="if(event.target===this)closePropModal()"
+>
+  <div class="prop-modal relative w-full max-w-md bg-brand-black border border-brand-gold/30 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-black transform scale-95 transition-transform duration-300 [div.open_&]:scale-100 space-y-6">
+    
+    <!-- Close Button -->
+    <button
+      onclick="closePropModal()"
+      class="absolute top-4 right-4 p-2 text-stone-400 hover:text-white hover:bg-stone-800 rounded-full transition-colors"
+      aria-label="Cerrar modal"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <div class="text-center space-y-2">
+      <span class="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-gold">Inmobiliaria Añelo</span>
+      <h3 id="modalPropName" class="font-display text-2xl sm:text-3xl font-semibold text-white"></h3>
+      <p class="text-stone-400 text-xs sm:text-sm">¿Qué consulta o recorrido querés realizar?</p>
+    </div>
+
+    <div class="space-y-3 pt-2">
+      <a
+        id="modalVirtual"
+        href="#"
+        target="_blank"
+        rel="noopener"
+        class="w-full py-3.5 px-4 flex items-center justify-center gap-2 bg-stone-900 hover:bg-stone-800 text-stone-200 border border-stone-700 rounded-lg font-semibold text-xs sm:text-sm uppercase tracking-wider transition-all duration-200"
+      >
+        <svg class="w-4 h-4 text-brand-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+        </svg>
+        <span>Ver Recorrido Virtual</span>
+      </a>
+
+      <a
+        id="modalWA"
+        href="#"
+        target="_blank"
+        rel="noopener"
+        class="w-full py-3.5 px-4 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-emerald-600/30 transition-all duration-200"
+        onclick="gtag('event','whatsapp_click',{'event_category':'contacto'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})"
+      >
+        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654z"/>
+        </svg>
+        <span>Consultar por WhatsApp</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  function openPropModal(card) {
+    var name = card.dataset.name;
+    var type = card.dataset.type;
+    var dest = card.dataset.dest;
+    var btn1 = document.getElementById('modalVirtual');
+    var waMsg = encodeURIComponent('Hola! Me interesa ' + name + '. Actualmente busco alquiler para...');
+
+    if (dest) {
+      btn1.href = dest;
+      btn1.removeAttribute('target');
+      btn1.querySelector('span').textContent = type === 'edificio' ? 'Ver los edificios' : type === 'lote' ? 'Ver los lotes' : 'Ver los complejos';
+    } else {
+      var ownTour = card.querySelector('.btn-3d');
+      var fallbackUrl = type === 'edificio'
+        ? 'https://my.matterport.com/show/?m=HdzbizKQMrt'
+        : 'https://my.matterport.com/show/?m=z9F3K5h3gok';
+      btn1.href = ownTour ? ownTour.href : fallbackUrl;
+      btn1.setAttribute('target', '_blank');
+      btn1.querySelector('span').textContent = 'Ver recorrido virtual';
+    }
+
+    document.getElementById('modalPropName').textContent = name;
+    document.getElementById('modalWA').href = 'https://wa.me/5492972431619?text=' + waMsg;
+    document.getElementById('propModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePropModal() {
+    var modal = document.getElementById('propModal');
+    if (modal) modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.prop-card').forEach(function(card) {
+    card.addEventListener('click', function(e) {
+      if (e.target.closest('a, button')) return;
+      if (card.dataset.noModal) return;
+      openPropModal(card);
+    });
+  });
+</script>

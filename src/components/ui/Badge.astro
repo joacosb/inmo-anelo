@@ -1,0 +1,32 @@
+---
+export interface Props {
+  variant?: 'available' | 'occupied' | 'partial' | 'gold' | 'terra' | 'dark' | 'outline';
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+}
+
+const { variant = 'available', size = 'md', class: className = '' } = Astro.props;
+
+const variantClasses = {
+  available: 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/30',
+  occupied: 'bg-stone-900/90 text-stone-400 border border-stone-700/50',
+  partial: 'bg-amber-950/80 text-amber-300 border border-amber-500/30',
+  gold: 'bg-brand-gold/15 text-brand-gold border border-brand-gold/30',
+  terra: 'bg-brand-terra/15 text-brand-terra-light border border-brand-terra/30',
+  dark: 'bg-brand-black/90 text-stone-300 border border-stone-800',
+  outline: 'bg-transparent text-stone-300 border border-stone-600/50',
+};
+
+const sizeClasses = {
+  sm: 'px-2 py-0.5 text-xs font-semibold tracking-wider',
+  md: 'px-2.5 py-1 text-xs font-bold tracking-wider',
+  lg: 'px-3.5 py-1.5 text-sm font-bold tracking-wider',
+};
+---
+
+<span class={`inline-flex items-center gap-1.5 rounded-md uppercase backdrop-blur-md transition-all ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}>
+  {variant === 'available' && <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>}
+  {variant === 'partial' && <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>}
+  {variant === 'occupied' && <span class="h-1.5 w-1.5 rounded-full bg-stone-500"></span>}
+  <slot />
+</span>

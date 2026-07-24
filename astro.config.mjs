@@ -1,10 +1,14 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import vercel from '@astrojs/vercel';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   site: 'https://inmobiliariaanelo.com.ar',
   output: 'static',
+  vite: {
+    plugins: [tailwindcss()],
+  },
   adapter: vercel({
     // Optimización de imágenes en runtime vía Vercel Image Optimization (/_vercel/image).
     // Resuelve resize + conversión a webp para las URLs dinámicas de Supabase Storage.
@@ -31,3 +35,4 @@ export default defineConfig({
     format: 'directory',
   },
 });
+

@@ -1,0 +1,36 @@
+---
+export interface Props {
+  subtitle?: string;
+  title: string;
+  description?: string;
+  align?: 'left' | 'center' | 'right';
+  class?: string;
+}
+
+const { subtitle, title, description, align = 'center', class: className = '' } = Astro.props;
+
+const alignClasses = {
+  left: 'text-left items-start',
+  center: 'text-center items-center mx-auto',
+  right: 'text-right items-end ml-auto',
+};
+---
+
+<div class={`flex flex-col max-w-4xl mb-16 sm:mb-20 ${alignClasses[align]} ${className}`}>
+  {subtitle && (
+    <span class="text-xs sm:text-sm uppercase tracking-[0.3em] font-bold text-brand-gold mb-3 flex items-center gap-3">
+      <span class="h-px w-8 bg-brand-gold/60 inline-block"></span>
+      {subtitle}
+      <span class="h-px w-8 bg-brand-gold/60 inline-block"></span>
+    </span>
+  )}
+  <h2 class="font-display text-4xl sm:text-5xl md:text-6xl font-semibold text-white tracking-tight leading-[1.15] mb-5">
+    {title}
+  </h2>
+  <div class="h-0.5 w-20 bg-gradient-to-r from-brand-gold via-brand-gold-light to-transparent rounded-full mb-6"></div>
+  {description && (
+    <p class="text-stone-300 text-base sm:text-lg md:text-xl leading-relaxed font-light max-w-3xl">
+      {description}
+    </p>
+  )}
+</div>
