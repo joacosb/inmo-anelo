@@ -42,10 +42,13 @@ try {
   )}
 
   <div class="corporate-hero">
-    <div class="section-label reveal">Propiedades Disponibles</div>
-    <h2 class="section-title reveal">Nuestros <em>Complejos</em> y Edificios</h2>
-    <div class="gold-divider reveal" style="margin:1rem auto 1.5rem;"></div>
-    <p class="section-sub reveal">Unidades totalmente equipadas y operativas en Añelo, Neuquén. Contratos flexibles, servicios incluidos, gestión integral.</p>
+    <div class="container-site">
+      <div class="section-label reveal">Propiedades Disponibles</div>
+      <h2 class="section-title reveal">Nuestros <em>Complejos</em> y Edificios</h2>
+      <div class="gold-divider reveal" style="margin:1rem auto 1.5rem;"></div>
+      <p class="section-sub reveal">Unidades totalmente equipadas y operativas en Añelo, Neuquén. Contratos flexibles, servicios incluidos, gestión integral.</p>
+
+    </div>
   </div>
   <div class="amenities-strip">
     <div class="amenity-item"><i data-lucide="zap" class="ai"></i>Electricidad</div>
@@ -79,177 +82,185 @@ try {
   </div>
 
   <div class="filter-bar">
-    <label class="filter-toggle">
-      <input type="checkbox" id="filterDisponibles" />
-      <span class="filter-toggle-track"><span class="filter-toggle-thumb"></span></span>
-      <span class="filter-toggle-label">Filtrar sólo disponibles</span>
-    </label>
+    <div class="container-site">
+      <label class="filter-toggle">
+        <input type="checkbox" id="filterDisponibles" />
+        <span class="filter-toggle-track"><span class="filter-toggle-thumb"></span></span>
+        <span class="filter-toggle-label">Filtrar sólo disponibles</span>
+      </label>
+    </div>
   </div>
 
-  <section id="secComplejos" class="section-pad">
-    <div class="section-label reveal">Complejos de casas</div>
-    <div class="section-title reveal">Complejos <em>Residenciales</em></div>
-    <div class="gold-divider reveal"></div>
-    <p class="section-sub reveal">Complejos cerrados en La Forestada y zonas residenciales de Añelo. Ideales para personal de empresas Oil &amp; Gas.</p>
-    <div class="props-grid">
-      {(complejos as Property[]).map((p) => (
-        <div
-          class="prop-card prop-card--detail"
-          data-name={p.name}
-          data-type={p.type}
-          data-section="complejos"
-          data-no-modal="1"
-          data-images={JSON.stringify((p.images?.length > 0 ? p.images : (p.cover_image ? [p.cover_image] : [])).map((u: string) => getImageUrl(u, { width: MODAL_W })))}
-          data-desc={p.description ?? ''}
-          data-guests={p.max_guests ?? ''}
-          data-units={p.unit_count ?? ''}
-          data-zone={zoneLabel(p.zone, p.type)}
-          data-matterport={p.matterport_url ?? ''}
-          data-status={p.status_text ?? ''}
-          data-status-class={statusClass(p.status)}
-        >
-          <div class="prop-img-wrap"
-            data-images={JSON.stringify((p.images?.length > 1 ? p.images : [p.cover_image]).map((u: string) => getImageUrl(u, { width: CARD_W })))}
-            data-positions={JSON.stringify(
-              (p.images?.length > 1 ? p.images : [p.cover_image]).map((url: string, i: number) =>
-                url === p.cover_image
-                  ? ((p.image_positions ?? [])[i] ?? p.cover_position ?? '50% 50%')
-                  : ((p.image_positions ?? [])[i] ?? '50% 50%')
-              )
-            )}>
-            <img class="prop-img" width="600" height="450" loading="lazy" decoding="async"
-              src={getImageUrl(p.cover_image, { width: 640 })}
-              srcset={getSrcSet(p.cover_image, [384, 640, 828])}
-              sizes="(max-width: 700px) 92vw, (max-width: 1100px) 45vw, 30vw"
-              alt={p.name}
-              style={`object-position: ${p.cover_position ?? '50% 50%'}`} />
-            {p.images?.length > 1 && (
-              <>
-                <button class="car-btn car-prev" aria-label="Anterior">&#8249;</button>
-                <button class="car-btn car-next" aria-label="Siguiente">&#8250;</button>
-                <div class="car-dots">{p.images.map((_: string, i: number) => <span class={`car-dot${i === 0 ? ' active' : ''}`}></span>)}</div>
-              </>
-            )}
-          </div>
-          <span class={`prop-status ${statusClass(p.status)}`}>● {p.status_text}</span>
-          <div class="prop-body prop-body--invest">
-            <span class="prop-tag">Complejo</span>
-            <h3>{p.name}</h3>
-            <div class="prop-meta">
-              {p.max_guests && <div class="prop-meta-item"><strong>Hasta {p.max_guests}</strong>huéspedes</div>}
-              {p.unit_count  && <div class="prop-meta-item"><strong>{p.unit_count}</strong>UFs</div>}
-              <div class="prop-meta-item"><strong>{zoneLabel(p.zone, p.type)}</strong></div>
+  <section id="secComplejos" class="section-pad on-dark bg-brand-black">
+    <div class="container-site">
+      <div class="section-label reveal">Complejos de casas</div>
+      <div class="section-title reveal">Complejos <em>Residenciales</em></div>
+      <div class="gold-divider reveal"></div>
+      <p class="section-sub reveal">Complejos cerrados en La Forestada y zonas residenciales de Añelo. Ideales para personal de empresas Oil &amp; Gas.</p>
+      <div class="props-grid">
+        {(complejos as Property[]).map((p) => (
+          <div
+            class="prop-card prop-card--detail"
+            data-name={p.name}
+            data-type={p.type}
+            data-section="complejos"
+            data-no-modal="1"
+            data-images={JSON.stringify((p.images?.length > 0 ? p.images : (p.cover_image ? [p.cover_image] : [])).map((u: string) => getImageUrl(u, { width: MODAL_W })))}
+            data-desc={p.description ?? ''}
+            data-guests={p.max_guests ?? ''}
+            data-units={p.unit_count ?? ''}
+            data-zone={zoneLabel(p.zone, p.type)}
+            data-matterport={p.matterport_url ?? ''}
+            data-status={p.status_text ?? ''}
+            data-status-class={statusClass(p.status)}
+          >
+            <div class="prop-img-wrap"
+              data-images={JSON.stringify((p.images?.length > 1 ? p.images : [p.cover_image]).map((u: string) => getImageUrl(u, { width: CARD_W })))}
+              data-positions={JSON.stringify(
+                (p.images?.length > 1 ? p.images : [p.cover_image]).map((url: string, i: number) =>
+                  url === p.cover_image
+                    ? ((p.image_positions ?? [])[i] ?? p.cover_position ?? '50% 50%')
+                    : ((p.image_positions ?? [])[i] ?? '50% 50%')
+                )
+              )}>
+              <img class="prop-img" width="600" height="450" loading="lazy" decoding="async"
+                src={getImageUrl(p.cover_image, { width: 640 })}
+                srcset={getSrcSet(p.cover_image, [384, 640, 828])}
+                sizes="(max-width: 700px) 92vw, (max-width: 1100px) 45vw, 30vw"
+                alt={p.name}
+                style={`object-position: ${p.cover_position ?? '50% 50%'}`} />
+              {p.images?.length > 1 && (
+                <>
+                  <button class="car-btn car-prev" aria-label="Anterior">&#8249;</button>
+                  <button class="car-btn car-next" aria-label="Siguiente">&#8250;</button>
+                  <div class="car-dots">{p.images.map((_: string, i: number) => <span class={`car-dot${i === 0 ? ' active' : ''}`}></span>)}</div>
+                </>
+              )}
             </div>
-            <div class="prop-actions prop-actions--invest">
-              <a class="btn-inv btn-inv-wa"
-                href={`https://wa.me/5492944486303?text=${encodeURIComponent('Hola, me interesa el complejo ' + p.name + '.')}`}
-                target="_blank" rel="noopener"
-                onclick="gtag('event','whatsapp_click',{'event_category':'corporativo'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                WhatsApp
-              </a>
-              <a class="btn-inv btn-inv-mail"
-                href={`mailto:grupopampanqn@gmail.com?subject=Alquiler%20corporativo&body=${encodeURIComponent('Hola, estuve en su sitio web y me interesa el complejo ' + p.name)}`}>
-                <i data-lucide="mail" style="width:14px;height:14px;flex-shrink:0;"></i>
-                Email
-              </a>
-              <a class="btn-inv btn-inv-tour"
-                href={p.matterport_url || 'https://my.matterport.com/show/?m=z9F3K5h3gok'} target="_blank" rel="noopener noreferrer"
-                title="Recorrido 3D">
-                <i data-lucide="scan-search" style="width:14px;height:14px;flex-shrink:0;"></i>
-                3D
-              </a>
+            <span class={`prop-status ${statusClass(p.status)}`}>● {p.status_text}</span>
+            <div class="prop-body prop-body--invest">
+              <span class="prop-tag">Complejo</span>
+              <h3>{p.name}</h3>
+              <div class="prop-meta">
+                {p.max_guests && <div class="prop-meta-item"><strong>Hasta {p.max_guests}</strong>huéspedes</div>}
+                {p.unit_count  && <div class="prop-meta-item"><strong>{p.unit_count}</strong>UFs</div>}
+                <div class="prop-meta-item"><strong>{zoneLabel(p.zone, p.type)}</strong></div>
+              </div>
+              <div class="prop-actions prop-actions--invest">
+                <a class="btn-inv btn-inv-wa"
+                  href={`https://wa.me/5492944486303?text=${encodeURIComponent('Hola, me interesa el complejo ' + p.name + '.')}`}
+                  target="_blank" rel="noopener"
+                  onclick="gtag('event','whatsapp_click',{'event_category':'corporativo'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                  WhatsApp
+                </a>
+                <a class="btn-inv btn-inv-mail"
+                  href={`mailto:grupopampanqn@gmail.com?subject=Alquiler%20corporativo&body=${encodeURIComponent('Hola, estuve en su sitio web y me interesa el complejo ' + p.name)}`}>
+                  <i data-lucide="mail" style="width:14px;height:14px;flex-shrink:0;"></i>
+                  Email
+                </a>
+                <a class="btn-inv btn-inv-tour"
+                  href={p.matterport_url || 'https://my.matterport.com/show/?m=z9F3K5h3gok'} target="_blank" rel="noopener noreferrer"
+                  title="Recorrido 3D">
+                  <i data-lucide="scan-search" style="width:14px;height:14px;flex-shrink:0;"></i>
+                  3D
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+
     </div>
   </section>
 
-  <section id="secEdificios" class="py-16 bg-brand-black border-t border-stone-800/80">
-    <div class="section-label reveal">Edificios de Departamentos</div>
-    <div class="section-title reveal">Edificios <em>Pampa</em></div>
-    <div class="gold-divider reveal"></div>
-    <p class="section-sub reveal">Edificios de varios pisos en el centro de Añelo. Departamentos de 1 y 2 dormitorios, ideal para inversores que buscan diversificar.</p>
-    <div class="props-grid">
-      {(edificios as Property[]).map((p) => (
-        <div
-          class="prop-card prop-card--detail"
-          data-name={p.name}
-          data-type={p.type}
-          data-section="edificios"
-          data-no-modal="1"
-          data-images={JSON.stringify((p.images?.length > 0 ? p.images : (p.cover_image ? [p.cover_image] : [])).map((u: string) => getImageUrl(u, { width: MODAL_W })))}
-          data-desc={p.description ?? ''}
-          data-guests={p.max_guests ?? ''}
-          data-units={p.unit_count ?? ''}
-          data-zone={zoneLabel(p.zone, p.type)}
-          data-matterport={p.matterport_url ?? ''}
-          data-status={p.status_text ?? ''}
-          data-status-class={statusClass(p.status)}
-        >
-          <div class="prop-img-wrap"
-            data-images={JSON.stringify((p.images?.length > 1 ? p.images : [p.cover_image]).map((u: string) => getImageUrl(u, { width: CARD_W })))}
-            data-positions={JSON.stringify(
-              (p.images?.length > 1 ? p.images : [p.cover_image]).map((url: string, i: number) =>
-                url === p.cover_image
-                  ? ((p.image_positions ?? [])[i] ?? p.cover_position ?? '50% 50%')
-                  : ((p.image_positions ?? [])[i] ?? '50% 50%')
-              )
-            )}>
-            <img class="prop-img" width="600" height="450" loading="lazy" decoding="async"
-              src={getImageUrl(p.cover_image, { width: 640 })}
-              srcset={getSrcSet(p.cover_image, [384, 640, 828])}
-              sizes="(max-width: 700px) 92vw, (max-width: 1100px) 45vw, 30vw"
-              alt={p.name}
-              style={`object-position: ${p.cover_position ?? '50% 50%'}`} />
-            {p.images?.length > 1 && (
-              <>
-                <button class="car-btn car-prev" aria-label="Anterior">&#8249;</button>
-                <button class="car-btn car-next" aria-label="Siguiente">&#8250;</button>
-                <div class="car-dots">{p.images.map((_: string, i: number) => <span class={`car-dot${i === 0 ? ' active' : ''}`}></span>)}</div>
-              </>
-            )}
-          </div>
-          <span class={`prop-status ${statusClass(p.status)}`}>● {p.status_text}</span>
-          <div class="prop-body prop-body--invest">
-            <span class="prop-tag">Edificio</span>
-            <h3>{p.name}</h3>
-            <div class="prop-meta">
-              {p.max_guests && <div class="prop-meta-item"><strong>Hasta {p.max_guests}</strong>huéspedes</div>}
-              {p.unit_count  && <div class="prop-meta-item"><strong>{p.unit_count}</strong>UFs</div>}
-              <div class="prop-meta-item"><strong>{zoneLabel(p.zone, p.type)}</strong></div>
+  <section id="secEdificios" class="py-16 bg-brand-black on-dark border-t border-stone-800/80">
+    <div class="container-site">
+      <div class="section-label reveal">Edificios de Departamentos</div>
+      <div class="section-title reveal">Edificios <em>Pampa</em></div>
+      <div class="gold-divider reveal"></div>
+      <p class="section-sub reveal">Edificios de varios pisos en el centro de Añelo. Departamentos de 1 y 2 dormitorios, ideal para inversores que buscan diversificar.</p>
+      <div class="props-grid">
+        {(edificios as Property[]).map((p) => (
+          <div
+            class="prop-card prop-card--detail"
+            data-name={p.name}
+            data-type={p.type}
+            data-section="edificios"
+            data-no-modal="1"
+            data-images={JSON.stringify((p.images?.length > 0 ? p.images : (p.cover_image ? [p.cover_image] : [])).map((u: string) => getImageUrl(u, { width: MODAL_W })))}
+            data-desc={p.description ?? ''}
+            data-guests={p.max_guests ?? ''}
+            data-units={p.unit_count ?? ''}
+            data-zone={zoneLabel(p.zone, p.type)}
+            data-matterport={p.matterport_url ?? ''}
+            data-status={p.status_text ?? ''}
+            data-status-class={statusClass(p.status)}
+          >
+            <div class="prop-img-wrap"
+              data-images={JSON.stringify((p.images?.length > 1 ? p.images : [p.cover_image]).map((u: string) => getImageUrl(u, { width: CARD_W })))}
+              data-positions={JSON.stringify(
+                (p.images?.length > 1 ? p.images : [p.cover_image]).map((url: string, i: number) =>
+                  url === p.cover_image
+                    ? ((p.image_positions ?? [])[i] ?? p.cover_position ?? '50% 50%')
+                    : ((p.image_positions ?? [])[i] ?? '50% 50%')
+                )
+              )}>
+              <img class="prop-img" width="600" height="450" loading="lazy" decoding="async"
+                src={getImageUrl(p.cover_image, { width: 640 })}
+                srcset={getSrcSet(p.cover_image, [384, 640, 828])}
+                sizes="(max-width: 700px) 92vw, (max-width: 1100px) 45vw, 30vw"
+                alt={p.name}
+                style={`object-position: ${p.cover_position ?? '50% 50%'}`} />
+              {p.images?.length > 1 && (
+                <>
+                  <button class="car-btn car-prev" aria-label="Anterior">&#8249;</button>
+                  <button class="car-btn car-next" aria-label="Siguiente">&#8250;</button>
+                  <div class="car-dots">{p.images.map((_: string, i: number) => <span class={`car-dot${i === 0 ? ' active' : ''}`}></span>)}</div>
+                </>
+              )}
             </div>
-            <div class="prop-actions prop-actions--invest">
-              <a class="btn-inv btn-inv-wa"
-                href={`https://wa.me/5492944486303?text=${encodeURIComponent('Hola, me interesa el edificio ' + p.name + '.')}`}
-                target="_blank" rel="noopener"
-                onclick="gtag('event','whatsapp_click',{'event_category':'corporativo'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                WhatsApp
-              </a>
-              <a class="btn-inv btn-inv-mail"
-                href={`mailto:grupopampanqn@gmail.com?subject=Alquiler%20corporativo&body=${encodeURIComponent('Hola, estuve en su sitio web y me interesa el edificio ' + p.name)}`}>
-                <i data-lucide="mail" style="width:14px;height:14px;flex-shrink:0;"></i>
-                Email
-              </a>
-              <a class="btn-inv btn-inv-tour"
-                href={p.matterport_url || 'https://my.matterport.com/show/?m=HdzbizKQMrt'} target="_blank" rel="noopener noreferrer"
-                title="Recorrido 3D">
-                <i data-lucide="scan-search" style="width:14px;height:14px;flex-shrink:0;"></i>
-                3D
-              </a>
+            <span class={`prop-status ${statusClass(p.status)}`}>● {p.status_text}</span>
+            <div class="prop-body prop-body--invest">
+              <span class="prop-tag">Edificio</span>
+              <h3>{p.name}</h3>
+              <div class="prop-meta">
+                {p.max_guests && <div class="prop-meta-item"><strong>Hasta {p.max_guests}</strong>huéspedes</div>}
+                {p.unit_count  && <div class="prop-meta-item"><strong>{p.unit_count}</strong>UFs</div>}
+                <div class="prop-meta-item"><strong>{zoneLabel(p.zone, p.type)}</strong></div>
+              </div>
+              <div class="prop-actions prop-actions--invest">
+                <a class="btn-inv btn-inv-wa"
+                  href={`https://wa.me/5492944486303?text=${encodeURIComponent('Hola, me interesa el edificio ' + p.name + '.')}`}
+                  target="_blank" rel="noopener"
+                  onclick="gtag('event','whatsapp_click',{'event_category':'corporativo'});gtag('event','conversion',{'send_to':'AW-17170667639/kKlFCJvU_JccEPewzvs_','value':1.0,'currency':'ARS'})">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                  WhatsApp
+                </a>
+                <a class="btn-inv btn-inv-mail"
+                  href={`mailto:grupopampanqn@gmail.com?subject=Alquiler%20corporativo&body=${encodeURIComponent('Hola, estuve en su sitio web y me interesa el edificio ' + p.name)}`}>
+                  <i data-lucide="mail" style="width:14px;height:14px;flex-shrink:0;"></i>
+                  Email
+                </a>
+                <a class="btn-inv btn-inv-tour"
+                  href={p.matterport_url || 'https://my.matterport.com/show/?m=HdzbizKQMrt'} target="_blank" rel="noopener noreferrer"
+                  title="Recorrido 3D">
+                  <i data-lucide="scan-search" style="width:14px;height:14px;flex-shrink:0;"></i>
+                  3D
+                </a>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
-    </div>
-    <div style="margin-top:3rem; background:var(--black); border-radius:6px; padding:2.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;">
-      <div>
-        <h3 style="font-size:1.3rem; font-weight:700; margin-bottom:.5rem; color:var(--white);">¿Tu empresa necesita alojamiento?</h3>
-        <p style="color:rgba(255,255,255,.6); max-width:480px;">Cotizamos en 24hs. Contratos flexibles, duración mínima de 1 mes. Administración integral sin cargo adicional.</p>
+        ))}
       </div>
-      <a class="btn-primary" href="/contacto/">Solicitar Cotización</a>
+      <div style="margin-top:3rem; background:var(--black); border-radius:6px; padding:2.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;">
+        <div>
+          <h3 style="font-size:1.3rem; font-weight:700; margin-bottom:.5rem; color:var(--white);">¿Tu empresa necesita alojamiento?</h3>
+          <p style="color:rgba(255,255,255,.6); max-width:480px;">Cotizamos en 24hs. Contratos flexibles, duración mínima de 1 mes. Administración integral sin cargo adicional.</p>
+        </div>
+        <a class="btn-primary" href="/contacto/">Solicitar Cotización</a>
+      </div>
+
     </div>
   </section>
 </Layout>
@@ -467,7 +478,7 @@ try {
   }
   .dm-amenities-label {
     font-size: .64rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .08em; color: rgba(255,255,255,.4);
+    letter-spacing: .08em; color: rgba(255,255,255,.6);
   }
   .dm-amenities-grid {
     display: grid; grid-template-columns: 1fr 1fr; gap: .3rem .8rem;
@@ -489,7 +500,7 @@ try {
     text-decoration: none; transition: background .15s, filter .15s;
     cursor: pointer; border: none;
   }
-  .dm-btn-wa   { background: #25d366; color: #fff; }
+  .dm-btn-wa   { background: var(--color-wa); color: var(--color-wa-ink); }
   .dm-btn-wa:hover { filter: brightness(.9); }
   .dm-btn-mail { background: transparent; color: #ddd; border: 1.5px solid rgba(255,255,255,.2); }
   .dm-btn-mail:hover { background: rgba(255,255,255,.1); color: #fff; }
@@ -524,10 +535,12 @@ try {
   /* ── FILTER BAR ── */
   .filter-bar {
     display: flex; align-items: center; justify-content: flex-end;
-    padding: .75rem 8%;
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
+    padding-block: .75rem;
+    background: var(--black);
+    border-bottom: 1px solid rgba(201,168,76,.2);
   }
+  /* el gutter horizontal lo pone el .container-site interno */
+  .filter-bar > .container-site { display: flex; justify-content: flex-end; }
   .filter-toggle {
     display: inline-flex; align-items: center; gap: .75rem;
     cursor: pointer; user-select: none;
@@ -535,7 +548,7 @@ try {
   .filter-toggle input { display: none; }
   .filter-toggle-track {
     position: relative; width: 40px; height: 22px;
-    background: #ccc; border-radius: 11px;
+    background: rgba(255,255,255,.25); border-radius: 11px;
     transition: background .2s;
     flex-shrink: 0;
   }
@@ -549,10 +562,10 @@ try {
   .filter-toggle input:checked + .filter-toggle-track .filter-toggle-thumb { transform: translateX(18px); }
   .filter-toggle-label {
     font-size: .78rem; font-weight: 600; letter-spacing: .06em;
-    text-transform: uppercase; color: var(--gray);
+    text-transform: uppercase; color: rgba(255,255,255,.55);
     transition: color .2s;
   }
-  .filter-toggle input:checked ~ .filter-toggle-label { color: var(--black); }
+  .filter-toggle input:checked ~ .filter-toggle-label { color: var(--gold); }
   .prop-card.filtered-out { display: none; }
 </style>
 

@@ -53,9 +53,15 @@ src/
     AdminLayout.astro    — layout admin dark luxury (#1B1B18 / #242420) con marca oficial
   styles/
     global.css           — Tailwind v4, tokens @theme centralizados y reseteos globales
+docs/
+  GUIA-DE-ESTILOS.md     — reglas obligatorias de CSS/Tailwind para el sitio público
 ```
 
 ## Convenciones del Sistema de Diseño y CSS (Tailwind CSS v4)
+
+> **Antes de cualquier cambio visual, leé [`docs/GUIA-DE-ESTILOS.md`](docs/GUIA-DE-ESTILOS.md).**
+> Es la guía completa: capas de CSS, contenedor canónico, superficies claras/oscuras,
+> tokens, breakpoints y los antipatrones que ya rompieron el sitio. Lo de abajo es el resumen.
 
 - **Fuente de Verdad**: `@theme` en `src/styles/global.css` define la paleta oficial:
   - `--color-brand-black: #1B1B18`
@@ -69,7 +75,10 @@ src/
   - `@layer base { … }` — tokens `:root`, `html`, `body`. El reseteo `* { margin: 0; padding: 0 }` NO se reescribe: ya lo aplica el preflight de Tailwind. Escribirlo fuera de capa anula todos los `p-*`, `m-*`, `mx-auto` y `space-y-*` del sitio.
   - `@layer components { … }` — todos los estilos legacy por clase (`.hero`, `.prop-card`, `.build-*`, etc.), de modo que las utilidades de Tailwind siempre puedan sobrescribirlos.
 - **Alto del navbar**: única fuente de verdad en `--nav-h` (`:root`). Lo consumen `Navbar.astro` (`h-[var(--nav-h)]`), el offset del contenido en `Layout.astro` (`pt-[var(--nav-h)]`), `html { scroll-padding-top }` para los anclas, `.hero` y `.build-sticky`. Nunca hardcodear `70px` / `88px`.
-- **Navbar y Footer son 100% Tailwind**: `Navbar.astro` y `Footer.astro` no dependen de ninguna regla en `global.css` (no existen `.nav-links`, `.nav-logo`, `.footer-top`, etc.).
+- **Navbar y Footer son 100% Tailwind**: `Navbar.astro` y `Footer.astro` no dependen de ninguna regla en `global.css` (no existen `.nav-links`, `.nav-logo`, `.footer-top`, etc.). El menú de escritorio aparece a partir de `lg` (1024px); a 768px no entra.
+- **Un solo ancho de contenido**: `--content-max` (80rem / 1280px). En markup Tailwind se usa `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`; en markup legacy, la clase equivalente `.container-site`. Toda sección de ancho completo lleva un contenedor adentro: la sección pone fondo y padding vertical, el contenedor pone ancho y gutter. Nunca gutters en porcentaje (`padding: 0 8%`), que desalinean respecto del resto de la página.
+- **Superficies**: el sitio es dark luxury y la tipografía legacy (`.section-title`, `.section-sub`, `.section-label`) está pensada para fondo claro. Todo bloque oscuro lleva `on-dark`; todo bloque claro lleva `on-light`. Sin eso, `.section-title` queda `#1B1B18` sobre `#1B1B18` (invisible). El dorado `--color-brand-gold` sólo se usa sobre fondo oscuro: sobre blanco da 2.3:1.
+- **WhatsApp**: una sola identidad en todo el sitio — `--color-wa` / `--color-wa-hover` con texto `--color-wa-ink` (nunca blanco: da 2:1). En Tailwind, `bg-wa text-wa-ink hover:bg-wa-hover`.
 
 ## Portafolio y Navegación Directa (Homepage `index.astro`)
 
