@@ -6,8 +6,11 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
+    "prebuild": "node scripts/check-css.mjs",
     "build": "astro build",
     "preview": "astro preview",
+    "check:css": "node scripts/check-css.mjs",
+    "audit:ui": "node scripts/audit-ui.mjs",
     "astro": "astro"
   },
   "dependencies": {

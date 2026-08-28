@@ -11,21 +11,47 @@ mismo ritmo vertical, misma paleta y contraste legible en todas las páginas.
 
 ---
 
-## 0. Antes de dar por terminado un cambio
+## 0. Las dos verificaciones automáticas
 
-Levantá el sitio (`npm run dev`) y comprobá las tres cosas que más se rompen:
+No hace falta acordarse de estas reglas: hay dos comandos que las verifican.
 
-1. **Alineación** — el contenido de cada bloque tiene que empezar en la misma
-   `x` que el del footer, en todas las páginas.
-2. **Contraste** — ningún texto por debajo de 4.5:1 (3:1 si es ≥24px, o ≥18.7px
-   en negrita).
-3. **Desborde** — `document.documentElement.scrollWidth` no puede superar el
-   ancho del viewport a 390px, 768px, 1024px y 1440px.
+### `npm run check:css` — guardia estática, sin dependencias
 
-`body` tiene `overflow-x: hidden`, así que un desborde **no** produce scroll
-horizontal: recorta el contenido en silencio. Por eso hay que medirlo, no
-mirarlo. Los tres chequeos se hacen con Playwright contra el sitio levantado;
-`npm run build` no detecta ninguno de ellos.
+Revisa `src/styles/global.css` y falla si aparece alguno de los antipatrones de
+la sección 9: CSS fuera de `@layer`, reglas por etiqueta HTML, altos de navbar
+hardcodeados o verdes de WhatsApp sueltos.
+
+**Corre solo en cada `npm run build`** (está enganchado como `prebuild`), así
+que también corre en el deploy de Vercel: si alguien reintroduce el bug, el
+build falla antes de publicar.
+
+### `npm run audit:ui` — auditoría visual con navegador
+
+```bash
+npm run dev                                        # en otra terminal
+npm run audit:ui                                   # http://localhost:4321
+npm run audit:ui -- https://inmobiliariaanelo.com.ar
+```
+
+Recorre las 7 páginas públicas y verifica lo que el build **no** puede ver:
+
+1. **Espaciado** — que cada `p-*`, `px-*`, `py-*` y `gap-*` compute el valor que
+   corresponde (contemplando las variantes `sm:`/`lg:`). Si el CSS propio se
+   sale de `@layer`, todas computan 0 y el texto queda pegado a los bordes.
+2. **Alineación** — que el contenido de cada bloque arranque en la misma `x`
+   que el del footer.
+3. **Contraste** — ningún texto por debajo de 4.5:1 (3:1 si es ≥24px, o
+   ≥18.7px en negrita).
+4. **Desborde** — que nada se salga del viewport a 390, 768 y 1024px.
+
+Requiere Playwright, que no es dependencia del proyecto:
+`npm i -D playwright && npx playwright install chromium`.
+
+Corrélo antes de dar por terminado cualquier cambio visual. `npm run build`
+compila igual con el sitio roto: **ninguno de estos cuatro problemas rompe el
+build**. Y `body` tiene `overflow-x: hidden`, así que un desborde ni siquiera
+produce scroll horizontal — recorta el contenido en silencio. Por eso hay que
+medirlo, no mirarlo.
 
 ---
 
