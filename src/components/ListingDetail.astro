@@ -212,7 +212,10 @@ if (showPrice) {
 </div>
 
 <style is:global>
-  .ld { max-width: 1300px; margin: 0 auto; padding: 0 1.5rem 2rem; color: #ffffff; }
+  /* Mismo ancho y gutter que .container-site / max-w-7xl del resto del sitio. */
+  .ld { width: 100%; max-width: var(--content-max); margin-inline: auto; padding: 0 1rem 2rem; color: #ffffff; }
+  @media (min-width: 640px)  { .ld { padding-inline: 1.5rem; } }
+  @media (min-width: 1024px) { .ld { padding-inline: 2rem; } }
 
   /* ── BREADCRUMBS ── */
   .ld-crumbs {
@@ -288,7 +291,7 @@ if (showPrice) {
     box-shadow: 0 4px 14px rgba(0,0,0,.3);
   }
   .ld-btn i { width: 18px; height: 18px; }
-  .ld-btn-wa { background: #25d366; color: #000000; }
+  .ld-btn-wa { background: var(--color-wa); color: var(--color-wa-ink); }
   .ld-btn-wa:hover { background: #34d399; transform: translateY(-1px); }
   .ld-btn-ghost { border: 1.5px solid rgba(201,168,76,.45); color: var(--gold, #c9a84c); background: transparent; }
   .ld-btn-ghost:hover { background: rgba(201,168,76,.15); border-color: var(--gold, #c9a84c); }

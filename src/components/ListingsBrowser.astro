@@ -248,7 +248,10 @@ const ANELO_CENTER = { lat: -38.3494, lng: -68.7906 };
 
 <style is:global>
   /* ── FILTROS ───────────────────────────────────────────────────────── */
-  .lb { max-width: 1400px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+  /* Mismo ancho y gutter que .container-site / max-w-7xl del resto del sitio. */
+  .lb { width: 100%; max-width: var(--content-max); margin-inline: auto; padding: 0 1rem 4rem; }
+  @media (min-width: 640px)  { .lb { padding-inline: 1.5rem; } }
+  @media (min-width: 1024px) { .lb { padding-inline: 2rem; } }
   .lb-filters {
     display: flex; flex-wrap: wrap; gap: 1.5rem 2.2rem;
     padding: 1.75rem 2rem; margin-bottom: 2rem;
