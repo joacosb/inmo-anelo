@@ -1,8 +1,7 @@
 import { defineMiddleware } from 'astro:middleware';
 import { createClient } from '@supabase/supabase-js';
+import { SUPABASE_URL, SUPABASE_ANON } from './lib/supabase';
 
-const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
 
 export const onRequest = defineMiddleware(async ({ url, cookies, redirect }, next) => {
   const path = url.pathname.replace(/\/$/, '') || '/';

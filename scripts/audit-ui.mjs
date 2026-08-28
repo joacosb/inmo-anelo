@@ -124,12 +124,25 @@ for (const url of PAGES) {
       const d = ctx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255]; };
     const lum = ([r, g, b]) => { const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
       return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
-    const fondo = (el) => { let n = el;
-      while (n && n !== document.documentElement) { const cs = getComputedStyle(n);
-        if (cs.backgroundImage !== 'none') return null;      // gradiente: no se puede resolver
-        const c = rgba(cs.backgroundColor); if (c[3] > 0.85) return c.slice(0, 3);
-        n = n.parentElement; }
-      return rgba(getComputedStyle(document.body).backgroundColor).slice(0, 3); };
+    // Compone las capas de fondo de abajo hacia arriba. Saltear las
+    // semitransparentes daría un fondo equivocado: un panel con
+    // rgba(0,0,0,.82) sobre claro se mediría como si fuera claro.
+    const fondo = (el) => {
+      const capas = [];
+      for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
+        const cs = getComputedStyle(n);
+        if (cs.backgroundImage !== 'none') return null;      // gradiente/imagen: no se puede resolver
+        const c = rgba(cs.backgroundColor);
+        if (c[3] === 0) continue;
+        capas.push(c);
+        if (c[3] >= 0.99) break;                             // opaca: no pasa nada de abajo
+      }
+      let base = rgba(getComputedStyle(document.body).backgroundColor);
+      if (base[3] < 0.99) base = [255, 255, 255, 1];
+      let acc = base.slice(0, 3);
+      for (const c of capas.reverse()) acc = [0, 1, 2].map((i) => c[i] * c[3] + acc[i] * (1 - c[3]));
+      return acc;
+    };
     const out = [];
     document.querySelectorAll('h1,h2,h3,h4,p,span,a,li,div,button,label,strong,td,th').forEach((el) => {
       if (![...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 1)) return;

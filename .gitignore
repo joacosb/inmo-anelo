@@ -26,3 +26,6 @@ pnpm-debug.log*
 
 # vercel build output
 .vercel/
+
+# vendorizado en prebuild desde node_modules
+public/vendor/
