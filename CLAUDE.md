@@ -64,7 +64,12 @@ src/
   - `--font-display: 'Cormorant Garamond'`
   - `--font-body: 'Montserrat'`
 - **Modularidad por Componente**: Los componentes Astro deben mantenerse aislados en sus archivos usando clases de Tailwind (ej. `bg-[#242420]`, `text-brand-gold`, `font-display`, `border-stone-800`, `rounded-2xl`) o bloques `<style>` específicos del archivo.
-- **Sin Colisiones Globales**: En `global.css` NUNCA deben ponerse reglas genéricas a etiquetas HTML (ej. `nav { ... }` o `.prop-card { background: white }`) que puedan colisionar con componentes específicos. El navbar usa la regla estricta `nav#navbar`.
+- **Sin Colisiones Globales**: En `global.css` NUNCA deben ponerse reglas genéricas a etiquetas HTML (ej. `nav { ... }`, `section { padding: … }` o `footer { … }`) que puedan colisionar con componentes específicos. Si un grupo de secciones legacy necesita el padding clásico, se usa la clase explícita `.section-pad`.
+- **Todo el CSS propio va en una `@layer`**: Tailwind v4 declara `@layer theme, base, components, utilities`. El CSS **sin capa siempre le gana a las utilidades de Tailwind**, sin importar la especificidad. Por eso `global.css` tiene exactamente dos bloques:
+  - `@layer base { … }` — tokens `:root`, `html`, `body`. El reseteo `* { margin: 0; padding: 0 }` NO se reescribe: ya lo aplica el preflight de Tailwind. Escribirlo fuera de capa anula todos los `p-*`, `m-*`, `mx-auto` y `space-y-*` del sitio.
+  - `@layer components { … }` — todos los estilos legacy por clase (`.hero`, `.prop-card`, `.build-*`, etc.), de modo que las utilidades de Tailwind siempre puedan sobrescribirlos.
+- **Alto del navbar**: única fuente de verdad en `--nav-h` (`:root`). Lo consumen `Navbar.astro` (`h-[var(--nav-h)]`), el offset del contenido en `Layout.astro` (`pt-[var(--nav-h)]`), `html { scroll-padding-top }` para los anclas, `.hero` y `.build-sticky`. Nunca hardcodear `70px` / `88px`.
+- **Navbar y Footer son 100% Tailwind**: `Navbar.astro` y `Footer.astro` no dependen de ninguna regla en `global.css` (no existen `.nav-links`, `.nav-logo`, `.footer-top`, etc.).
 
 ## Portafolio y Navegación Directa (Homepage `index.astro`)
 
