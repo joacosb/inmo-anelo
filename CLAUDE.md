@@ -43,7 +43,7 @@ src/
         nueva.astro      — alta de nueva propiedad
       homepage/          — gestión del portafolio destacado
   components/
-    Navbar.astro         — navbar principal fijo (selector nav#navbar), breakpoint md:flex para menú
+    Navbar.astro         — navbar fijo, 100% Tailwind. Alto en --nav-h; menú desktop desde lg:flex
     Footer.astro         — pie de página unificado (sin mención de marcas secundarias)
     PropertyCard.astro   — tarjeta modular dark luxury (#242420). Soporta enlaces directos y hideStatus
     ListingsBrowser.astro— buscador de /venta/ y /alquiler/ con filtros oscuros y Leaflet
@@ -55,6 +55,9 @@ src/
     global.css           — Tailwind v4, tokens @theme centralizados y reseteos globales
 docs/
   GUIA-DE-ESTILOS.md     — reglas obligatorias de CSS/Tailwind para el sitio público
+scripts/
+  check-css.mjs          — guardia estática de global.css; corre como `prebuild`
+  audit-ui.mjs           — auditoría visual (espaciado, alineación, contraste, desborde)
 ```
 
 ## Convenciones del Sistema de Diseño y CSS (Tailwind CSS v4)
@@ -62,6 +65,12 @@ docs/
 > **Antes de cualquier cambio visual, leé [`docs/GUIA-DE-ESTILOS.md`](docs/GUIA-DE-ESTILOS.md).**
 > Es la guía completa: capas de CSS, contenedor canónico, superficies claras/oscuras,
 > tokens, breakpoints y los antipatrones que ya rompieron el sitio. Lo de abajo es el resumen.
+>
+> Dos comandos las verifican, así que no hay que acordarse de memoria:
+> - `npm run check:css` — guardia estática, sin dependencias. **Corre solo en cada `npm run build`**
+>   (enganchado como `prebuild`), también en el deploy de Vercel: si se reintroduce el bug, el build falla.
+> - `npm run audit:ui` — auditoría con navegador contra el sitio levantado: espaciado, alineación,
+>   contraste y desborde. Ninguno de esos cuatro problemas rompe el build, así que hay que medirlos.
 
 - **Fuente de Verdad**: `@theme` en `src/styles/global.css` define la paleta oficial:
   - `--color-brand-black: #1B1B18`
