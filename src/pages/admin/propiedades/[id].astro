@@ -2,10 +2,8 @@
 export const prerender = false;
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { createClient } from '@supabase/supabase-js';
-import { getImageUrl, PROP_KINDS, FEATURES } from '../../../lib/supabase';
+import { SUPABASE_URL, SUPABASE_ANON, getImageUrl, PROP_KINDS, FEATURES } from '../../../lib/supabase';
 
-const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
 
 const token = Astro.cookies.get('sb_token')!.value;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
@@ -253,8 +251,8 @@ const hasPoint = p.lat != null && p.lng != null;
     .map-hint { font-size: .68rem; color: rgba(255,255,255,.35); margin-top: .5rem; line-height: 1.5; }
     /* Leaflet imprime sus controles en claro; los bajamos al tema oscuro. */
     .leaflet-container { background: #1a1a1a; font-family: inherit; }
-    .leaflet-control-attribution { background: rgba(0,0,0,.6) !important; color: rgba(255,255,255,.4) !important; font-size: .6rem; }
-    .leaflet-control-attribution a { color: rgba(255,255,255,.6) !important; }
+    .leaflet-control-attribution { background: rgba(0,0,0,.82) !important; color: rgba(255,255,255,.8) !important; font-size: .65rem; }
+    .leaflet-control-attribution a { color: rgba(255,255,255,.95) !important; }
 
     /* ── TOAST ── */
     #toast {
@@ -952,8 +950,10 @@ const hasPoint = p.lat != null && p.lng != null;
     }
   </script>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script is:inline src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet auto-alojado (ver scripts/vendor-leaflet.mjs): mismo <script> clásico
+       y bloqueante que antes, pero servido desde nuestro dominio y no desde unpkg. -->
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
+  <script is:inline src="/vendor/leaflet/leaflet.js"></script>
 
   <script is:inline define:vars={{ mapLat, mapLng, hasPoint }}>
     /* ── Visibilidad de los bloques según las secciones tildadas ──────────

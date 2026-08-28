@@ -1,0 +1,22 @@
+/**
+ * Paleta canónica de Inmobiliaria Añelo.
+ *
+ * El sitio público y el panel /admin/ son dos sistemas de estilos separados
+ * (el admin no usa Tailwind ni global.css), pero comparten la misma marca.
+ * Este archivo es la única fuente de esos valores.
+ *
+ * - El admin lo importa directamente (AdminLayout.astro).
+ * - El sitio público los repite en el bloque @theme de global.css, porque
+ *   Tailwind v4 necesita valores literales ahí para generar las utilidades.
+ *   `npm run check:css` verifica que los dos coincidan y falla el build si
+ *   se separan.
+ */
+:root {
+  --brand-black: #1B1B18;
+  --brand-card: #23231F;
+  --brand-gold: #c9a84c;
+  --brand-gold-light: #e8c97a;
+
+  --font-display: 'Cormorant Garamond', Garamond, 'Times New Roman', serif;
+  --font-body: 'Montserrat', sans-serif;
+}

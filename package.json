@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "prebuild": "node scripts/check-css.mjs",
+    "prebuild": "node scripts/check-css.mjs && node scripts/vendor-leaflet.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "check:css": "node scripts/check-css.mjs",
+    "check:rls": "node scripts/check-rls.mjs",
     "audit:ui": "node scripts/audit-ui.mjs",
     "astro": "astro"
   },
@@ -19,6 +20,8 @@
     "@supabase/supabase-js": "^2.106.0",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^6.3.5",
+    "leaflet": "^1.9.4",
+    "lucide": "^0.454.0",
     "tailwindcss": "^4.3.3"
   }
 }

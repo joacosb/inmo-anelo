@@ -69,8 +69,18 @@ export interface Property {
   location_exact: boolean;
 }
 
-const SUPABASE_URL  = 'https://qwhasgdxhvdavnofmisf.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
+/**
+ * Única fuente de la configuración de Supabase. Todo el resto del código
+ * importa estas dos constantes desde acá — no las redeclares.
+ *
+ * La anon key es pública por diseño (viaja al navegador), así que el literal
+ * no es un secreto: lo que impide escrituras de terceros es Row Level
+ * Security en la base. El fallback existe para no romper el deploy si las
+ * variables todavía no están cargadas; una vez configuradas en Vercel se
+ * puede borrar y dejar sólo import.meta.env.
+ */
+export const SUPABASE_URL  = import.meta.env.PUBLIC_SUPABASE_URL      ?? 'https://qwhasgdxhvdavnofmisf.supabase.co';
+export const SUPABASE_ANON = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 

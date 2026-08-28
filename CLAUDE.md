@@ -55,9 +55,12 @@ src/
     global.css           — Tailwind v4, tokens @theme centralizados y reseteos globales
 docs/
   GUIA-DE-ESTILOS.md     — reglas obligatorias de CSS/Tailwind para el sitio público
+  tokens.css             — paleta compartida entre el sitio público y el admin
 scripts/
   check-css.mjs          — guardia estática de global.css; corre como `prebuild`
+  vendor-leaflet.mjs     — copia Leaflet a public/vendor/; corre como `prebuild`
   audit-ui.mjs           — auditoría visual (espaciado, alineación, contraste, desborde)
+  check-rls.mjs          — verifica que RLS bloquee escrituras anónimas en Supabase
 ```
 
 ## Convenciones del Sistema de Diseño y CSS (Tailwind CSS v4)
@@ -71,6 +74,8 @@ scripts/
 >   (enganchado como `prebuild`), también en el deploy de Vercel: si se reintroduce el bug, el build falla.
 > - `npm run audit:ui` — auditoría con navegador contra el sitio levantado: espaciado, alineación,
 >   contraste y desborde. Ninguno de esos cuatro problemas rompe el build, así que hay que medirlos.
+> - `npm run check:rls` — verifica que Row Level Security bloquee escrituras anónimas. La anon key
+>   es pública por diseño, así que RLS es lo único que protege la base.
 
 - **Fuente de Verdad**: `@theme` en `src/styles/global.css` define la paleta oficial:
   - `--color-brand-black: #1B1B18`

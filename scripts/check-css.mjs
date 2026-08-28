@@ -107,6 +107,36 @@ for (const m of code.matchAll(/#(25d366|1dba5a|128c7e)\b/gi)) {
   errors.push(`${CSS}:${lineOf(m.index)}  verde de WhatsApp suelto (#${m[1]}). Usá var(--color-wa) / var(--color-wa-hover).`);
 }
 
+// ── 5. la paleta no puede divergir entre los dos sistemas ───────────────────
+// El sitio público (Tailwind, @theme) y el panel /admin/ (CSS propio,
+// tokens.css) comparten marca pero no comparten hoja de estilos. Tailwind v4
+// necesita valores literales en @theme, así que el color vive en dos lugares:
+// esto verifica que digan lo mismo.
+{
+  const TOKENS = 'src/styles/tokens.css';
+  const tokens = readFileSync(resolve(root, TOKENS), 'utf8');
+  const leer = (txt, nombre) => txt.match(new RegExp(`--${nombre}\\s*:\\s*([^;]+);`))?.[1].trim().toLowerCase();
+  const pares = [
+    ['brand-black', 'color-brand-black'],
+    ['brand-gold', 'color-brand-gold'],
+    ['brand-gold-light', 'color-brand-gold-light'],
+    ['font-display', 'font-display'],
+    ['font-body', 'font-body'],
+  ];
+  for (const [enTokens, enTheme] of pares) {
+    const a = leer(tokens, enTokens);
+    const b = leer(code, enTheme);
+    if (a === undefined || b === undefined) {
+      errors.push(`Falta --${a === undefined ? enTokens + ` en ${TOKENS}` : enTheme + ` en ${CSS}`}.`);
+    } else if (a !== b) {
+      errors.push(
+        `La paleta divergió: --${enTokens} = "${a}" en ${TOKENS}, pero --${enTheme} = "${b}" en ${CSS}.\n` +
+        `      Los dos tienen que decir lo mismo: el admin lee tokens.css y el sitio público lee @theme.`,
+      );
+    }
+  }
+}
+
 // ── salida ──────────────────────────────────────────────────────────────────
 if (errors.length) {
   console.error(`\n✘ ${errors.length} violación(es) de ${GUIA}:\n`);

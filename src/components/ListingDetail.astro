@@ -334,8 +334,10 @@ if (showPrice) {
   }
 </style>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script is:inline src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet auto-alojado (ver scripts/vendor-leaflet.mjs): mismo <script> clásico
+     y bloqueante que antes, pero servido desde nuestro dominio y no desde unpkg. -->
+<link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
+<script is:inline src="/vendor/leaflet/leaflet.js"></script>
 
 <script is:inline define:vars={{
   photos: photos.map((u) => getImageUrl(u, { width: 1200 })),

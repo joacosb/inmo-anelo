@@ -47,6 +47,19 @@ Recorre las 7 páginas públicas y verifica lo que el build **no** puede ver:
 Requiere Playwright, que no es dependencia del proyecto:
 `npm i -D playwright && npx playwright install chromium`.
 
+### `npm run check:rls` — ¿la base está protegida?
+
+```bash
+PUBLIC_SUPABASE_ANON_KEY="<anon key>" npm run check:rls
+```
+
+La anon key de Supabase es pública por diseño: viaja al navegador, así que
+cualquiera la puede leer del código fuente de la página. Lo único que impide
+que un tercero escriba en `properties` o `homepage_cards` es Row Level
+Security. Este comando lo prueba sin escribir nada (manda un INSERT con un
+payload inválido y mira si el rechazo vino de RLS o de la validación del dato).
+Corrélo después de tocar el esquema.
+
 Corrélo antes de dar por terminado cualquier cambio visual. `npm run build`
 compila igual con el sitio roto: **ninguno de estos cuatro problemas rompe el
 build**. Y `body` tiene `overflow-x: hidden`, así que un desborde ni siquiera
@@ -167,6 +180,22 @@ Regla general: el dorado `--gold` (`#c9a84c`) sólo se usa sobre fondo oscuro.
 
 ---
 
+## 4bis. Foco de teclado
+
+Nunca uses `focus:outline-none`. Deja a quien navega con Tab sin ninguna pista
+de dónde está parado, y en este sitio ya había 8 usos que dejaban el navbar,
+los botones y las tarjetas sin foco visible.
+
+Hay un anillo global en `@layer base`:
+
+```css
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+```
+
+Usa `:focus-visible`, así que el mouse no lo dispara — no hace falta apagarlo
+"para que no se vea al clickear". Si un elemento es dorado, el anillo dorado no
+se distingue: agregá el selector a la excepción que invierte el color a negro.
+
 ## 5. Alto del navbar: `--nav-h`
 
 El navbar es `position: fixed`. Su alto vive en **un solo lugar**, el token
@@ -204,7 +233,13 @@ agregás un ítem al menú, verificá de nuevo a 1024px.
 
 ## 7. Paleta: sólo tokens
 
-La fuente de verdad es el bloque `@theme` de `src/styles/global.css`.
+El sitio público y el panel `/admin/` son dos sistemas de estilos separados,
+pero comparten la marca. Los valores compartidos viven en
+**`src/styles/tokens.css`**, que el admin importa directamente. El sitio
+público los repite en el bloque `@theme` de `src/styles/global.css`, porque
+Tailwind v4 necesita literales ahí para generar las utilidades —
+`npm run check:css` verifica que los dos coincidan y falla el build si se
+separan.
 
 | Token | Valor | Uso |
 |---|---|---|
@@ -229,6 +264,23 @@ No agregues hex sueltos. Si necesitás un color nuevo, agregá el token a
 `@theme` y usalo desde ahí.
 
 ---
+
+## 7bis. Nada de CDNs de terceros
+
+El sitio no baja código de `unpkg.com` ni de ningún otro CDN. Si el CDN se cae
+o cambia, se cae el sitio; y todo lo que sirve queda fuera de nuestro control.
+
+- **Lucide**: se importan sólo los iconos que se usan y se bundlean
+  (`src/layouts/Layout.astro`). Si agregás un `data-lucide="..."` nuevo,
+  acordate de sumar el icono a ese `import` y al objeto de `createIcons`.
+- **Leaflet**: se auto-aloja. `scripts/vendor-leaflet.mjs` lo copia de
+  `node_modules` a `public/vendor/leaflet/` en cada `prebuild`, y los mapas lo
+  cargan desde ahí. **No lo conviertas en un `import` de módulo**: los scripts
+  de mapa son `is:inline` y corren en tiempo de parseo, así que necesitan que
+  `L` ya exista como global. Un módulo ES es diferido y los mapas quedarían sin
+  inicializar, en silencio.
+
+`public/vendor/` está en `.gitignore`: se regenera solo.
 
 ## 8. Componentes existentes antes que markup nuevo
 
@@ -260,3 +312,7 @@ bug de homogeneidad, no una variante.
 | Reusar `.btn-inv-*` en un panel claro | Botón "Email" blanco sobre blanco: invisible |
 | Cuatro verdes para WhatsApp | El mismo CTA se veía distinto en cada página |
 | Menú de escritorio a partir de `md` | A 768px el CTA "Contacto" quedaba cortado |
+| `focus:outline-none` | Navegar con Tab quedaba sin ninguna pista visual |
+| Cargar librerías desde un CDN | Con unpkg caído, los iconos y los mapas no renderizaban |
+| Bundlear Leaflet como módulo ES | El módulo es diferido: los mapas `is:inline` no encuentran `L` |
+| Duplicar la paleta a mano en el admin | Dos verdades sobre los mismos colores, listas para divergir |

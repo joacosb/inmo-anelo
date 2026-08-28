@@ -209,10 +209,21 @@ const navItems = [
   })();
 </script>
 
-<script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js" is:inline></script>
-<script is:inline>
-  document.addEventListener('DOMContentLoaded', function() {
-    if (window.lucide) lucide.createIcons();
+<!-- Iconos: se importan sólo los que se usan y se bundlean, en vez de bajar
+     la librería UMD entera desde un CDN de terceros. -->
+<script>
+  import {
+    createIcons, AtSign, BarChart2, BedDouble, Box, Car, Check, Droplets, Flame,
+    Globe2, KeyRound, Layers, Mail, MapPin, MessageCircle, ScanSearch, Smartphone,
+    Star, TrendingUp, Tv, Users, Utensils, Wifi, Zap,
+  } from 'lucide';
+
+  createIcons({
+    icons: {
+      AtSign, BarChart2, BedDouble, Box, Car, Check, Droplets, Flame, Globe2,
+      KeyRound, Layers, Mail, MapPin, MessageCircle, ScanSearch, Smartphone,
+      Star, TrendingUp, Tv, Users, Utensils, Wifi, Zap,
+    },
   });
 </script>
 </body>
