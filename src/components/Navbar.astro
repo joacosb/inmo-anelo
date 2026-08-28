@@ -54,7 +54,7 @@ const navItems = [
 ];
 ---
 
-<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-[88px] bg-brand-black/95 backdrop-blur-xl border-b border-brand-gold/30 transition-all duration-300">
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-[var(--nav-h)] bg-brand-black/95 backdrop-blur-xl border-b border-brand-gold/30 transition-all duration-300">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
     
     <!-- Prominent Brand Logo & Name -->
@@ -136,7 +136,10 @@ const navItems = [
   </div>
 
   <!-- Mobile Drawer Menu -->
-  <div id="mobileDrawer" class="hidden md:hidden bg-brand-black/95 backdrop-blur-2xl border-b border-brand-gold/30 px-6 py-8 space-y-6">
+  <div
+    id="mobileDrawer"
+    class="hidden md:hidden fixed top-[var(--nav-h)] left-0 right-0 max-h-[calc(100vh-var(--nav-h))] overflow-y-auto bg-brand-black border-b border-brand-gold/30 px-6 py-8 space-y-6"
+  >
     {navItems.map((item) => (
       <div class="space-y-2">
         <a
