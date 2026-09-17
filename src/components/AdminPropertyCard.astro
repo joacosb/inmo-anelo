@@ -4,12 +4,20 @@ import { getImageUrl, zoneLabel, formatPrice } from '../lib/supabase';
 
 interface Props { p: any }
 const { p } = Astro.props;
+
+// `active` es la visibilidad pública: la vista `properties_public` filtra
+// `where active`, así que una propiedad en false sigue guardada acá pero
+// desaparece de /corporativo/, /venta/, /alquiler/ e /invertir/.
+const visible = p.active === true;
 ---
-<div class="adm-card" data-id={p.id}>
-  {p.cover_image
-    ? <img class="adm-card-img" src={getImageUrl(p.cover_image, { width: 384 })} alt={p.name}
-        width="384" height="140" loading="lazy" decoding="async" />
-    : <div class="adm-card-img adm-card-noimg">Sin foto</div>}
+<div class={`adm-card${visible ? '' : ' is-hidden'}`} data-id={p.id} data-active={String(visible)}>
+  <div class="adm-card-media">
+    {p.cover_image
+      ? <img class="adm-card-img" src={getImageUrl(p.cover_image, { width: 384 })} alt={p.name}
+          width="384" height="140" loading="lazy" decoding="async" />
+      : <div class="adm-card-img adm-card-noimg">Sin foto</div>}
+    <span class="adm-vis-badge">Oculta al público</span>
+  </div>
 
   <div class="adm-card-body">
     <div class="adm-card-name">{p.name}</div>
@@ -56,7 +64,15 @@ const { p } = Astro.props;
         {p.max_guests ? `Hasta ${p.max_guests} huésp. · ` : ''}
         {zoneLabel(p.zone, p.type)}
       </span>
-      <a class="btn-edit" href={`/admin/propiedades/${p.id}/`}>Editar todo →</a>
+      <div class="adm-card-actions">
+        <button class="btn-vis" type="button" onclick="toggleVisible(this)"
+          title={visible
+            ? 'Sacar del sitio público sin borrarla: queda guardada acá'
+            : 'Volver a mostrarla en el sitio público'}>
+          {visible ? 'Ocultar' : 'Mostrar'}
+        </button>
+        <a class="btn-edit" href={`/admin/propiedades/${p.id}/`}>Editar todo →</a>
+      </div>
     </div>
   </div>
 </div>

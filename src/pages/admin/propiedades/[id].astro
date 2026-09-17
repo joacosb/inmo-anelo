@@ -36,6 +36,11 @@ if (Astro.request.method === 'POST') {
     unit_count:     num('unit_count'),
     matterport_url: str('matterport_url'),
 
+    // ── Visibilidad pública ──
+    // En false la propiedad queda guardada pero sale de `properties_public`,
+    // que es de donde leen todas las páginas del sitio.
+    active:         bool('active'),
+
     // ── Secciones ──
     for_corporate:  bool('for_corporate'),
     for_rent:       bool('for_rent'),
@@ -211,6 +216,25 @@ const hasPoint = p.lat != null && p.lng != null;
     .alert { border-radius: 6px; font-size: .8rem; padding: .7rem 1rem; margin-bottom: 1.5rem; }
     .alert-ok    { background: rgba(16,185,129,.15); border: 1px solid rgba(16,185,129,.4); color: #6ee7b7; }
     .alert-error { background: rgba(239,68,68,.15);  border: 1px solid rgba(239,68,68,.4);  color: #f87171; }
+    .alert-warn  { background: rgba(234,179,8,.14);  border: 1px solid rgba(234,179,8,.4);  color: #fde68a; }
+
+    /* ── VISIBILIDAD PÚBLICA ── */
+    .vis-switch { display: block; margin-bottom: 1.25rem; }
+    .vis-switch input { position: absolute; opacity: 0; pointer-events: none; }
+    .vis-box {
+      display: block; border: 1px solid rgba(234,179,8,.45); border-radius: 8px;
+      background: rgba(234,179,8,.08);
+      padding: .85rem 1rem; cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .vis-switch input:checked + .vis-box { border-color: rgba(16,185,129,.45); background: rgba(16,185,129,.07); }
+    .vis-switch input:focus-visible + .vis-box { outline: 2px solid #c9a84c; outline-offset: 2px; }
+    .vis-title {
+      display: block; font-size: .8rem; font-weight: 700; color: #fde68a; margin-bottom: .25rem;
+    }
+    .vis-switch input:checked + .vis-box .vis-title { color: #6ee7b7; }
+    .vis-title::before { content: '○  '; }
+    .vis-switch input:checked + .vis-box .vis-title::before { content: '●  '; }
+    .vis-desc { display: block; font-size: .68rem; line-height: 1.5; color: rgba(255,255,255,.5); }
 
     /* ── SWITCHES DE SECCIÓN ── */
     .ops-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin-bottom: 1.75rem; }
@@ -277,6 +301,12 @@ const hasPoint = p.lat != null && p.lng != null;
 
     {saved     && <div class="alert alert-ok">✓ Cambios guardados correctamente.</div>}
     {saveError && <div class="alert alert-error">Error: {saveError}</div>}
+    {p.active !== true && (
+      <div class="alert alert-warn">
+        Esta propiedad está <strong>oculta</strong>: sigue guardada acá con sus fotos y
+        datos, pero no aparece en ninguna página pública del sitio.
+      </div>
+    )}
 
     <!-- FOTOS -->
     <div class="section-heading">Fotos</div>
@@ -336,6 +366,23 @@ const hasPoint = p.lat != null && p.lng != null;
     <div class="section-heading" style="margin-top:0">Datos</div>
 
     <form method="POST">
+      <!-- ── VISIBILIDAD ────────────────────────────────────────────────
+           Interruptor maestro por encima de las secciones: apagado, la
+           propiedad no aparece en ninguna página pública, pero se conserva
+           entera en el panel. Es la alternativa a borrarla. -->
+      <label class="vis-switch">
+        <input type="checkbox" name="active" checked={p.active === true} />
+        <span class="vis-box">
+          <span class="vis-title">Visible en el sitio público</span>
+          <span class="vis-desc">
+            Destildá esta casilla para conservar la propiedad sin mostrarla: desaparece
+            de /corporativo/, /venta/, /alquiler/ e /invertir/ y su ficha deja de ser
+            accesible, pero las fotos y los datos quedan guardados para volver a
+            publicarla cuando quieras.
+          </span>
+        </span>
+      </label>
+
       <!-- ── SECCIONES ──────────────────────────────────────────────────
            Definen en qué páginas del sitio aparece esta propiedad. Se pueden
            tildar varias: una casa puede estar en corporativo, en alquiler

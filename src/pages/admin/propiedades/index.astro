@@ -12,13 +12,18 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
   global: { headers: { Authorization: `Bearer ${token}` } },
 });
 
+// Sin filtro por `active`: el panel muestra también las ocultas, que son las
+// que el usuario sacó del sitio público pero quiere conservar. La vista
+// `properties_public` ya filtra `where active`, así que el sitio no las ve.
 const { data: properties = [] } = await sb
   .from('properties')
   .select('*')
-  .eq('active', true)
   .order('sort_order');
 
 const all = properties ?? [];
+
+const visiblesCount = all.filter((p: any) => p.active === true).length;
+const ocultasCount  = all.length - visiblesCount;
 
 // El agrupado sigue el criterio corporativo (complejo / edificio), pero una
 // propiedad publicada sólo en venta o alquiler no entra en ninguno de los dos:
@@ -40,11 +45,15 @@ const otras     = all.filter((p: any) => !complejos.includes(p) && !edificios.in
       text-transform: uppercase;
       color: #c9a84c;
       margin-bottom: 1.25rem;
-      margin-top: 3rem;
       padding-bottom: .6rem;
       border-bottom: 1px solid rgba(201,168,76,.25);
     }
-    .adm-section-title:first-child { margin-top: 0; }
+
+    /* SECCIONES
+       El gap del flex ignora los hijos con display:none, así que al filtrar
+       nunca queda un hueco arriba ni doble separación entre grupos. */
+    .adm-sections { display: flex; flex-direction: column; gap: 3rem; }
+    .adm-section[hidden], .adm-card[hidden] { display: none; }
 
     /* GRID */
     .adm-grid {
@@ -63,6 +72,23 @@ const otras     = all.filter((p: any) => !complejos.includes(p) && !edificios.in
       box-shadow: 0 4px 20px rgba(0,0,0,.4);
     }
     .adm-card:hover { border-color: rgba(201,168,76,.5); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(201,168,76,.12); }
+
+    /* CARD OCULTA
+       El texto queda a contraste pleno (es info que hay que poder leer);
+       lo que marca el estado es la foto apagada, el borde punteado y el badge. */
+    .adm-card.is-hidden { background: #1D1D1A; border-style: dashed; border-color: rgba(255,255,255,.18); }
+    .adm-card.is-hidden .adm-card-img { filter: grayscale(.95); opacity: .45; }
+    .adm-card-media { position: relative; }
+    .adm-vis-badge {
+      position: absolute; top: .6rem; left: .6rem;
+      display: none;
+      background: rgba(0,0,0,.85); color: #ffffff;
+      border: 1px solid rgba(255,255,255,.35);
+      font-size: .6rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      padding: .25rem .55rem; border-radius: 6px;
+    }
+    .adm-card.is-hidden .adm-vis-badge { display: block; }
+
     .adm-card-img {
       width: 100%;
       height: 170px;
@@ -77,7 +103,34 @@ const otras     = all.filter((p: any) => !complejos.includes(p) && !edificios.in
     .adm-card-name { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; color: #ffffff; margin-bottom: .7rem; }
 
     /* TOOLBAR */
-    .adm-toolbar { display: flex; justify-content: flex-end; margin-bottom: 2rem; }
+    .adm-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;
+    }
+
+    /* FILTRO DE VISIBILIDAD */
+    .vis-filter {
+      display: inline-flex; gap: .25rem; padding: .25rem;
+      background: #23231F; border: 1px solid rgba(255,255,255,.1); border-radius: 10px;
+    }
+    .vis-filter-btn {
+      background: none; border: none; border-radius: 7px; cursor: pointer;
+      font-family: inherit; font-size: .72rem; font-weight: 600;
+      letter-spacing: .04em; color: rgba(255,255,255,.6);
+      padding: .45rem .9rem; transition: background .15s, color .15s;
+    }
+    .vis-filter-btn:hover { color: #ffffff; background: rgba(255,255,255,.06); }
+    .vis-filter-btn.is-on { background: rgba(201,168,76,.18); color: #e8c97a; }
+    .vis-filter-btn:focus-visible { outline: 2px solid #c9a84c; outline-offset: 2px; }
+    .vis-count { opacity: .6; margin-left: .25rem; font-variant-numeric: tabular-nums; }
+
+    .adm-empty {
+      display: none;
+      text-align: center; color: rgba(255,255,255,.45);
+      font-size: .85rem; padding: 3rem 1rem;
+      border: 1px dashed rgba(255,255,255,.15); border-radius: 12px;
+    }
+
     .btn-new {
       background: #c9a84c; border-radius: 8px; color: #000000;
       font-family: var(--font-body); font-size: .8rem; font-weight: 700; text-decoration: none;
@@ -168,6 +221,21 @@ const otras     = all.filter((p: any) => !complejos.includes(p) && !edificios.in
       border-top: 1px solid #222;
     }
     .adm-meta { font-size: .7rem; color: rgba(255,255,255,.35); }
+    .adm-card-actions { display: flex; align-items: center; gap: .5rem; }
+
+    /* TOGGLE DE VISIBILIDAD */
+    .btn-vis {
+      font-family: inherit; font-size: .72rem; font-weight: 600;
+      background: transparent; color: rgba(255,255,255,.6);
+      border: 1px solid rgba(255,255,255,.22); border-radius: 4px;
+      padding: .3rem .7rem; cursor: pointer; white-space: nowrap;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+    .btn-vis:hover { background: rgba(255,255,255,.08); color: #ffffff; border-color: rgba(255,255,255,.4); }
+    .btn-vis:focus-visible { outline: 2px solid #c9a84c; outline-offset: 2px; }
+    .adm-card.is-hidden .btn-vis { color: #6ee7b7; border-color: rgba(16,185,129,.5); }
+    .adm-card.is-hidden .btn-vis:hover { background: rgba(16,185,129,.14); color: #a7f3d0; border-color: rgba(16,185,129,.8); }
+
     .btn-edit {
       font-size: .72rem;
       font-weight: 600;
@@ -204,27 +272,50 @@ const otras     = all.filter((p: any) => !complejos.includes(p) && !edificios.in
   <main class="adm-main">
 
     <div class="adm-toolbar">
+      <div class="vis-filter" role="group" aria-label="Filtrar por visibilidad">
+        <button class="vis-filter-btn is-on" type="button" data-filter="all" onclick="filterVis(this)">
+          Todas <span class="vis-count" data-count="all">{all.length}</span>
+        </button>
+        <button class="vis-filter-btn" type="button" data-filter="visible" onclick="filterVis(this)">
+          Visibles <span class="vis-count" data-count="visible">{visiblesCount}</span>
+        </button>
+        <button class="vis-filter-btn" type="button" data-filter="hidden" onclick="filterVis(this)">
+          Ocultas <span class="vis-count" data-count="hidden">{ocultasCount}</span>
+        </button>
+      </div>
       <a class="btn-new" href="/admin/propiedades/nueva/">+ Nueva propiedad</a>
     </div>
 
-    <div class="adm-section-title">Complejos Residenciales</div>
-    <div class="adm-grid">
-      {complejos.map((p: any) => <AdminPropertyCard p={p} />)}
+    <div class="adm-sections">
+      {complejos.length > 0 && (
+        <section class="adm-section">
+          <div class="adm-section-title">Complejos Residenciales</div>
+          <div class="adm-grid">
+            {complejos.map((p: any) => <AdminPropertyCard p={p} />)}
+          </div>
+        </section>
+      )}
+
+      {edificios.length > 0 && (
+        <section class="adm-section">
+          <div class="adm-section-title">Edificios Pampa</div>
+          <div class="adm-grid">
+            {edificios.map((p: any) => <AdminPropertyCard p={p} />)}
+          </div>
+        </section>
+      )}
+
+      {otras.length > 0 && (
+        <section class="adm-section">
+          <div class="adm-section-title">Venta y alquiler permanente</div>
+          <div class="adm-grid">
+            {otras.map((p: any) => <AdminPropertyCard p={p} />)}
+          </div>
+        </section>
+      )}
     </div>
 
-    <div class="adm-section-title">Edificios Pampa</div>
-    <div class="adm-grid">
-      {edificios.map((p: any) => <AdminPropertyCard p={p} />)}
-    </div>
-
-    {otras.length > 0 && (
-      <>
-        <div class="adm-section-title">Venta y alquiler permanente</div>
-        <div class="adm-grid">
-          {otras.map((p: any) => <AdminPropertyCard p={p} />)}
-        </div>
-      </>
-    )}
+    <div class="adm-empty" id="adm-empty">No hay propiedades en este filtro.</div>
 
   </main>
 
@@ -279,7 +370,80 @@ const otras     = all.filter((p: any) => !complejos.includes(p) && !edificios.in
       showToast(ok ? '✓ Badge guardado' : 'Error al guardar', !ok);
     }
 
-    window.setStatus = setStatus;
-    window.saveBadge = saveBadge;
+    /* ── VISIBILIDAD PÚBLICA ────────────────────────────────────────────
+       `active` es lo único que separa una propiedad guardada de una
+       publicada: la vista `properties_public` filtra `where active`, así que
+       apagarlo la saca de todo el sitio sin borrar el registro ni las fotos. */
+
+    let currentFilter = 'all';
+
+    function applyFilter(mode) {
+      currentFilter = mode;
+
+      document.querySelectorAll('.vis-filter-btn').forEach(b =>
+        b.classList.toggle('is-on', b.dataset.filter === mode));
+
+      document.querySelectorAll('.adm-card').forEach(card => {
+        const isVisible = card.dataset.active === 'true';
+        const show = mode === 'all' || (mode === 'visible') === isVisible;
+        card.hidden = !show;
+      });
+
+      // Una sección sin cards a la vista sólo dejaría el título colgado.
+      document.querySelectorAll('.adm-section').forEach(sec => {
+        sec.hidden = !sec.querySelector('.adm-card:not([hidden])');
+      });
+
+      const nothing = !document.querySelector('.adm-card:not([hidden])');
+      document.getElementById('adm-empty').style.display = nothing ? 'block' : 'none';
+    }
+
+    function filterVis(btn) {
+      applyFilter(btn.dataset.filter);
+      try { localStorage.setItem('admVisFilter', currentFilter); } catch (_) {}
+    }
+
+    function refreshCounts() {
+      const cards   = document.querySelectorAll('.adm-card');
+      const visible = document.querySelectorAll('.adm-card[data-active="true"]').length;
+      document.querySelector('[data-count="all"]').textContent     = cards.length;
+      document.querySelector('[data-count="visible"]').textContent = visible;
+      document.querySelector('[data-count="hidden"]').textContent  = cards.length - visible;
+    }
+
+    async function toggleVisible(btn) {
+      const card = cardOf(btn);
+      const id   = card.dataset.id;
+      const next = card.dataset.active !== 'true';   // estado al que vamos
+
+      btn.disabled = true;
+      const ok = await patch(id, { active: next });
+      btn.disabled = false;
+
+      if (!ok) {
+        showToast('Error al cambiar la visibilidad', true);
+        return;
+      }
+
+      card.dataset.active = String(next);
+      card.classList.toggle('is-hidden', !next);
+      btn.textContent = next ? 'Ocultar' : 'Mostrar';
+      btn.title = next
+        ? 'Sacar del sitio público sin borrarla: queda guardada acá'
+        : 'Volver a mostrarla en el sitio público';
+
+      refreshCounts();
+      applyFilter(currentFilter);
+      showToast(next ? '✓ Visible en el sitio' : '✓ Oculta del sitio público');
+    }
+
+    window.setStatus     = setStatus;
+    window.saveBadge     = saveBadge;
+    window.toggleVisible = toggleVisible;
+    window.filterVis     = filterVis;
+
+    let savedFilter = 'all';
+    try { savedFilter = localStorage.getItem('admVisFilter') || 'all'; } catch (_) {}
+    applyFilter(['all', 'visible', 'hidden'].includes(savedFilter) ? savedFilter : 'all');
   </script>
 </AdminLayout>

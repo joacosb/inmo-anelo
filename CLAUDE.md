@@ -113,6 +113,22 @@ scripts/
 
 - Toda la interfaz administrativa (`AdminLayout.astro`, `dashboard`, `propiedades`, `homepage`) está unificada bajo la misma línea estética **dark luxury** (`#1B1B18` / `#242420`), marcas en dorado y fuentes `Cormorant Garamond` / `Montserrat`.
 
+### Visibilidad pública (`active`)
+
+- `active` es el interruptor maestro de una propiedad: en `false` se conserva entera en el
+  panel (datos, fotos, encuadres) pero desaparece del sitio. No hace falta borrar nada.
+- No requiere filtrar en cada página: **todas las páginas públicas leen de la vista
+  `properties_public`, que ya filtra `where active`**. Una ficha `/venta/[slug]` o
+  `/alquiler/[slug]` de una propiedad oculta no encuentra fila y redirige a la grilla.
+- Como `where active` excluye también `NULL`, en el admin sólo `active === true` cuenta
+  como visible. No usar `!== false`: dejaría una fila NULL marcada como publicada cuando
+  el sitio no la muestra.
+- El listado `/admin/propiedades/` ya **no** filtra por `active`: muestra todas, marca las
+  ocultas (foto en gris, borde punteado, badge "Oculta al público") y tiene un filtro
+  Todas / Visibles / Ocultas que se recuerda en `localStorage`.
+- Se cambia desde dos lugares: el botón `Ocultar` / `Mostrar` de cada card (PATCH directo,
+  1 click) y la casilla "Visible en el sitio público" arriba del formulario de edición.
+
 ---
 
 ## Modelo de datos — tabla `properties` en Supabase
@@ -133,6 +149,6 @@ unit_count     int    -- cantidad de UFs
 max_guests     int
 matterport_url text
 sort_order     int
-active         bool
+active         bool   -- visibilidad pública; false = guardada pero fuera del sitio
 created_at / updated_at timestamptz
 ```

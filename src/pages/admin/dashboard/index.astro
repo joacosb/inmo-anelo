@@ -11,6 +11,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
 });
 
 let propStats = { available: 0, partial: 0, occupied: 0, total: 0 };
+let hiddenCount = 0;
 let homepageStats = { active: 0, total: 0 };
 
 let saleStats = { available: 0, reserved: 0, total: 0 };
@@ -21,6 +22,8 @@ const { data: props } = await sb
   .select('status, active, for_corporate, for_rent, for_sale, sale_status, rent_status');
 if (props) {
   const active = props.filter((p: any) => p.active);
+  // Conservadas en el panel pero fuera del sitio público.
+  hiddenCount = props.length - active.length;
 
   const corp = active.filter((p: any) => p.for_corporate);
   propStats.total     = corp.length;
@@ -87,6 +90,9 @@ try {
     .stat-chip.partial   { background: rgba(234,179,8,.2);  color: #fde68a; border: 1px solid rgba(234,179,8,.3); }
     .stat-chip.occupied  { background: rgba(239,68,68,.2);  color: #fca5a5; border: 1px solid rgba(239,68,68,.3); }
     .stat-chip.neutral   { background: rgba(255,255,255,.1); color: rgba(255,255,255,.7); border: 1px solid rgba(255,255,255,.15); }
+    /* Ocultas: fuera del sitio, pero conservadas. Borde punteado para no
+       confundirlas con el total neutral que va al lado. */
+    .stat-chip.muted     { background: transparent; color: rgba(255,255,255,.55); border: 1px dashed rgba(255,255,255,.3); }
 
     .dash-card-btn {
       display: inline-flex;
@@ -139,6 +145,7 @@ try {
           {propStats.partial > 0 && <span class="stat-chip partial">{propStats.partial} parcial{propStats.partial !== 1 ? 'es' : ''}</span>}
           {propStats.occupied > 0 && <span class="stat-chip occupied">{propStats.occupied} ocupada{propStats.occupied !== 1 ? 's' : ''}</span>}
           <span class="stat-chip neutral">{propStats.total} activa{propStats.total !== 1 ? 's' : ''}</span>
+          {hiddenCount > 0 && <span class="stat-chip muted">{hiddenCount} oculta{hiddenCount !== 1 ? 's' : ''}</span>}
         </div>
         <div>
           <a href="/admin/propiedades/" class="dash-card-btn">Gestionar →</a>
