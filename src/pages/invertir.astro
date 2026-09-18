@@ -19,6 +19,10 @@ try {
 } catch (e: any) {
   console.error('[invertir] Supabase error:', e?.message);
 }
+
+// Sin propiedades visibles, el bloque entero se apaga: si no, quedaría el
+// título "Propiedades disponibles para comprar" sobre una grilla vacía.
+const hayPropiedades = propiedades.length > 0;
 ---
 <Layout
   title="Invertir en Vaca Muerta | Retornos 10-12% en USD - Inmobiliaria Añelo"
@@ -201,6 +205,7 @@ try {
     </div>
   </section>
 
+  {hayPropiedades && (
   <section id="propiedades" class="section-pad on-light">
     <div class="container-site">
       <div class="section-label reveal">Oportunidades de inversión</div>
@@ -281,6 +286,7 @@ try {
 
     </div>
   </section>
+  )}
 
   <!-- FAQ -->
   <section class="faq-section section-pad" id="faq">

@@ -26,6 +26,14 @@ try {
   dbError = e?.message ?? 'Error desconocido';
   console.error('[corporativo] Supabase error:', dbError);
 }
+
+// Una subsección sin propiedades visibles no debe renderizar su encabezado:
+// quedaría el título y la bajada prometiendo una grilla vacía. Ocultar una
+// propiedad desde el admin (`active = false`) la saca de estos arrays, así que
+// vaciar un grupo entero apaga su bloque solo.
+const hayComplejos   = complejos.length > 0;
+const hayEdificios   = edificios.length > 0;
+const hayPropiedades = hayComplejos || hayEdificios;
 ---
 <Layout
   title="Alquiler Corporativo Añelo | Complejos y Edificios Oil & Gas - Inmobiliaria Añelo"
@@ -81,6 +89,7 @@ try {
     </div>
   </div>
 
+  {hayPropiedades && (
   <div class="filter-bar">
     <div class="container-site">
       <label class="filter-toggle">
@@ -90,7 +99,17 @@ try {
       </label>
     </div>
   </div>
+  )}
 
+  {!hayPropiedades && (
+  <section class="section-pad on-dark bg-brand-black">
+    <div class="container-site" style="text-align:center;">
+      <p class="section-sub">Por el momento no hay propiedades publicadas en esta sección. Escribinos y te contamos qué tenemos disponible.</p>
+    </div>
+  </section>
+  )}
+
+  {hayComplejos && (
   <section id="secComplejos" class="section-pad on-dark bg-brand-black">
     <div class="container-site">
       <div class="section-label reveal">Complejos de casas</div>
@@ -173,9 +192,12 @@ try {
 
     </div>
   </section>
+  )}
 
   <section id="secEdificios" class="py-16 bg-brand-black on-dark border-t border-stone-800/80">
     <div class="container-site">
+      {hayEdificios && (
+      <>
       <div class="section-label reveal">Edificios de Departamentos</div>
       <div class="section-title reveal">Edificios <em>Pampa</em></div>
       <div class="gold-divider reveal"></div>
@@ -253,6 +275,8 @@ try {
           </div>
         ))}
       </div>
+      </>
+      )}
       <div style="margin-top:3rem; background:var(--black); border-radius:6px; padding:2.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;">
         <div>
           <h3 style="font-size:1.3rem; font-weight:700; margin-bottom:.5rem; color:var(--white);">¿Tu empresa necesita alojamiento?</h3>
