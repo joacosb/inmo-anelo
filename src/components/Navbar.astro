@@ -41,7 +41,19 @@ const navItemsBase = [
       { href: '/venta/?tipo=casa', label: 'Casas en venta' },
       { href: '/venta/?tipo=departamento', label: 'Departamentos' },
       { href: '/venta/?tipo=terreno', label: 'Terrenos' },
-      { href: '/alquiler/', label: 'Alquiler permanente' },
+    ],
+  },
+  // Alquiler permanente es su propia sección: antes colgaba de "Comprar", que
+  // no corresponde. /alquiler/ usa el mismo ListingsBrowser que /venta/, así
+  // que los ?tipo= funcionan igual.
+  {
+    href: '/alquiler/',
+    label: 'Alquiler Permanente',
+    active: pathname.startsWith('/alquiler/'),
+    sublinks: [
+      { href: '/alquiler/?tipo=casa', label: 'Casas en alquiler' },
+      { href: '/alquiler/?tipo=departamento', label: 'Departamentos' },
+      { href: '/alquiler/?tipo=local', label: 'Locales comerciales' },
     ],
   },
   {
@@ -93,7 +105,7 @@ const navItems = navItemsBase.map((item) => {
     </a>
 
     <!-- Desktop Navigation Links -->
-    <ul class="hidden lg:flex items-center gap-6 xl:gap-8" id="navLinks">
+    <ul class="hidden xl:flex items-center gap-4 2xl:gap-6" id="navLinks">
       {navItems.map((item) => (
         <li class="relative group">
           <div class="flex items-center gap-1">
@@ -149,7 +161,7 @@ const navItems = navItemsBase.map((item) => {
     <!-- Mobile Hamburger Button -->
     <button
       id="hamburgerBtn"
-      class="lg:hidden p-2.5 text-stone-300 hover:text-brand-gold"
+      class="xl:hidden p-2.5 text-stone-300 hover:text-brand-gold"
       aria-label="Abrir menú de navegación"
     >
       <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,7 +173,7 @@ const navItems = navItemsBase.map((item) => {
   <!-- Mobile Drawer Menu -->
   <div
     id="mobileDrawer"
-    class="hidden lg:hidden fixed top-[var(--nav-h)] left-0 right-0 max-h-[calc(100vh-var(--nav-h))] overflow-y-auto bg-brand-black border-b border-brand-gold/30 px-6 py-8 space-y-6"
+    class="hidden xl:hidden fixed top-[var(--nav-h)] left-0 right-0 max-h-[calc(100vh-var(--nav-h))] overflow-y-auto bg-brand-black border-b border-brand-gold/30 px-6 py-8 space-y-6"
   >
     {navItems.map((item) => (
       <div class="space-y-2">

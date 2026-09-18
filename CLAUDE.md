@@ -46,7 +46,7 @@ src/
         nueva.astro      — alta de nueva propiedad
       homepage/          — gestión del portafolio destacado
   components/
-    Navbar.astro         — navbar fijo, 100% Tailwind. Alto en --nav-h; menú desktop desde lg:flex
+    Navbar.astro         — navbar fijo, 100% Tailwind. Alto en --nav-h; menú desktop desde xl:flex
     Footer.astro         — pie de página unificado (sin mención de marcas secundarias)
     PropertyCard.astro   — tarjeta modular dark luxury (#242420). Soporta enlaces directos y hideStatus
     ListingsBrowser.astro— buscador de /venta/ y /alquiler/ con filtros oscuros y Leaflet
@@ -92,7 +92,7 @@ scripts/
   - `@layer base { … }` — tokens `:root`, `html`, `body`. El reseteo `* { margin: 0; padding: 0 }` NO se reescribe: ya lo aplica el preflight de Tailwind. Escribirlo fuera de capa anula todos los `p-*`, `m-*`, `mx-auto` y `space-y-*` del sitio.
   - `@layer components { … }` — todos los estilos legacy por clase (`.hero`, `.prop-card`, `.build-*`, etc.), de modo que las utilidades de Tailwind siempre puedan sobrescribirlos.
 - **Alto del navbar**: única fuente de verdad en `--nav-h` (`:root`). Lo consumen `Navbar.astro` (`h-[var(--nav-h)]`), el offset del contenido en `Layout.astro` (`pt-[var(--nav-h)]`), `html { scroll-padding-top }` para los anclas, `.hero` y `.build-sticky`. Nunca hardcodear `70px` / `88px`.
-- **Navbar y Footer son 100% Tailwind**: `Navbar.astro` y `Footer.astro` no dependen de ninguna regla en `global.css` (no existen `.nav-links`, `.nav-logo`, `.footer-top`, etc.). El menú de escritorio aparece a partir de `lg` (1024px); a 768px no entra.
+- **Navbar y Footer son 100% Tailwind**: `Navbar.astro` y `Footer.astro` no dependen de ninguna regla en `global.css` (no existen `.nav-links`, `.nav-logo`, `.footer-top`, etc.). El menú de escritorio aparece a partir de `xl` (1280px). Era `lg` (1024px), pero con seis items (se sumó Alquiler Permanente) el menú quedaba pegado al logo: a 1024px el hueco entre ambos era 0px. Medido, no estimado — abajo de 1280 va la hamburguesa, que ya lista todo.
 - **Un solo ancho de contenido**: `--content-max` (80rem / 1280px). En markup Tailwind se usa `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`; en markup legacy, la clase equivalente `.container-site`. Toda sección de ancho completo lleva un contenedor adentro: la sección pone fondo y padding vertical, el contenedor pone ancho y gutter. Nunca gutters en porcentaje (`padding: 0 8%`), que desalinean respecto del resto de la página.
 - **Superficies**: el sitio es dark luxury y la tipografía legacy (`.section-title`, `.section-sub`, `.section-label`) está pensada para fondo claro. Todo bloque oscuro lleva `on-dark`; todo bloque claro lleva `on-light`. Sin eso, `.section-title` queda `#1B1B18` sobre `#1B1B18` (invisible). El dorado `--color-brand-gold` sólo se usa sobre fondo oscuro: sobre blanco da 2.3:1.
 - **WhatsApp**: una sola identidad en todo el sitio — `--color-wa` / `--color-wa-hover` con texto `--color-wa-ink` (nunca blanco: da 2:1). En Tailwind, `bg-wa text-wa-ink hover:bg-wa-hover`.
@@ -107,6 +107,11 @@ scripts/
   - **Lotes e Inversión**: `/venta/?tipo=terreno`
 
 ## Venta y Alquiler Permanente (`/venta/`, `/alquiler/`)
+
+- **Alquiler permanente es una sección propia del navbar**, no un sublink de "Comprar" (alquilar
+  no es comprar). Sus sublinks usan `?tipo=` igual que venta, porque ambas páginas montan el
+  mismo `ListingsBrowser`. No se filtran por contenido: si no hay resultados, el buscador ya
+  muestra su propio estado vacío.
 
 - Ambas páginas están envueltas en el contenedor oscuro `bg-brand-black` para continuidad visual con el hero y la navbar.
 - **`ListingsBrowser.astro`**: Filtros en panel elevado `#242420` con bordes dorados y tarjetas dark luxury.
