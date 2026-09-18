@@ -1,4 +1,7 @@
 ---
+// SSR: el navbar decide sus sublinks según lo que haya publicado, y
+// prerenderizar congelaría esa decisión en el momento del build.
+export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 import SectionHeader from '../components/ui/SectionHeader.astro';
 import Button from '../components/ui/Button.astro';

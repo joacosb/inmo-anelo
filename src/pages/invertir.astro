@@ -3,6 +3,7 @@ export const prerender = false;
 
 import Layout from '../layouts/Layout.astro';
 import { supabase, PUBLIC_TABLE, statusClass, zoneLabel } from '../lib/supabase';
+import { INVERSION_OR } from '../lib/site-content';
 import type { Property } from '../lib/supabase';
 
 let propiedades: any[] = [];
@@ -11,7 +12,7 @@ try {
   const { data, error } = await supabase
     .from(PUBLIC_TABLE)
     .select('*')
-    .or('name.ilike.%Abedules%,name.ilike.%Hondarribia%,name.ilike.%Pampa II%')
+    .or(INVERSION_OR)   // misma lista que usa el navbar para decidir si enlazar acá
     .eq('active', true)
     .order('sort_order');
   if (error) throw error;

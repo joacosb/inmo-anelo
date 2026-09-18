@@ -1,11 +1,19 @@
 ---
+import { getSiteContent } from '../lib/site-content';
+
 export interface Props {
   pathname: string;
 }
 
 const { pathname } = Astro.props;
 
-const navItems = [
+// Memoizado por request en el middleware. Las páginas prerenderizadas no pasan
+// por ahí, así que caemos a la consulta directa (en build time, en ese caso).
+const { destinoVacio } = Astro.locals.siteContent
+  ? await Astro.locals.siteContent()
+  : await getSiteContent();
+
+const navItemsBase = [
   {
     href: '/',
     label: 'Inicio',
@@ -52,6 +60,21 @@ const navItems = [
     active: pathname === '/nosotros/',
   },
 ];
+
+/*
+ * Un sublink a una sección que quedó vacía deja al visitante arriba de la
+ * página, sin lo que fue a buscar. Se saca del menú hasta que vuelva a haber
+ * contenido. El link principal del item nunca se toca: /corporativo/ sigue
+ * siendo una página válida aunque una de sus subsecciones esté vacía.
+ *
+ * `sublinks` queda en `undefined` y no en `[]` a propósito: un array vacío es
+ * truthy y dejaría el chevron y el dropdown colgados sin nada adentro.
+ */
+const navItems = navItemsBase.map((item) => {
+  if (!item.sublinks) return item;
+  const sublinks = item.sublinks.filter((sub) => !destinoVacio(sub.href));
+  return { ...item, sublinks: sublinks.length > 0 ? sublinks : undefined };
+});
 ---
 
 <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 h-[var(--nav-h)] bg-brand-black/95 backdrop-blur-xl border-b border-brand-gold/30 transition-all duration-300">

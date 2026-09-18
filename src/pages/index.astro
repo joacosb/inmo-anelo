@@ -5,8 +5,8 @@ import SectionHeader from '../components/ui/SectionHeader.astro';
 import PropertyCard from '../components/PropertyCard.astro';
 import Button from '../components/ui/Button.astro';
 import Badge from '../components/ui/Badge.astro';
-import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_URL, SUPABASE_ANON, PUBLIC_TABLE, getImageUrl, getSrcSet } from '../lib/supabase';
+import { getImageUrl, getSrcSet } from '../lib/supabase';
+import { getSiteContent, cardDest } from '../lib/site-content';
 
 const HERO_BASE = 'https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/hero';
 const heroLaForestada = `${HERO_BASE}/la-forestada.webp`;
@@ -15,14 +15,6 @@ const heroPampaIII    = `${HERO_BASE}/pampa-iii.webp`;
 const heroAurelia     = `${HERO_BASE}/aurelia.webp`;
 
 
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
-
-const DEFAULT_CARDS = [
-  { id:'1', tag:'Unidades Funcionales', name:'Unidades Funcionales', description:'Unidades totalmente equipadas para personal corporativo en Añelo.', cover_image:'/complejo-donostia1.webp', cover_position:'50% 50%', dest_url:'/corporativo/#secComplejos', card_type:'Unidades Funcionales' },
-  { id:'2', tag:'Complejos',            name:'Complejos Residenciales', description:'Complejos residenciales cerrados con todos los servicios incluidos.', cover_image:'/complejo-maria1.webp', cover_position:'50% 50%', dest_url:'/corporativo/#secComplejos', card_type:'Complejos' },
-  { id:'3', tag:'Edificios',            name:'Edificios de Departamentos', description:'Departamentos corporativos en el microcentro de Añelo.', cover_image:'/edificio-pampa3.webp', cover_position:'50% 50%', dest_url:'/corporativo/#secEdificios', card_type:'Edificios' },
-  { id:'4', tag:'Lotes',                name:'Lotes e Inversión', description:'Terrenos urbanizados para desarrollo en Vaca Muerta.', cover_image:'/complejo-yellowstone.webp', cover_position:'50% 50%', dest_url:'/venta/?tipo=terreno', card_type:'Lotes' },
-];
 
 function statusClass(s: string) {
   if (s === 'available') return 'disponible';
@@ -30,48 +22,12 @@ function statusClass(s: string) {
   return 'parcialmente-ocupado';
 }
 
-let homepageCards: any[] = DEFAULT_CARDS;
-try {
-  const { data, error } = await sb.from('homepage_cards').select('*').eq('active', true).order('sort_order');
-  if (!error && data && data.length > 0) homepageCards = data;
-} catch(_) {}
-
-/** Destino de la tarjeta: el de la fila, o el que corresponde a su tipo. */
-function cardDest(card: any): string {
-  if (card.dest_url) return card.dest_url;
-  if (card.card_type === 'Edificios') return '/corporativo/#secEdificios';
-  if (card.card_type === 'Lotes')     return '/venta/?tipo=terreno';
-  return '/corporativo/#secComplejos';
-}
-
-/*
- * Una tarjeta que apunta a una subsección vacía deja al visitante en una página
- * sin lo que le prometimos: desde que se pueden ocultar propiedades (`active`),
- * eso pasa solo. Contamos qué quedó publicado y escondemos las que no llevan a
- * ningún lado. Si la consulta falla no ocultamos nada — ante un error de red es
- * preferible un link flojo antes que un portafolio en blanco.
- */
-let destinoVacio: (dest: string) => boolean = () => false;
-try {
-  const { data, error } = await sb
-    .from(PUBLIC_TABLE)
-    .select('type, for_corporate, for_sale, prop_type, sale_status');
-  if (!error && data) {
-    const hayComplejos = data.some((p: any) => p.for_corporate && p.type === 'complejo');
-    const hayEdificios = data.some((p: any) => p.for_corporate && p.type === 'edificio');
-    // /venta/ saca las vendidas de la grilla, así que acá tampoco cuentan.
-    const hayTerrenos  = data.some((p: any) => p.for_sale && p.prop_type === 'terreno' && p.sale_status !== 'sold');
-
-    destinoVacio = (dest: string) => {
-      if (dest.includes('#secComplejos')) return !hayComplejos;
-      if (dest.includes('#secEdificios')) return !hayEdificios;
-      if (dest.includes('tipo=terreno'))  return !hayTerrenos;
-      return false;
-    };
-  }
-} catch(_) {}
-
-const visibleCards = homepageCards.filter((c: any) => !destinoVacio(cardDest(c)));
+// Las tarjetas ya vienen filtradas: las que apuntan a una sección sin contenido
+// no se muestran (las reglas viven en lib/site-content.ts, que comparte con el
+// navbar). Memoizado por request en el middleware.
+const { homepageCards: visibleCards } = Astro.locals.siteContent
+  ? await Astro.locals.siteContent()
+  : await getSiteContent();
 ---
 <Layout
   title="Inmobiliaria Añelo | Alquiler Corporativo Oil & Gas · Inversión en Vaca Muerta"

@@ -4,7 +4,7 @@
 
 | Capa | Tecnología |
 |---|---|
-| Framework | Astro 5 (output: static + SSR por página con `export const prerender = false`) |
+| Framework | Astro 5 (SSR en todas las páginas — `export const prerender = false`; no queda ninguna prerenderizada) |
 | Adapter | `@astrojs/vercel` — deploy en Vercel |
 | Base de datos | Supabase (PostgreSQL) |
 | Auth admin | Supabase Auth (email/password) |
@@ -20,7 +20,10 @@
 src/
   lib/
     supabase.ts          — cliente Supabase, tipos (Property, etc.), helpers statusClass/zoneLabel
-  middleware.ts          — protege /admin/* con cookie sb_token
+    site-content.ts      — qué secciones tienen contenido publicado; fuente única de las
+                           reglas que apagan bloques, tarjetas y sublinks (fail-open)
+  env.d.ts               — tipos de Astro.locals (siteContent)
+  middleware.ts          — protege /admin/* con cookie sb_token + memo de site-content por request
   pages/
     index.astro          — homepage estática (hero, portafolio directo sin modal, pasos)
     corporativo.astro    — SSR, lee propiedades de Supabase (modal de detalle propio)
@@ -146,9 +149,25 @@ que hacer lo mismo: un `.map()` vacío no oculta el encabezado que lo envuelve.
   nada, porque un link flojo es preferible a un portafolio en blanco por un error de red.
 - `/venta/` y `/alquiler/` no necesitan nada: `ListingsBrowser` ya trae su estado vacío.
 
-Los links del `Navbar.astro` a `#secComplejos` / `#secEdificios` son estáticos y **no**
-siguen esta lógica: si la subsección no existe, el ancla no encuentra destino y el
-visitante queda arriba de `/corporativo/`.
+- `Navbar.astro`: cada sublink del menú (escritorio y mobile) se saca si su destino
+  quedó vacío. Si un item se queda sin ningún sublink, desaparecen el chevron y el
+  desplegable, pero **el link principal nunca se toca**: `/corporativo/` sigue siendo una
+  página válida aunque una subsección esté vacía. `sublinks` se pone en `undefined` y no
+  en `[]`, porque un array vacío es truthy y dejaría el dropdown colgado sin nada adentro.
+
+Las reglas viven en un solo lugar, **`src/lib/site-content.ts`** (`getSiteContent()`), que
+comparten el navbar, la homepage e `/invertir/`. Al agregar una sección enlazable hay que
+sumar su regla ahí, no repetir la condición en cada página.
+
+`src/middleware.ts` memoiza el resultado por request en `Astro.locals.siteContent()`: el
+navbar y la página piden lo mismo y sin eso la home consultaría Supabase dos veces por
+render. Es perezoso, así que una página que no lo use no paga ninguna consulta. Quien lo
+consuma debe tolerar que sea `undefined` (una página prerenderizada no pasa por el
+middleware) y caer a `getSiteContent()`.
+
+Por esto mismo **`contacto.astro` y `nosotros.astro` dejaron de ser prerenderizadas**: eran
+las dos únicas estáticas, y prerenderizarlas congelaba el menú en el estado que la base
+tenía durante el build. Hoy no queda ninguna página prerenderizada.
 
 ---
 
