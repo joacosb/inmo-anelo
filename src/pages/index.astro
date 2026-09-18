@@ -6,7 +6,7 @@ import PropertyCard from '../components/PropertyCard.astro';
 import Button from '../components/ui/Button.astro';
 import Badge from '../components/ui/Badge.astro';
 import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_URL, SUPABASE_ANON, getImageUrl, getSrcSet } from '../lib/supabase';
+import { SUPABASE_URL, SUPABASE_ANON, PUBLIC_TABLE, getImageUrl, getSrcSet } from '../lib/supabase';
 
 const HERO_BASE = 'https://qwhasgdxhvdavnofmisf.supabase.co/storage/v1/object/public/property-images/hero';
 const heroLaForestada = `${HERO_BASE}/la-forestada.webp`;
@@ -35,6 +35,43 @@ try {
   const { data, error } = await sb.from('homepage_cards').select('*').eq('active', true).order('sort_order');
   if (!error && data && data.length > 0) homepageCards = data;
 } catch(_) {}
+
+/** Destino de la tarjeta: el de la fila, o el que corresponde a su tipo. */
+function cardDest(card: any): string {
+  if (card.dest_url) return card.dest_url;
+  if (card.card_type === 'Edificios') return '/corporativo/#secEdificios';
+  if (card.card_type === 'Lotes')     return '/venta/?tipo=terreno';
+  return '/corporativo/#secComplejos';
+}
+
+/*
+ * Una tarjeta que apunta a una subsección vacía deja al visitante en una página
+ * sin lo que le prometimos: desde que se pueden ocultar propiedades (`active`),
+ * eso pasa solo. Contamos qué quedó publicado y escondemos las que no llevan a
+ * ningún lado. Si la consulta falla no ocultamos nada — ante un error de red es
+ * preferible un link flojo antes que un portafolio en blanco.
+ */
+let destinoVacio: (dest: string) => boolean = () => false;
+try {
+  const { data, error } = await sb
+    .from(PUBLIC_TABLE)
+    .select('type, for_corporate, for_sale, prop_type, sale_status');
+  if (!error && data) {
+    const hayComplejos = data.some((p: any) => p.for_corporate && p.type === 'complejo');
+    const hayEdificios = data.some((p: any) => p.for_corporate && p.type === 'edificio');
+    // /venta/ saca las vendidas de la grilla, así que acá tampoco cuentan.
+    const hayTerrenos  = data.some((p: any) => p.for_sale && p.prop_type === 'terreno' && p.sale_status !== 'sold');
+
+    destinoVacio = (dest: string) => {
+      if (dest.includes('#secComplejos')) return !hayComplejos;
+      if (dest.includes('#secEdificios')) return !hayEdificios;
+      if (dest.includes('tipo=terreno'))  return !hayTerrenos;
+      return false;
+    };
+  }
+} catch(_) {}
+
+const visibleCards = homepageCards.filter((c: any) => !destinoVacio(cardDest(c)));
 ---
 <Layout
   title="Inmobiliaria Añelo | Alquiler Corporativo Oil & Gas · Inversión en Vaca Muerta"
@@ -285,6 +322,7 @@ try {
   </section>
 
   <!-- PROPIEDADES PREVIEW -->
+  {visibleCards.length > 0 && (
   <section id="nuestros-complejos" class="py-28 sm:py-36 bg-stone-950 text-white relative border-y border-stone-800/80">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <SectionHeader
@@ -295,13 +333,13 @@ try {
       />
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {homepageCards.map((card: any) => (
+        {visibleCards.map((card: any) => (
           <PropertyCard
             name={card.name}
             type={card.card_type ?? 'Categoría'}
             coverImage={card.cover_image ? getImageUrl(card.cover_image, { width: 640 }) : '/complejo-maria1.webp'}
             coverPosition={card.cover_position ?? '50% 50%'}
-            dest={card.dest_url || (card.card_type === 'Edificios' ? '/corporativo/#secEdificios' : card.card_type === 'Lotes' ? '/venta/?tipo=terreno' : '/corporativo/#secComplejos')}
+            dest={cardDest(card)}
             hideStatus={true}
             noModal={true}
           />
@@ -315,6 +353,7 @@ try {
       </div>
     </div>
   </section>
+  )}
 
   <!-- PASOS -->
   <section id="como-invierto" class="py-28 sm:py-36 bg-brand-black text-white relative">

@@ -129,6 +129,27 @@ scripts/
 - Se cambia desde dos lugares: el botón `Ocultar` / `Mostrar` de cada card (PATCH directo,
   1 click) y la casilla "Visible en el sitio público" arriba del formulario de edición.
 
+#### Bloques que se apagan solos
+
+Ocultar propiedades deja secciones sin contenido, así que los bloques que dependen de
+ellas se condicionan a que su grupo no esté vacío. Al agregar una subsección nueva hay
+que hacer lo mismo: un `.map()` vacío no oculta el encabezado que lo envuelve.
+
+- `/corporativo/`: `#secComplejos` sólo con complejos; el encabezado y la grilla de
+  `#secEdificios` sólo con edificios (la `<section>` sobrevive porque contiene el CTA de
+  cotización). La barra "Filtrar sólo disponibles" sólo si hay algo que filtrar, y sin
+  ninguna propiedad se muestra un mensaje en lugar de una página hueca.
+- `/invertir/`: la sección `#propiedades` desaparece entera.
+- `/` (homepage): cada tarjeta del portafolio se esconde si su destino quedó vacío
+  (`cardDest()` + `destinoVacio()` en `index.astro`), y la sección entera si no queda
+  ninguna. **Es fail-open a propósito**: si la consulta a Supabase falla no se oculta
+  nada, porque un link flojo es preferible a un portafolio en blanco por un error de red.
+- `/venta/` y `/alquiler/` no necesitan nada: `ListingsBrowser` ya trae su estado vacío.
+
+Los links del `Navbar.astro` a `#secComplejos` / `#secEdificios` son estáticos y **no**
+siguen esta lógica: si la subsección no existe, el ancla no encuentra destino y el
+visitante queda arriba de `/corporativo/`.
+
 ---
 
 ## Modelo de datos — tabla `properties` en Supabase
