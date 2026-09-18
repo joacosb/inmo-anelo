@@ -79,8 +79,35 @@ export interface Property {
  * variables todavía no están cargadas; una vez configuradas en Vercel se
  * puede borrar y dejar sólo import.meta.env.
  */
-export const SUPABASE_URL  = import.meta.env.PUBLIC_SUPABASE_URL      ?? 'https://qwhasgdxhvdavnofmisf.supabase.co';
-export const SUPABASE_ANON = import.meta.env.PUBLIC_SUPABASE_ANON_KEY ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw';
+/*
+ * Ojo con `??`: sólo cae al fallback con null/undefined. Una variable definida
+ * pero vacía (o con un valor mal formado) pasaba derecho a `createClient`, que
+ * tira `Invalid supabaseUrl` **al cargar el módulo** — no dentro de un try, no
+ * en una request: al importar. Como medio sitio importa este archivo, eso
+ * devuelve 500 en todas las páginas a la vez. Ya pasó en producción.
+ *
+ * Por eso validamos el valor en vez de sólo chequear que exista, y ante algo
+ * inservible avisamos por consola y seguimos con el fallback: una variable mal
+ * cargada no puede tumbar el sitio entero.
+ */
+function envOr(value: string | undefined, fallback: string): string {
+  return value?.trim() || fallback;
+}
+
+function envUrlOr(value: string | undefined, fallback: string, name: string): string {
+  const v = value?.trim();
+  if (!v) return fallback;
+  try {
+    new URL(v);
+    return v;
+  } catch {
+    console.error(`[supabase] ${name} no es una URL válida (${JSON.stringify(v)}); uso el fallback.`);
+    return fallback;
+  }
+}
+
+export const SUPABASE_URL  = envUrlOr(import.meta.env.PUBLIC_SUPABASE_URL, 'https://qwhasgdxhvdavnofmisf.supabase.co', 'PUBLIC_SUPABASE_URL');
+export const SUPABASE_ANON = envOr(import.meta.env.PUBLIC_SUPABASE_ANON_KEY, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3aGFzZ2R4aHZkYXZub2ZtaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNTI3MTgsImV4cCI6MjA5NDgyODcxOH0.Mj_lqGEtMhipASfO3YuBfVoCJ-f6fybOqLRw8OywCnw');
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 
